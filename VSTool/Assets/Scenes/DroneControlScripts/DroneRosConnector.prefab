@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8688893397351272489
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8688893397351272495}
+  - component: {fileID: 8688893397351272494}
+  - component: {fileID: 8688893397351272492}
+  - component: {fileID: 8688893397351272493}
+  - component: {fileID: 8688893397351272498}
+  - component: {fileID: 3106718499231418204}
+  - component: {fileID: 2369640952504800496}
+  m_Layer: 0
+  m_Name: DroneRosConnector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8688893397351272495
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 771.9871, y: 243.442, z: 25.657722}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8688893397351272494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e3de4199a7fc9748b752dc8c85b357f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Timeout: 3
+  Protocol: 1
+  RosBridgeServerUrl: ws://10.42.0.1:9090
+  ConnectionState: 0
+--- !u!114 &8688893397351272492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c7a89a81f6752345a200d108364faeb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /mavros/global_position/global
+  TimeStep: 0
+--- !u!114 &8688893397351272493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59009742e068802458bdb754f2c62709, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /mavros/global_position/compass_hdg
+  TimeStep: 0
+  orientation: 295.05
+--- !u!114 &8688893397351272498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b887e6dc14e00614da33572542aa1a30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /mavros/imu/data
+  TimeStep: 0
+--- !u!114 &3106718499231418204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 851f407a985164f4aba92129a9666503, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: /zed/right/image_rect_color/compressed/optimized
+  TimeStep: 0
+  material: {fileID: 2100000, guid: f6270eed8acff734bb55d49421fb8ba2, type: 2}
+  projectorMaterial: {fileID: 2100000, guid: 8b30114789acc3046bdf9d2dc3b2b13d, type: 2}
+  width: 672
+  height: 376
+  optimalizeForProjector: 0
+--- !u!114 &2369640952504800496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8688893397351272489}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7b434035a638f4aad385a5818df03e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Topic: 
+  TimeStep: 0
+  material: {fileID: 2100000, guid: f6270eed8acff734bb55d49421fb8ba2, type: 2}
+  projectorMaterial: {fileID: 2100000, guid: 8b30114789acc3046bdf9d2dc3b2b13d, type: 2}
+  width: 672
+  height: 376
+  optimalizeForProjector: 0
+  texture2D: {fileID: 0}
