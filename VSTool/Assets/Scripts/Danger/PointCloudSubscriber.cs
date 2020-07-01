@@ -126,16 +126,6 @@ public class PointCloudSubscriber : MonoBehaviour
 
 	void Update()
 	{
-		foreach(Vector3 item in VectorList){
-			GameObject tmp = new GameObject("tmp");
-			tmp.transform.SetParent(transform);
-			tmp.transform.localPosition = item;
-			Vector3 tmpv = tmp.transform.position;
-			Destroy(tmp);
-			VectorList1.Add(tmpv);
-		}
-		VectorList.Clear();
-
 		if(update_mesh) {
 			update_mesh = false;
 
@@ -474,7 +464,7 @@ public class PointCloudSubscriber : MonoBehaviour
 	}
 		update_mesh = true;
 
-	}
+		
 
-}
+}}
 

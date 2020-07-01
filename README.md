@@ -7,8 +7,12 @@
    git lfs install
    git lfs pull
    ```
- - get third party assets from Unity AssetStore (extract and copy into Assets/Submodules):
-   - [Custom Asset](https://assetstore.unity.com)
-   - Unity Toggle https://github.com/Kalxoznik/Unity-Toggle-controller
-   - Mapbox SDK https://www.mapbox.com/install/unity/
-   - ROSSharp https://github.com/siemens/ros-sharp
+ - Setup:
+   - Install Mapbox SDK from https://www.mapbox.com/install/unity/
+   - Download Unity Toggle https://github.com/Kalxoznik/Unity-Toggle-controller
+   - Copy both Mapbox and Unity into Assets/Submodules
+ - RosSharp Setup:
+   - Download ROSSharp v1.4 source code https://github.com/siemens/ros-sharp/releases/tag/v1.4
+   - Extract and Copy **ros-sharp-1.4\Unity3D\Assets\RosSharp** file into Assets/Submodules
+   - Replace **RosSharp\Scripts\RosBridgeClient\RosCommuncation\RosConnector.cs** with **VSTool\RosReplace\RosConnector.cs**
+ - Open StartMenuScene in Unity Editor
