@@ -15,4 +15,3 @@
    - Download ROSSharp v1.4 source code https://github.com/siemens/ros-sharp/releases/tag/v1.4
    - Extract and Copy **ros-sharp-1.4\Unity3D\Assets\RosSharp** file into Assets/Submodules
    - Replace **RosSharp\Scripts\RosBridgeClient\RosCommuncation\RosConnector.cs** with **VSTool\RosReplace\RosConnector.cs**
- - Open StartMenuScene in Unity Editor
