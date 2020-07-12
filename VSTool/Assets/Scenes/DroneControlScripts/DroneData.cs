@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mapbox.Unity.Map;
 
-class DroneData : AbstractDroneData
+public class DroneData : AbstractDroneData
 {
     private float moveX, moveY, moveZ;
     private float rotate;

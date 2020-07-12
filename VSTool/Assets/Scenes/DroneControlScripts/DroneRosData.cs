@@ -11,7 +11,7 @@ class DroneRosData: AbstractDroneData
     private GlobalPositionSubscriber positionSubs;
     private CompassSubscriber compassSubs;
     private ImuSubscriber imuSubs;
-
+    public bool offset = false;
     private RosSharp.RosBridgeClient.Messages.Imu imuMes;
     private Quaternion pitchRoll;
 
@@ -50,15 +50,16 @@ class DroneRosData: AbstractDroneData
             else
             {
 
-
+                Debug.Log(offset);
 
                 position = Map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(positionMes.latitude, positionMes.longitude), false);
 
                 //set new AltitudeOffset
-                if (Input.GetKeyUp("o"))
+                if (Input.GetKeyUp("o") || offset)
                 {
                     float altitude = (float)positionMes.altitude;
                     PlayerPrefs.SetFloat("AltitudeOffset", (getGroundAltitude() - altitude));
+                    offset = false;
                 }
 
                 float altitudeOffset = PlayerPrefs.GetFloat("AltitudeOffset");
@@ -69,6 +70,7 @@ class DroneRosData: AbstractDroneData
            // Debug.Log("DroneRosData: lat: " + positionMes.latitude + ", lon: " + positionMes.longitude + ", alt: "+ positionMes.altitude + ", compass: " + rotation+ ", UMU eulerAngles: " + pitchRoll.eulerAngles);
         }
     }
+
 
     public override void reset(Vector3 pos, Vector3 rot)
     {

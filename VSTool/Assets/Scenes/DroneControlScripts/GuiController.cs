@@ -47,10 +47,11 @@ public class GuiController : MonoBehaviour
     public GameObject MainCameras;
     public GameObject MapCamera;
 
-    
+    public TMP_InputField RosConnectorIF;
+    public TMP_InputField Topic;
     public static bool isMap = false;
     
-
+    public 
     // Start is called before the first frame update
     void Start()
     {
@@ -69,44 +70,46 @@ public class GuiController : MonoBehaviour
 
 
     // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyUp("b"))
-        {
-            ScreenButtonClick(); 
-        }
+    // void Update()
+    // {
+    //     if (Input.GetKeyUp("b"))
+    //     {
+    //         ScreenButtonClick(); 
+    //     }
 
-        if (Input.GetKeyUp("c"))
-        {
-            ReconnectButtonClick();
-        }
+    //     if (Input.GetKeyUp("c"))
+    //     {
+    //         ReconnectButtonClick();
+    //     }
 
-        if (Input.GetKeyUp("l"))
-        {
-            ShowBuildingsButtonClick();
-        }
+    //     if (Input.GetKeyUp("l"))
+    //     {
+    //         ShowBuildingsButtonClick();
+    //     }
 
-        if (Input.GetKeyUp("m"))
-        {
-            droneController.changeDataSource(1);
-            changeModeIcon();
-        }
+    //     if (Input.GetKeyUp("m"))
+    //     {
+    //         droneController.changeDataSource(1);
+    //         changeModeIcon();
+    //     }
 
-        if (Input.GetKeyUp("s"))
-        {
-            droneController.changeDataSource(0);
-            changeModeIcon();
-        }
+    //     if (Input.GetKeyUp("s"))
+    //     {
+    //         droneController.changeDataSource(0);
+    //         changeModeIcon();
+    //     }
 
-        if (Input.GetKeyUp("r"))
-        {
-            droneController.changeDataSource(2);
-            changeModeIcon();
-        }
+    //     if (Input.GetKeyUp("r"))
+    //     {
+    //         droneController.changeDataSource(2);
+    //         changeModeIcon();
+    //     }
 
+    // }
+
+    public void changeTopic(){
+        PlayerPrefs.SetString("VideoTopic",Topic.text);
     }
-
-
     public void SettingsButtonClick(){
         Settings.SetActive(!Settings.activeSelf);
     }
@@ -273,7 +276,13 @@ public class GuiController : MonoBehaviour
         ShowBuildings.BuildingsHidden = !ShowBuildings.BuildingsHidden;
         // switchButton(ShowBuildingsButton, !ShowBuildings.BuildingsHidden);
     }
+    public void ChangeIP(string value){
+        Debug.Log(RosConnectorIF.text);
+        PlayerPrefs.SetString("RosBridgeURL", RosConnectorIF.text);
+        ReconnectButtonClick();
+    }
 
+    
     public void ReconnectButtonClick()
     {
         droneController.ConnectToRos(); 

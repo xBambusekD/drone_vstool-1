@@ -1,10 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Mapbox.Unity.Map;
-
+using TMPro;
 public class MapController : MonoBehaviour {
     public AbstractMap Map;
+
+    public TMP_InputField MapCenter;
+
+    public Slider MapSizeSlider;
     private bool useSatelliteMap=true;
 
     // Use this for initialization
@@ -15,7 +20,8 @@ public class MapController : MonoBehaviour {
 
         Map.Options.locationOptions.latitudeLongitude = PlayerPrefs.GetString("MapCenter");
         RangeTileProviderOptions options = Map.Options.extentOptions.GetTileProviderOptions() as RangeTileProviderOptions;
-        options.west = options.south = options.north = options.east = PlayerPrefs.GetInt("MapSize");
+        options.west = options.south = options.north = options.east = 5;
+        // options.west = options.south = options.north = options.east = PlayerPrefs.GetInt("MapSize");
         Invoke("AddMeshCollider",1);
         
     }
@@ -30,9 +36,27 @@ public class MapController : MonoBehaviour {
 	void Update () {   
         if (Input.GetKeyUp("v"))
         {
+            changeSource();
+        }
+    }
+
+    public void changeSource(){
             if(useSatelliteMap) Map.ImageLayer.SetLayerSource("mapbox://styles/mapbox/streets-v10");
             else Map.ImageLayer.SetLayerSource("mapbox.satellite");
             useSatelliteMap = !useSatelliteMap;
-        }
+    }
+    public void changeMapCenter(){
+        Map.Options.locationOptions.latitudeLongitude = MapCenter.text;
+        PlayerPrefs.SetString("MapCenter",MapCenter.text);
+        Map.UpdateMap();
+    }
+
+    public void changeMapSize(){
+        Debug.Log(MapSizeSlider.value);
+        Map.Options.locationOptions.latitudeLongitude = PlayerPrefs.GetString("MapCenter");
+        RangeTileProviderOptions options = Map.Options.extentOptions.GetTileProviderOptions() as RangeTileProviderOptions;
+        options.west = options.south = options.north = options.east = (int)MapSizeSlider.value;
+        PlayerPrefs.SetInt("MapSize", (int)MapSizeSlider.value);
+        Map.UpdateMap();
     }
 }

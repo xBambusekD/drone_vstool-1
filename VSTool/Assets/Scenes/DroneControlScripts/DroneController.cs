@@ -79,6 +79,10 @@ public class DroneController : MonoBehaviour {
 
     }
 
+    public void setAltitudeOffset(){
+        positionDataR.offset = true;
+    }
+
     public void ConnectToRos()  // může být voláno z GUI
     {
         GameObject oldRosConnector = rosConnector;

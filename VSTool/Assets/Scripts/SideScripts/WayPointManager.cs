@@ -15,7 +15,7 @@ public class WayPointManager : MonoBehaviour
     void Update()
     {
         float minX = Icon.GetPixelAdjustedRect().width / 2;
-        float maxX = Screen.width*0.81f - minX;
+        float maxX = Screen.width*0.8f - minX;
 
         Vector2 pos = cam.WorldToScreenPoint(Waypoint.position);
 
@@ -27,7 +27,7 @@ public class WayPointManager : MonoBehaviour
                 pos.x = minX;
         }
         pos.x = Mathf.Clamp(pos.x, minX, maxX);
-        pos.y = Mathf.Clamp(pos.y, Icon.GetPixelAdjustedRect().height / 2 +20, Screen.height - Icon.GetPixelAdjustedRect().height / 2);
+        pos.y = Mathf.Clamp(pos.y, Icon.GetPixelAdjustedRect().height / 2 +20, Screen.height*0.96f - Icon.GetPixelAdjustedRect().height / 2);
 
         Icon.transform.position = pos;
 
