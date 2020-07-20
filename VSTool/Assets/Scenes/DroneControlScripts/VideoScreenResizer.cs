@@ -5,6 +5,7 @@ Author: Bc. Kamil Sedlmajer (kamilsedlmajer@gmail.com)
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class VideoScreenResizer : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class VideoScreenResizer : MonoBehaviour
     public int height;
     public float distance;
     public Texture noVideoTexture;
+
+    public Slider FowSlider;
 
     // Start is called before the first frame update
     void Start()
@@ -49,10 +52,27 @@ public class VideoScreenResizer : MonoBehaviour
     }
 
     public void resizeSlider(float newFOV){
-        float videoSizeWhidth = Mathf.Tan((newFOV / 2) * Mathf.Deg2Rad) * 2 * distance;
-        float videoSizeHeight = videoSizeWhidth / width * height;
-
-        transform.localPosition = new Vector3(-1*distance, 0, 0);
-        transform.localScale = new Vector3(videoSizeWhidth, videoSizeHeight, 0.01f);
+        PlayerPrefs.SetInt("CameraFOV", (int)newFOV);
+        FOV = (int)newFOV;
+        resize();
     }
+
+    public void ChangeHeight(float newHeight){
+        PlayerPrefs.SetInt("CameraResHeight", (int)newHeight);
+        height = (int)newHeight;
+        resize();
+    }
+
+        public void ChangeWidth(float newWidth){
+        PlayerPrefs.SetInt("CameraResWidth", (int)newWidth);
+        width = (int)newWidth;
+        resize();
+    }
+
+    public void ChangeDistance(float newDistance){
+        PlayerPrefs.SetFloat("CameraScreenDistance", newDistance);
+        distance = (int)newDistance;
+        resize();
+    }
+    
 }

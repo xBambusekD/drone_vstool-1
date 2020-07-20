@@ -1,21 +1,27 @@
-﻿using System.Collections;
+﻿// A C# program to check if a given point  
+// lies inside a given polygon 
+// Refer https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/ 
+// for explanation of functions onSegment(), 
+// orientation() and doIntersect()  
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System; 
   
 
-public class InsideZoneChecker
+public class InsideZoneChecker :MonoBehaviour
 {
     // Define Infinite (Using INT_MAX  
     // caused overflow problems) 
     static int INF = 10000; 
   
-    public class Point  
+    public class Point2d  
     { 
         public int x; 
         public int y; 
   
-        public Point(int x, int y) 
+        public Point2d(int x, int y) 
         { 
             this.x = x; 
             this.y = y; 
@@ -25,7 +31,7 @@ public class InsideZoneChecker
     // Given three colinear points p, q, r,  
     // the function checks if point q lies 
     // on line segment 'pr' 
-    static bool onSegment(Point p, Point q, Point r)  
+    static bool onSegment(Point2d p, Point2d q, Point2d r)  
     { 
         if (q.x <= Math.Max(p.x, r.x) && 
             q.x >= Math.Min(p.x, r.x) && 
@@ -42,7 +48,7 @@ public class InsideZoneChecker
     // 0 --> p, q and r are colinear 
     // 1 --> Clockwise 
     // 2 --> Counterclockwise 
-    static int orientation(Point p, Point q, Point r)  
+    static int orientation(Point2d p, Point2d q, Point2d r)  
     { 
         int val = (q.y - p.y) * (r.x - q.x) -  
                   (q.x - p.x) * (r.y - q.y); 
@@ -56,8 +62,8 @@ public class InsideZoneChecker
   
     // The function that returns true if  
     // line segment 'p1q1' and 'p2q2' intersect. 
-    static bool doIntersect(Point p1, Point q1,  
-                            Point p2, Point q2)  
+    static bool doIntersect(Point2d p1, Point2d q1,  
+                            Point2d p2, Point2d q2)  
     { 
         // Find the four orientations needed for  
         // general and special cases 
@@ -107,7 +113,7 @@ public class InsideZoneChecker
   
     // Returns true if the point p lies  
     // inside the polygon[] with n vertices 
-    public bool isInside(Point []polygon, int n, Point p) 
+    public bool isInside(Point2d []polygon, int n, Point2d p) 
     { 
         // There must be at least 3 vertices in polygon[] 
         if (n < 3)  
@@ -116,7 +122,7 @@ public class InsideZoneChecker
         } 
   
         // Create a point for line segment from p to infinite 
-        Point extreme = new Point(INF, p.y); 
+        Point2d extreme = new Point2d(INF, p.y); 
   
         // Count intersections of the above line  
         // with sides of polygon 

@@ -59,11 +59,11 @@ public class IconManager : MonoBehaviour
             arrow.gameObject.transform.right = middle.position - arrow.gameObject.transform.transform.position;
             arrow.color = img.color;
 
-            float minX = img.GetPixelAdjustedRect().width / 2;
-            float maxX = Screen.width*0.81f - minX;
+            float minX = img.GetPixelAdjustedRect().width / 2 +10;
+            float maxX = Screen.width*0.8f - minX -10;
 
-            float minY = img.GetPixelAdjustedRect().height / 2 +20; // 20 vyska textu vzdialenosti
-            float maxY = Screen.height - img.GetPixelAdjustedRect().height / 2;
+            float minY = img.GetPixelAdjustedRect().height / 2 +30; // 20 vyska textu vzdialenosti
+            float maxY = Screen.height*0.96f - img.GetPixelAdjustedRect().height / 2 -10;
 
             Vector2 pos = cam.WorldToScreenPoint(Drones.drones[i].transform.position);
             
