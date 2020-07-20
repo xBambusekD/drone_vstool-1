@@ -48,30 +48,30 @@ public class DroneController : MonoBehaviour {
         string jsonContent =File.ReadAllText(path);
         bool parse = true;
         Mission mission;
-        try
-        {
-            JsonUtility.FromJson<Mission>(jsonContent);
-        }
-        catch (System.Exception)
-        {
-            parse = false;
-        }
-        if(parse){
-            mission = JsonUtility.FromJson<Mission>(jsonContent);
-            Vector3 pos;
-            Mapbox.Utils.Vector2d p = new Mapbox.Utils.Vector2d(mission.drones[0].latitude,mission.drones[0].longitude);
-            pos = Map.GeoToWorldPosition(p,false);
-            float groundAltitude = Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(pos));
-            pos.y = groundAltitude;
-            positionDataS = new DroneData(Map, pos);
-            positionData = positionDataM = new DroneDataManual(Map, pos);
-            positionDataR = new DroneRosData(Map, pos);
+        // try
+        // {
+        //     JsonUtility.FromJson<Mission>(jsonContent);
+        // }
+        // catch (System.Exception)
+        // {
+        //     parse = false;
+        // }
+        // if(parse){
+        //     mission = JsonUtility.FromJson<Mission>(jsonContent);
+        //     Vector3 pos;
+        //     Mapbox.Utils.Vector2d p = new Mapbox.Utils.Vector2d(mission.drones[0].latitude,mission.drones[0].longitude);
+        //     pos = Map.GeoToWorldPosition(p,false);
+        //     float groundAltitude = Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(pos));
+        //     pos.y = groundAltitude;
+        //     positionDataS = new DroneData(Map, pos);
+        //     positionData = positionDataM = new DroneDataManual(Map, pos);
+        //     positionDataR = new DroneRosData(Map, pos);
 
-        }else{
+        // }else{
             positionDataS = new DroneData(Map, transform.position);
             positionData = positionDataM = new DroneDataManual(Map, transform.position);
             positionDataR = new DroneRosData(Map, transform.position);
-        }
+        // }
 
 
 
