@@ -1,7 +1,7 @@
 # drone_vstool
 
 ## DroCo - Multi-Drone Control Vizualization Tool
-DroCo (VSTool) is a tool for effective drone remote control using mixed reality, that also supports communication and cooperation on a mission with multiple drones. The proposed solution is inspired by the high mental load of the pilot in the control of the drone, especially in the performance of more complex missions (multiple drones, remote target, proximity to infrastructure etc.). The system is based on the extension of the 3D virtual model with real data (augmented virtuality). It uses temporal and spatial registration of:
+[DroCo (VSTool)](https://www.fit.vut.cz/research/product/647/.en) is a tool for effective drone remote control using mixed reality, that also supports communication and cooperation on a mission with multiple drones. The proposed solution is developed by [Robo@FIT, Brno University of Technology](https://www.fit.vut.cz/research/group/robo/.en) research group, and is inspired by the high mental load of the pilot in the control of the drone, especially in the performance of more complex missions (multiple drones, remote target, proximity to infrastructure etc.). The system is based on the extension of the 3D virtual model with real data (augmented virtuality). It uses temporal and spatial registration of:
  1) off-line data (map data, elevation data, 3D building models)
  2) on-line data (video-stream, reconstructed 3D structures, location information, flight data)
  3) virtual control objects (navigation points and directions, spatial areas and geo-fences, position of other drones, distance to nearby objects, preview map, or view from other drones). 
