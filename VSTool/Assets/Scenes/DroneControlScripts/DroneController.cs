@@ -44,10 +44,14 @@ public class DroneController : MonoBehaviour {
     // Use this for initialization
     void Start() {
         // Prvy dron je vzdy ten defaultny
-        string path = Application.streamingAssetsPath + "/mission.json";
-        string jsonContent =File.ReadAllText(path);
-        bool parse = true;
-        Mission mission;
+        //string path = Application.streamingAssetsPath + "/mission.json";
+        //if(File.Exists(path))
+        //{
+        //    string jsonContent = File.ReadAllText(path);
+        //    bool parse = true;
+        //}
+        //Mission mission;
+
         // try
         // {
         //     JsonUtility.FromJson<Mission>(jsonContent);
@@ -69,8 +73,9 @@ public class DroneController : MonoBehaviour {
 
         // }else{
             positionDataS = new DroneData(Map, transform.position);
-            positionData = positionDataM = new DroneDataManual(Map, transform.position);
+            positionDataM = new DroneDataManual(Map, transform.position);
             positionDataR = new DroneRosData(Map, transform.position);
+        positionData = positionDataM;
         // }
 
 
@@ -178,9 +183,9 @@ public class DroneController : MonoBehaviour {
     }
 
         // Update is called once per frame
-        void Update()
+    void Update()
     {
-         positionData.update();
+        positionData.update();
 
         transform.localPosition= positionData.GetPosition();
         transform.localRotation = Quaternion.Euler(positionData.GetRotation());
