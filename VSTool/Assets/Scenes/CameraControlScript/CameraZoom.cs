@@ -20,6 +20,8 @@ public class CameraZoom : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandleCameraInputKeys();
+
         float scroll=0;
 
         /*
@@ -40,6 +42,20 @@ public class CameraZoom : MonoBehaviour
         if ((transform.localPosition.z > -7 || scroll > 0) && (transform.localPosition.z < 0.8f || scroll < 0))
         {
             transform.localPosition = transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
+        }
+    }
+
+    private void HandleCameraInputKeys()
+    {
+        float zoomIn = Input.GetAxis("CameraZoomIn");
+        float zoomOut = Input.GetAxis("CameraZoomOut");
+        if(zoomIn > 0)
+        {
+            transform.localPosition = transform.localPosition + new Vector3(0, 0, zoomIn * 0.2f);
+        }
+        if(zoomOut > 0)
+        {
+            transform.localPosition = transform.localPosition + new Vector3(0, 0, -zoomOut * 0.2f);
         }
     }
 

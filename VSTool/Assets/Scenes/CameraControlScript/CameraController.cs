@@ -27,6 +27,9 @@ public class CameraController : MonoBehaviour {
         // }
         // else
         // {
+
+        HandleCameraInputKeys();
+
             //movement
             float moveVertical = 0;
             float moveHorizontal = 0;
@@ -58,6 +61,14 @@ public class CameraController : MonoBehaviour {
 
 
         // }
+    }
+
+    private void HandleCameraInputKeys()
+    {
+        float moveVertical = Input.GetAxis("CameraRotateY");
+        float moveHorizontal = Input.GetAxis("CameraRotateX");
+        Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
+        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
     }
 
     public void upHold(){
