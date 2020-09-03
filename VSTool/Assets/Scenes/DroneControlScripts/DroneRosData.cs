@@ -50,7 +50,7 @@ class DroneRosData: AbstractDroneData
             else
             {
 
-                Debug.Log(offset);
+                //Debug.Log(offset);
 
                 position = Map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(positionMes.latitude, positionMes.longitude), false);
 

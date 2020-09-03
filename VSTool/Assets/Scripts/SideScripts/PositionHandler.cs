@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RosSharp.RosBridgeClient.Messages;
@@ -21,12 +21,12 @@ public class PositionHandler : MonoBehaviour
 
     private void NewMethod1()
     {
-        transform.position = new Vector3(transform.position.x, Drones.drones[MissionHandler.activeDrone].transform.position.y, transform.position.z);
+        transform.position = new Vector3(transform.position.x, Drones.drones[MissionHandler.activeDrone].DroneGameObject.transform.position.y, transform.position.z);
     }
 
     private void NewMethod()
     {
-        transform.position = Drones.drones[MissionHandler.activeDrone].transform.position;
-        transform.rotation = Drones.drones[MissionHandler.activeDrone].transform.rotation;
+        transform.position = Drones.drones[MissionHandler.activeDrone].DroneGameObject.transform.position;
+        transform.rotation = Drones.drones[MissionHandler.activeDrone].DroneGameObject.transform.rotation;
     }
 }
