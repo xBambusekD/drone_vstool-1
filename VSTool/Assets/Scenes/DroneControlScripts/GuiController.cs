@@ -286,10 +286,18 @@ public class GuiController : MonoBehaviour
         ReconnectButtonClick();
     }
 
+    public void ChangeDrocoServerIP(string value) {
+        // reconnect only if url really changed
+        if (!WebSocketManager.Instance.APIDomainWS.Equals(value)) {
+            Debug.Log("Reconnecting to the DroCo server: " + value);
+            PlayerPrefs.SetString("DrocoServerURL", value);
+            WebSocketManager.Instance.ReconnectToServer(value);
+        }
+    }
     
     public void ReconnectButtonClick()
     {
-        droneController.ConnectToRos(); 
+        droneController.ConnectToRos();
     }
 
     public void DefineAreaButtonClick()

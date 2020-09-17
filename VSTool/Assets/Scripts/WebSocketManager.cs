@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DroCo;
-//using NativeWebSocket;
 using System;
 using System.Text;
 using Newtonsoft.Json;
@@ -27,11 +26,6 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     public DroneFlightDataEventHandler OnDroneDataReceived;
 
     /// <summary>
-    /// ARServer domain or IP address
-    /// </summary>
-    private string serverDomain;
-
-    /// <summary>
     /// Requset id pool
     /// </summary>
     private int requestID = 1;
@@ -43,7 +37,7 @@ public class WebSocketManager : Singleton<WebSocketManager> {
 
 
     private void Start() {
-        ConnectToServer("pcbambusek.fit.vutbr.cz", 5555);
+        ConnectToServer(PlayerPrefs.GetString("DrocoServerURL"));
     }
 
 
@@ -57,17 +51,39 @@ public class WebSocketManager : Singleton<WebSocketManager> {
         return "ws://" + domain + ":" + port.ToString();
     }
 
+    public void ReconnectToServer(string domain, int port) {
+        if (websocket.IsAlive) {
+            websocket.Close();
+        }
+        ConnectToServer(domain, port);
+    }
+
+    public void ReconnectToServer(string wsURI) {
+        if (websocket.IsAlive) {
+            websocket.Close();
+        }
+        ConnectToServer(wsURI);
+    }
+
     public void ConnectToServer(string domain, int port) {
         try {
             APIDomainWS = GetWSURI(domain, port);
+            ConnectToServer(APIDomainWS);
+        } catch (UriFormatException ex) {
+            Debug.LogError(ex);
+        }
+    }
+
+    public void ConnectToServer(string wsURI) {
+        try {
+            APIDomainWS = wsURI;
             websocket = new WebSocket(APIDomainWS);
-            serverDomain = domain;
 
             websocket.OnOpen += OnConnectedWS;
             websocket.OnError += OnErrorWS;
             websocket.OnClose += OnCloseWS;
             websocket.OnMessage += HandleReceivedDataWS;
-            
+
             websocket.Connect();
         } catch (UriFormatException ex) {
             Debug.LogError(ex);
