@@ -32,7 +32,7 @@ public class Drone {
             position3d.y = (float) FlightData.Altitude;
         }
         DroneGameObject.transform.position = position3d;
-        DroneGameObject.transform.eulerAngles = new Vector3((float)FlightData.Pitch, (float)FlightData.Roll + (float)FlightData.Compass, (float)FlightData.Yaw);
+        DroneGameObject.transform.eulerAngles = new Vector3((float)FlightData.Pitch, (float)FlightData.Yaw + (float)FlightData.Compass, (float)FlightData.Roll);
     }
 
 }
