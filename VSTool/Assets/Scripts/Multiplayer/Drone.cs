@@ -27,11 +27,12 @@ public class Drone {
         Vector3 position3d = MapController.Instance.Map.GeoToWorldPosition(mapboxPosition, false);
         if (FlightData.DroneId == "DJI-Mavic2") {
             float groundAltitude = MapController.Instance.Map.QueryElevationInUnityUnitsAt(MapController.Instance.Map.WorldToGeoPosition(position3d));
-            position3d.y = groundAltitude + (float) FlightData.Height;
+            position3d.y = groundAltitude + (float) FlightData.Altitude;
         } else {
-            position3d.y = (float) FlightData.Height;
+            position3d.y = (float) FlightData.Altitude;
         }
         DroneGameObject.transform.position = position3d;
+        DroneGameObject.transform.eulerAngles = new Vector3((float)FlightData.Pitch, (float)FlightData.Roll + (float)FlightData.Compass, (float)FlightData.Yaw);
     }
 
 }

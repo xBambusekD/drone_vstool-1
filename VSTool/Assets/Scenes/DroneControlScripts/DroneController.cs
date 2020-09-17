@@ -238,7 +238,8 @@ public class DroneController : MonoBehaviour {
         if (nextUpdate > droneUpdateInterval) {
             nextUpdate = 0f;
             Vector2d latitudelongitude = Map.WorldToGeoPosition(transform.localPosition);
-            drone.FlightData.SetData(droneAltitude, latitudelongitude.x, latitudelongitude.y);
+            Vector3 rotation = positionData.GetPitchRoll();
+            drone.FlightData.SetData(droneAltitude, latitudelongitude.x, latitudelongitude.y, rotation.x, rotation.y, rotation.z, positionData.GetRotation().y);
             WebSocketManager.Instance.SendDataToServer(JsonUtility.ToJson(drone.FlightData));
         }
         nextUpdate += Time.deltaTime;

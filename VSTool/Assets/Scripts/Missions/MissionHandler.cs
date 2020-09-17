@@ -338,7 +338,7 @@ public class MissionHandler : Singleton<MissionHandler>
                                 Mapbox.Utils.Vector2d mapboxPosition = new Mapbox.Utils.Vector2d(jsonData.Latitude,jsonData.Longitude);
                                 position3d = Map.GeoToWorldPosition(mapboxPosition,false);
                                 groundAltitude = Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(position3d));
-                                position3d.y = groundAltitude + (float)jsonData.Height;
+                                position3d.y = groundAltitude + (float)jsonData.Altitude;
                                 Drones.drones[i].DroneGameObject.transform.position = position3d;
                             }
                             else 

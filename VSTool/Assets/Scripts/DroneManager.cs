@@ -21,7 +21,7 @@ public class DroneManager : Singleton<DroneManager> {
         Mapbox.Utils.Vector2d mapboxPosition = new Mapbox.Utils.Vector2d(flightData.Latitude, flightData.Longitude);
         Vector3 position3d = MapController.Instance.Map.GeoToWorldPosition(mapboxPosition, false);
         //float groundAltitude = MapController.Instance.Map.QueryElevationInUnityUnitsAt(MapController.Instance.Map.WorldToGeoPosition(position3d));
-        position3d.y = (float) flightData.Height;
+        position3d.y = (float) flightData.Altitude;
 
         GameObject Clone = Instantiate(newDrone, position3d, ourDrone.rotation);
         Clone.name = "DroneObject" + droneNumber.ToString();
@@ -52,20 +52,32 @@ public class DroneManager : Singleton<DroneManager> {
 [Serializable]
 public class DroneFlightData {
     public string DroneId;
-    public double Height;
+    public double Altitude;
     public double Latitude;
     public double Longitude;
+    public double Pitch;
+    public double Roll;
+    public double Yaw;
+    public double Compass;
 
     public DroneFlightData() {
         DroneId = "unset";
-        Height = 0;
+        Altitude = 0;
         Latitude = 0;
         Longitude = 0;
+        Pitch = 0;
+        Roll = 0;
+        Yaw = 0;
+        Compass = 0;
     }
 
-    public void SetData(double height, double latitude, double longitute) {
-        Height = height;
+    public void SetData(double height, double latitude, double longitute, double pitch, double roll, double yaw, double compass) {
+        Altitude = height;
         Latitude = latitude;
         Longitude = longitute;
+        Pitch = pitch;
+        Roll = roll;
+        Yaw = yaw;
+        Compass = compass;
     }
 }
