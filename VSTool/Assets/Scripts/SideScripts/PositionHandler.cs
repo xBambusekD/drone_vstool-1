@@ -13,10 +13,10 @@ public class PositionHandler : MonoBehaviour
             Invoke("NewMethod",1);
             RosSharp.RosBridgeClient.GlobalPositionSubscriber.MessageRecieved = false;
         }
-        if (Input.GetKeyUp("o"))
-        {
-            Invoke("NewMethod1",1);
-        }
+        // if (Input.GetKeyUp("o"))
+        // {
+        //     Invoke("NewMethod1",1);
+        // }
     }
 
     private void NewMethod1()
@@ -28,5 +28,6 @@ public class PositionHandler : MonoBehaviour
     {
         transform.position = Drones.drones[MissionHandler.activeDrone].transform.position;
         transform.rotation = Drones.drones[MissionHandler.activeDrone].transform.rotation;
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x,transform.eulerAngles.y-90,transform.eulerAngles.z);
     }
 }

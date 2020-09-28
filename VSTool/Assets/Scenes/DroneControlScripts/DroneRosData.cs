@@ -49,13 +49,10 @@ class DroneRosData: AbstractDroneData
             }
             else
             {
-
-                Debug.Log(offset);
-
                 position = Map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(positionMes.latitude, positionMes.longitude), false);
 
                 //set new AltitudeOffset
-                if (Input.GetKeyUp("o") || offset)
+                if (offset)
                 {
                     float altitude = (float)positionMes.altitude;
                     PlayerPrefs.SetFloat("AltitudeOffset", (getGroundAltitude() - altitude));
