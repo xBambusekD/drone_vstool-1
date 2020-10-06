@@ -13,7 +13,7 @@ using Unity.Collections;
 
 public class PointCloudSubscriber : MonoBehaviour
 {
-	public string uri = "ws://192.168.56.101:9090";
+	public string uri = "ws://192.168.1.15:9090";
 	private RosSocket rosSocket;
 	string subscriptionId = "";
 	string subscription2Id = "";
@@ -24,7 +24,7 @@ public class PointCloudSubscriber : MonoBehaviour
 
 
 	int ci;
-	int MaxVerts = 7000;
+	int MaxVerts = 3000;
 	int objcount = 0;
 
 	private MeshFilter meshFilter1;

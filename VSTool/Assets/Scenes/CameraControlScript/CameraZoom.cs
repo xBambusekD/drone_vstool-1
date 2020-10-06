@@ -15,8 +15,6 @@ public class CameraZoom : MonoBehaviour
 
     private bool zoom;
     private bool unzoom;
-    public GameObject drone;
-
     // Update is called once per frame
     void Update()
     {
