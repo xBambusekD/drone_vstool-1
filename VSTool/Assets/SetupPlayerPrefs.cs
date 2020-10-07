@@ -18,6 +18,8 @@ public class SetupPlayerPrefs : MonoBehaviour
 
     public TMP_InputField Topic;
 
+    public TMP_InputField offset;
+
     public Slider MapSize;
     // Start is called before the first frame update
     void Start()
@@ -45,5 +47,6 @@ public class SetupPlayerPrefs : MonoBehaviour
         CameraResWidth.value = PlayerPrefs.GetInt("CameraResWidth");
         CameraScreenDistance.value = PlayerPrefs.GetFloat("CameraScreenDistance");
         Topic.text = PlayerPrefs.GetString("VideoTopic");
+        offset.text = PlayerPrefs.GetFloat("AltitudeOffset").ToString();
     }
 }

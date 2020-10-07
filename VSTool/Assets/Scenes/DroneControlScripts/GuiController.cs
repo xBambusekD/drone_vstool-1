@@ -14,11 +14,14 @@ public class GuiController : MonoBehaviour
 {
     //public GameObject videoScreen;
     //public GameObject videoProjector;
+    public PointCloudSubscriber PointCloudSubscriber;
     public GameObject Settings;
     public GameObject MissionHandler;
     public GameObject HomePoint;
     public GameObject WayPoint;
     public AbstractMap Map;
+
+    public GameObject OctreeGenerator;
 
     public GameObject droneObject; // potřebuju kvůli získání odkazu na connector
     public GameObject Navigation;
@@ -48,6 +51,8 @@ public class GuiController : MonoBehaviour
 
     public TMP_InputField RosConnectorIF;
     public TMP_InputField Topic;
+
+    public TMP_InputField altitudeOffset;
     public static bool isMap = false;
     
     // Start is called before the first frame update
@@ -65,7 +70,9 @@ public class GuiController : MonoBehaviour
         ScreenButtonClick(); //vypnu screen,v defaultu je totiz zapnuty
     }
 
-
+    public void changeAltitudeOffset(){
+        PlayerPrefs.SetFloat("AltitudeOffset", float.Parse(altitudeOffset.text));
+    }
 
     // Update is called once per frame
     // void Update()
@@ -284,6 +291,7 @@ public class GuiController : MonoBehaviour
         Debug.Log(RosConnectorIF.text);
         PlayerPrefs.SetString("RosBridgeURL", RosConnectorIF.text);
         ReconnectButtonClick();
+        PointCloudSubscriber.SetupConnection();
     }
 
     

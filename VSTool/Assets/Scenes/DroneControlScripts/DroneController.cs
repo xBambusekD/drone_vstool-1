@@ -32,6 +32,8 @@ public class DroneController : MonoBehaviour {
     public GameObject videoScreen;
     public GameObject videoProjector;
 
+    public TMP_InputField altitudeOffsetIF;
+
     public bool isProjectorActive = false;
     public bool isVideoScreenActive = true;
 
@@ -81,6 +83,12 @@ public class DroneController : MonoBehaviour {
 
     public void setAltitudeOffset(){
         positionDataR.offset = true;
+        Invoke("updateAltitudeOffset",0.1f);
+    }
+
+    private void updateAltitudeOffset()
+    {
+        altitudeOffsetIF.text = PlayerPrefs.GetFloat("AltitudeOffset").ToString();
     }
 
     public void ConnectToRos()  // může být voláno z GUI
