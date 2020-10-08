@@ -7,39 +7,40 @@ using Random=UnityEngine.Random;
 using sensor_msgs = RosSharp.RosBridgeClient.Messages.Sensor;
 using System.IO;
 using Object = UnityEngine.Object;
+using System.Linq;
+using Unity.Jobs;
+using Unity.Collections;
 
-[RequireComponent(typeof (RosConnector))]
-[RequireComponent(typeof (MeshFilter))]
 public class PointCloudSubscriber : MonoBehaviour
 {
-	public Transform parent;
-	private List<Vector3> VectorList;
-	public static List<Vector3> VectorList1;
-	public string uri = "ws://192.168.56.101:9090";
+	public string uri = "ws://192.168.1.15:9090";
 	private RosSocket rosSocket;
 	string subscriptionId = "";
+	string subscription2Id = "";
+
 
 	public RgbPoint3[] Points;
-
-	//Mesh components
-	Mesh mesh;
-	Vector3[] vertices;
-	int[] triangles;
-	int[] newtrigs;
 	Vector3[] newverts;
-	Vector3[] tempverts;
-	Color[] colors; 
 
 
-	int[] choise;
-	int index; 
 	int ci;
+	int MaxVerts = 3000;
+	int objcount = 0;
 
-	private bool update_mesh = false;
-	// PointOctree<GameObject> pointTree;
-	// BoundsOctree<GameObject> boundsTree;
+	private MeshFilter meshFilter1;
+	private Vector3[] vertices;
+	private int[] triangles;
 
- public class RgbPoint3
+	private Color[] colors;
+	private long ProcessedClouds = 0;
+
+	private long LastNumberOfClouds = 0;
+
+	List<GameObject> MeshGOList = new List<GameObject>();
+
+	private long layer = 0;
+
+ 	public class RgbPoint3
     {
         public float x;
         public float y;
@@ -52,7 +53,6 @@ public class PointCloudSubscriber : MonoBehaviour
             {
                 byte[] slice = new byte[field.count * 4];
                 Array.Copy(bytes, field.offset, slice, 0, field.count * 4);
-
                 switch (field.name)
                 {
                     case "x":
@@ -90,381 +90,256 @@ public class PointCloudSubscriber : MonoBehaviour
             rgb[0] = Convert.ToInt16(bytes[0]);
             rgb[1] = Convert.ToInt16(bytes[1]);
             rgb[2] = Convert.ToInt16(bytes[2]);
-            return rgb;
+
+			return rgb;
         }
     }
+	
 
 	// Start is called before the first frame update
 	void Start()
 	{
-
-		VectorList = new List<Vector3>();
-		VectorList1 = new List<Vector3>();
-		
-		mesh = new Mesh(); 
-		GetComponent<MeshFilter>().mesh = mesh;
-
-		//CreateShape();
-		//UpdateMesh();
-
-		//mesh.vertices = newVertices;
-		//mesh.uv = newUV;
-		//mesh.triangles = newTriangles;
-
-
-
-
-	        Debug.Log("RosSocket Initialization!!!");
-		//RosSocket rosSocket = new RosSocket("ws://147.229.14.150:9090");
 		rosSocket = new RosSocket(new  RosSharp.RosBridgeClient.Protocols.WebSocketNetProtocol(uri)); // 10.189.42.225:9090
-		//Subscribe("/cloud");
-		//Subscribe("/zed/rtabmap/cloud_map");
-		Subscribe("/octomap_point_cloud_centers");
+		Subscribe("/zed/rtabmap/octomap_occupied_space");
 	}
-
-
-
-	void Update()
-	{
-		if(update_mesh) {
-			update_mesh = false;
-
-			//CreateShape();
-			UpdateMesh();
+	void Update(){
+		if(createGO){
+			createGO = false;
+			GameObject newMeshGameObject = new GameObject("MeshObject");
+			newMeshGameObject.AddComponent<MeshFilter>();
+			newMeshGameObject.AddComponent<MeshRenderer>();
+			newMeshGameObject.transform.SetParent(transform);
+			newMeshGameObject.transform.localPosition =new Vector3(0,0,0);	
+			newMeshGameObject.transform.localEulerAngles = new Vector3(0,0,0);
+			newMeshGameObject.GetComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+			MeshGOList.Add(newMeshGameObject);		
 		}
 
-	}
-
-
-
-	/*void CreateShape(){
-		//Debug.Log("received one");
-		vertices = new Vector3[(xSize+1)*(zSize+1)];
-
-		for(int i = 0,  z =0; z <= zSize; z++)
-		{
-			for(int x =0; x <= xSize; x++){
-				vertices[i] = new Vector3(x,0,z);
-				i++;
+		if(updateMesh){
+			updateMesh = false;
+			for(int i = 0; i < layer; i++){
+				Mesh mesh = new Mesh();
+				mesh.vertices = vertices2d[i];
+				mesh.triangles = triangles2d[i];
+				mesh.colors = colors2d[i];
+				MeshGOList[i].GetComponent<MeshFilter>().mesh = mesh;
 			}
+
 		}
-		//Debug.Log("received two");
-	}*/
-
-	void UpdateMesh()
-	{
-		//Debug.Log("received three");
-
-		try {
-			mesh.Clear();
-		} catch (Exception e) {
-			Debug.Log(e);
-		}
-		//Debug.Log("received four");
-
-		mesh.vertices = vertices;
-		//mesh.newverts = newverts;
-		mesh.triangles = triangles;
-
 	}
 
-	public void OnDrawGizmos()
-	{
-		Gizmos.color = new Color(1, 0.2F, 0, 0.5F);
-		if(vertices == null)
-			return;
-		for(int i =0; i < vertices.Length; i++)
-	 {
-			Gizmos.DrawSphere(vertices[i], 0.03f);
-			//Gizmos.DrawCube(vertices[i], new Vector3(0.1f, 0.1f, 0.1f));
-			}
-	}
 
 	public void Subscribe(string id)
 	{
 		subscriptionId  = rosSocket.Subscribe<sensor_msgs.PointCloud2>(id, SubscriptionHandler);
 	}
 
-	private IEnumerator WaitForKey()
-	{
-		Debug.Log("Press any key to close...");
+	private bool createGO = false;
+	private bool updateMesh = false;
 
-		while (!Input.anyKeyDown)
-		{
-			yield return null;
-		}
+	private Vector3[][] vertices2d;
+	private int[][] triangles2d;
+	private Color[][] colors2d;
 
-		Debug.Log("Closed");
-		// rosSocket.Close();
-	}
-
-	public int  rndnumber(){
-	//try {
-		int number = Random.Range(0,10);
-		Debug.Log("MMM   " + number);
-			return number;
-	//} catch (Exception e) {
-	//	Debug.Log(e);
-	//}
-	}
-
-
-	//Function that color the cubes
-	public void ColorLayer(int k, int index){
-		for(int i = 0;  i < 8; i++){
-			ci = i + (8*k);
-			if(index==0)
-				colors[ci] = Color.Lerp(Color.green, Color.red, vertices[ci].y);
-			else if(index==1)
-				colors[ci] = Color.Lerp(Color.blue, Color.red, vertices[ci].y);
-			//else if(index==2)
-			//	colors[ci] = Color.Lerp(Color.black, Color.black, vertices[ci].y);
-			else if(index==2)
-				colors[ci] = Color.Lerp(Color.cyan, Color.cyan, vertices[ci].y);
-			//else if(index==4)
-			//	colors[ci] = Color.Lerp(Color.gray, Color.gray, vertices[ci].y);
-			else if(index==3)
-				colors[ci] = Color.Lerp(Color.magenta, Color.magenta, vertices[ci].y);
-			else if(index==4)
-				colors[ci] = Color.Lerp(Color.red, Color.red, vertices[ci].y);
-			else if(index==5)
-				colors[ci] = Color.Lerp(Color.yellow, Color.yellow, vertices[ci].y);
-		}
-	}
 
 	public void SubscriptionHandler(sensor_msgs.PointCloud2 message)
-	{
-		long I = message.data.Length / message.point_step;
-		Debug.Log("Long I   " + I);
-		RgbPoint3[] Points = new RgbPoint3[I];
+	{		
+
+		long NumberOfClouds = message.data.Length / message.point_step;  // Cut the pointcloud to points
+		Debug.Log(NumberOfClouds);
+		if(NumberOfClouds > layer*MaxVerts){
+			layer ++;
+			createGO = true;	
+		}
+
+		RgbPoint3[] Points = new RgbPoint3[NumberOfClouds];
 		byte[] byteSlice = new byte[message.point_step];
 
-		for (long i = 0; i < I; i++)
+		for (long i = 0; i < NumberOfClouds; i++)
 		{
 			Array.Copy(message.data, i * message.point_step, byteSlice, 0, message.point_step);
 			Points[i] = new RgbPoint3(byteSlice, message.fields);
 		}
 
-
-		newverts = new Vector3[I];
-		double[] y_array = new double[I];
-
-		//Assign all PointCloud points to the Vecto3[]
-		for (var i = 0; i < I; i++)
+		newverts = new Vector3[NumberOfClouds];
+		
+		//Assign all PointCloud points to the Vector3[]
+		for (var i = 0; i < NumberOfClouds; i++)
 		{
 			newverts[i] = new Vector3(Points[i].x, Points[i].z ,Points[i].y);
-			y_array[i] = newverts[i].y;
-			VectorList.Add(newverts[i]);
 		}
 
+		vertices2d = new Vector3[layer][];
+		triangles2d = new int[layer][];
+		colors2d = new Color[layer][];
 
-
-		float inc = 0.15f;
-
-		//Assign all the vertices
-		vertices = new Vector3[I*8];
-		int vinc=0;
-		for(int k=0; k < I; k++){
-			for(int i = 0;  i < I*8; i++){
-				if(i==0+vinc){
-				vertices[i] = new Vector3(newverts[k].x - inc, newverts[k].y - inc, newverts[k].z + inc);
+		long arraySize; 
+		for(int l = 0; l < layer; l++){
+			if(l+1 == layer){
+				arraySize = -(layer-1)*MaxVerts + NumberOfClouds;
+			} else {
+				arraySize = MaxVerts;
 			}
-				else if(i==1+vinc){
-				vertices[i] = new Vector3(newverts[k].x - inc, newverts[k].y - inc, newverts[k].z - inc);
-			}
-				else if(i==2+vinc){
-				vertices[i] = new Vector3(newverts[k].x - inc, newverts[k].y + inc, newverts[k].z - inc);
-			}
-				else if(i==3+vinc){
-				vertices[i] = new Vector3(newverts[k].x - inc, newverts[k].y + inc, newverts[k].z + inc);
-			}
-				else if(i==4+vinc){
-				vertices[i] = new Vector3(newverts[k].x + inc, newverts[k].y + inc, newverts[k].z + inc);
-			}
-				else if(i==5+vinc){
-				vertices[i] = new Vector3(newverts[k].x + inc, newverts[k].y + inc, newverts[k].z - inc);
-			}
-				else if(i==6+vinc){
-				vertices[i] = new Vector3(newverts[k].x + inc, newverts[k].y - inc, newverts[k].z - inc);
-			}
-				else if(i==7+vinc){
-				vertices[i] = new Vector3(newverts[k].x + inc, newverts[k].y - inc, newverts[k].z + inc);
-			}
-					
-			}
-			vinc = vinc + 8;
-		}
+			
+			float inc = 0.3f;
+			int vinc = 0;
+			int tris = 0;
+			int vert = 0;
+			int first = l*MaxVerts;
+			int last = l*(int)MaxVerts + (int)arraySize;
+			
+			vertices2d[l] = new Vector3[arraySize*8]; 
+			triangles2d[l]  = new int[36*(last - first)];
+			colors2d[l] = new Color[arraySize*8];
+			
 
 
-
-
-
-		int tris = 0;//36;
-		int vert = 0;//8;
-
-		triangles  = new int[36*I];
-
-
-		//Assign triangules of all the vertices
-		for(int k=0;k<I;k++){
-			for(int i = 0; i < 36; i++){
-				if(i==0){
-					triangles[i + tris] = 0 + vert;
+			for(int k = first; k < last; k++){
+				for(int i = 0; i < (last-first)*8; i++){
+					if(i==0+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x - inc, newverts[k].y - inc, newverts[k].z + inc);
+					}
+					else if(i==1+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x - inc, newverts[k].y - inc, newverts[k].z - inc);
+					}
+					else if(i==2+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x - inc, newverts[k].y + inc, newverts[k].z - inc);
+					}
+					else if(i==3+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x - inc, newverts[k].y + inc, newverts[k].z + inc);
+					}
+					else if(i==4+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x + inc, newverts[k].y + inc, newverts[k].z + inc);
+					}
+					else if(i==5+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x + inc, newverts[k].y + inc, newverts[k].z - inc);
+					}
+					else if(i==6+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x + inc, newverts[k].y - inc, newverts[k].z - inc);
+					}
+					else if(i==7+vinc){
+						vertices2d[l][i] = new Vector3(newverts[k].x + inc, newverts[k].y - inc, newverts[k].z + inc);
+					}
 				}
-				else if(i==1){
-					triangles[i + tris] = 2 + vert;
+				vinc = vinc + 8;
+				for(int i = 0; i < 36; i++){
+					if(i==0){
+						triangles2d[l][i + tris] = 0 + vert;
+					}
+					else if(i==1){
+						triangles2d[l][i + tris] = 2 + vert;
+					}
+					else if(i==2){
+						triangles2d[l][i + tris] = 1 + vert;
+					}
+					else if(i==3){
+						triangles2d[l][i + tris] = 0 + vert;
+					}
+					else if(i==4){
+						triangles2d[l][i + tris] = 3 + vert;
+					}
+					else if(i==5){
+						triangles2d[l][i + tris] = 2 + vert;
+					}
+					else if(i==6){
+						triangles2d[l][i + tris] = 2 + vert;
+					}
+					else if(i==7){
+						triangles2d[l][i + tris] = 3 + vert;
+					}
+					else if(i==8){
+						triangles2d[l][i + tris] = 4 + vert;
+					}
+					else if(i==9){
+						triangles2d[l][i + tris] = 2 + vert;
+					}
+					else if(i==10){
+						triangles2d[l][i + tris] = 4 + vert;
+					}
+					else if(i==11){
+						triangles2d[l][i + tris] = 5 + vert;
+					}
+					else if(i==12){
+						triangles2d[l][i + tris] = 1 + vert;
+					}
+					else if(i==13){
+						triangles2d[l][i + tris] = 2 + vert;
+					}
+					else if(i==14){
+						triangles2d[l][i + tris] = 5 + vert;
+					}
+					else if(i==15){
+						triangles2d[l][i + tris] = 1 + vert;
+					}
+					else if(i==16){
+						triangles2d[l][i + tris] = 5 + vert;
+					}
+					else if(i==17){
+						triangles2d[l][i + tris] = 6 + vert;
+					}
+					else if(i==18){
+						triangles2d[l][i + tris] = 0 + vert;
+					}
+					else if(i==19){
+						triangles2d[l][i + tris] = 7 + vert;
+					}
+					else if(i==20){
+						triangles2d[l][i + tris] = 4 + vert;
+					}
+					else if(i==21){
+						triangles2d[l][i + tris] = 0 + vert;
+					}
+					else if(i==22){
+						triangles2d[l][i + tris] = 4 + vert;
+					}
+					else if(i==23){
+						triangles2d[l][i + tris] = 3 + vert;
+					}
+					else if(i==24){
+						triangles2d[l][i + tris] = 5 + vert;
+					}
+					else if(i==25){
+						triangles2d[l][i + tris] = 4 + vert;
+					}
+					else if(i==26){
+						triangles2d[l][i + tris] = 7 + vert;
+					}
+					else if(i==27){
+						triangles2d[l][i + tris] = 5 + vert;
+					}
+					else if(i==28){
+						triangles2d[l][i + tris] = 7 + vert;
+					}
+					else if(i==29){
+						triangles2d[l][i + tris] = 6 + vert;
+					}
+					else if(i==30){
+						triangles2d[l][i + tris] = 0 + vert;
+					}
+					else if(i==31){
+						triangles2d[l][i + tris] = 6 + vert;
+					}
+					else if(i==32){
+						triangles2d[l][i + tris] = 7 + vert;
+					}
+					else if(i==33){
+						triangles2d[l][i + tris] = 0 + vert;
+					}
+					else if(i==34){
+						triangles2d[l][i + tris] = 1 + vert;
+					}
+					else if(i==35){
+						triangles2d[l][i + tris] = 6 + vert;
+					}
 				}
-				else if(i==2){
-					triangles[i + tris] = 1 + vert;
+				vert+=8;
+				tris+=36;
+				for(int i = 0;  i < 8; i++){
+					ci = i + (8*(k-first));
+					colors2d[l][ci] = new Color32((byte)Points[k].rgb[0],(byte)Points[k].rgb[1],(byte)Points[k].rgb[2],255);
 				}
-				else if(i==3){
-					triangles[i + tris] = 0 + vert;
-				}
-				else if(i==4){
-					triangles[i + tris] = 3 + vert;
-				}
-				else if(i==5){
-					triangles[i + tris] = 2 + vert;
-				}
-				 else if(i==6){
-					triangles[i + tris] = 2 + vert;
-				}
-				else if(i==7){
-					triangles[i + tris] = 3 + vert;
-				}
-				else if(i==8){
-					triangles[i + tris] = 4 + vert;
-				}
-				else if(i==9){
-					triangles[i + tris] = 2 + vert;
-				}
-				else if(i==10){
-					triangles[i + tris] = 4 + vert;
-				}
-				else if(i==11){
-					triangles[i + tris] = 5 + vert;
-				}
-				else if(i==12){
-					triangles[i + tris] = 1 + vert;
-				}
-				else if(i==13){
-					triangles[i + tris] = 2 + vert;
-				}
-				else if(i==14){
-					triangles[i + tris] = 5 + vert;
-				}
-				else if(i==15){
-					triangles[i + tris] = 1 + vert;
-				}
-				else if(i==16){
-					triangles[i + tris] = 5 + vert;
-				}
-				else if(i==17){
-					triangles[i + tris] = 6 + vert;
-				}
-
-				else if(i==18){
-					triangles[i + tris] = 0 + vert;
-				}
-				else if(i==19){
-					triangles[i + tris] = 7 + vert;
-				}
-				else if(i==20){
-					triangles[i + tris] = 4 + vert;
-				}
-				else if(i==21){
-					triangles[i + tris] = 0 + vert;
-				}
-				else if(i==22){
-					triangles[i + tris] = 4 + vert;
-				}
-				else if(i==23){
-					triangles[i + tris] = 3 + vert;
-				}
-				else if(i==24){
-					triangles[i + tris] = 5 + vert;
-				}
-				else if(i==25){
-					triangles[i + tris] = 4 + vert;
-				}
-				else if(i==26){
-					triangles[i + tris] = 7 + vert;
-				}
-				else if(i==27){
-					triangles[i + tris] = 5 + vert;
-				}
-				else if(i==28){
-					triangles[i + tris] = 7 + vert;
-				}
-				else if(i==29){
-					triangles[i + tris] = 6 + vert;
-				}
-				 else if(i==30){
-					triangles[i + tris] = 0 + vert;
-				}
-				else if(i==31){
-					triangles[i + tris] = 6 + vert;
-				}
-				else if(i==32){
-					triangles[i + tris] = 7 + vert;
-				}
-				else if(i==33){
-					triangles[i + tris] = 0 + vert;
-				}
-				else if(i==34){
-					triangles[i + tris] = 1 + vert;
-				}
-				else if(i==35){
-					triangles[i + tris] = 6 + vert;
-				}
-			}
-			vert+=8;
-			tris+=36;
-		}
-
-		colors = new Color[vertices.Length];
-
-		index = 0;
-		ci    = 0;
-	//Arrange array [y] with no repeat values
-		List<double> unique_y = new List<double>();
-		for(int i = 0; i<y_array.Length; i++)
-		{
-			bool found = false;
-			for(int prev=0; prev<i; prev++)
-			{
-				if(y_array[prev] == y_array[i])
-				{
-					found = true;
-					break;
-				}
-			}
-
-			if(!found)
-			{
-				//unique_y.Add(Math.Round(y_array[i],2));
-			unique_y.Add(y_array[i]);
 			}
 		}
-		//Debug.Log("Y_ARRAY   " + y_array.Length);
-		y_array = unique_y.ToArray();
-
-
-	//Color the octree cubes
-	for(int i = 0;  i < y_array.Length; i++){
-		for(int k = 0;  k < I; k++){
-			if(y_array[i]==newverts[k].y){
-				ColorLayer(k,index);
-			}
-		}
-		index++;
-		if(index == 6){
-			index=0;
-		}
+		updateMesh = true;
 	}
-		update_mesh = true;
-
-		
-
-}}
-
+}

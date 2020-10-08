@@ -9,11 +9,35 @@ public class CameraController : MonoBehaviour {
     private bool right = false;
     private bool up = false;
     private bool down = false;
+
+    private bool freeCam = false;
+
+    public GameObject DroneGameObject;
+    public GameObject DroneModel;
 	
 	// Update is called once per frame
 
     public void reset(){
         transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
+    }
+
+    public void SetCokcpitMode()
+    {
+        transform.SetParent(DroneModel.transform);
+        transform.localPosition = new Vector3(0, 0, 0);
+        transform.localEulerAngles = new Vector3(0, -90, 0);
+    }
+
+    public void SetStandardMode()
+    {
+        transform.SetParent(DroneGameObject.transform);
+        transform.localPosition = new Vector3(0, 0, 0);
+        transform.localEulerAngles = new Vector3(0, 0, 0);
+    }
+
+    public void SetFreeMode()
+    {
+        transform.parent = null;
     }
 
 	void Update () {
