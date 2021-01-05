@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +22,7 @@ public class LookAtDrone : MonoBehaviour
         // Camera.LookAt(Drones.drones[i].transform);
         PopUp.SetActive(true);
         Camera PopUpCamera;
-        PopUpCamera = Drones.drones[i].transform.Find("TopCamera").GetComponent<Camera>();
+        PopUpCamera = Drones.drones[i].DroneGameObject.transform.Find("TopCamera").GetComponent<Camera>();
         PopUpCamera.gameObject.SetActive(true);
         PopUpCamera.targetTexture = RenderTexture;
         PopUpCamera.enabled = true;
@@ -34,7 +34,7 @@ public class LookAtDrone : MonoBehaviour
         droneName = transform.GetComponentsInChildren<TextMeshProUGUI>();
         i = Int32.Parse(droneName[0].text.Substring(droneName[0].text.Length -1));
          Camera PopUpCamera;
-        PopUpCamera = Drones.drones[i].transform.Find("TopCamera").GetComponent<Camera>();
+        PopUpCamera = Drones.drones[i].DroneGameObject.transform.Find("TopCamera").GetComponent<Camera>();
         PopUpCamera.gameObject.SetActive(false);
         PopUp.SetActive(false);
     }

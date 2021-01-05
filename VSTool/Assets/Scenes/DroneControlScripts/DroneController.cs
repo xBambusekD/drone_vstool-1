@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mapbox.Unity.Map;
@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using System.IO;
 using RosSharp.RosBridgeClient;
 using TMPro;
+using System;
+using Mapbox.Utils;
 
 //vygeneruju budovy
 /*
@@ -41,13 +43,22 @@ public class DroneController : MonoBehaviour {
      * 2 ROS
      */
 
+    private Drone drone;
+    private float droneUpdateInterval = 0.1f;
+    private float nextUpdate = 0f;
+
     // Use this for initialization
     void Start() {
+
         // Prvy dron je vzdy ten defaultny
-        string path = Application.streamingAssetsPath + "/mission.json";
-        string jsonContent =File.ReadAllText(path);
-        bool parse = true;
-        Mission mission;
+        //string path = Application.streamingAssetsPath + "/mission.json";
+        //if(File.Exists(path))
+        //{
+        //    string jsonContent = File.ReadAllText(path);
+        //    bool parse = true;
+        //}
+        //Mission mission;
+
         // try
         // {
         //     JsonUtility.FromJson<Mission>(jsonContent);
@@ -69,13 +80,17 @@ public class DroneController : MonoBehaviour {
 
         // }else{
             positionDataS = new DroneData(Map, transform.position);
-            positionData = positionDataM = new DroneDataManual(Map, transform.position);
+            positionDataM = new DroneDataManual(Map, transform.position);
             positionDataR = new DroneRosData(Map, transform.position);
+        positionData = positionDataM;
         // }
 
 
 
-        Drones.drones.Add(transform.gameObject);
+        // Generate Unique ID for our drone
+        drone = new Drone(transform.gameObject, new DroneFlightData());
+        drone.FlightData.DroneId = GetUniqueID();
+        Drones.drones.Add(drone);
 
     }
 
@@ -178,9 +193,9 @@ public class DroneController : MonoBehaviour {
     }
 
         // Update is called once per frame
-        void Update()
+    void Update()
     {
-         positionData.update();
+        positionData.update();
 
         transform.localPosition= positionData.GetPosition();
         transform.localRotation = Quaternion.Euler(positionData.GetRotation());
@@ -218,5 +233,32 @@ public class DroneController : MonoBehaviour {
 
 
         if (rosConnector != null) rosConnector.GetComponent<IDroneImageSubscriber>().OptimalizeForProjector = isProjectorActive;
+
+
+        if (nextUpdate > droneUpdateInterval) {
+            nextUpdate = 0f;
+            Vector2d latitudelongitude = Map.WorldToGeoPosition(transform.localPosition);
+            Vector3 rotation = positionData.GetPitchRoll();
+            drone.FlightData.SetData(droneAltitude, latitudelongitude.x, latitudelongitude.y, pitch:rotation.x, roll:rotation.z, yaw:rotation.y + 90f, positionData.GetRotation().y);
+            WebSocketManager.Instance.SendDataToServer(JsonUtility.ToJson(drone.FlightData));
+        }
+        nextUpdate += Time.deltaTime;
+    }
+
+    public static string GetUniqueID() {
+        string key = "ID";
+
+        var random = new System.Random();
+        DateTime epochStart = new System.DateTime(1970, 1, 1, 8, 0, 0, System.DateTimeKind.Utc);
+        double timestamp = (System.DateTime.UtcNow - epochStart).TotalSeconds;
+
+        string uniqueID = Application.systemLanguage                            //Language    
+                + "-" + String.Format("{0:X}", Convert.ToInt32(timestamp))                //Time
+                + "-" + String.Format("{0:X}", Convert.ToInt32(Time.time * 1000000))        //Time in game
+                + "-" + String.Format("{0:X}", random.Next(1000000000));                //random number
+
+        Debug.Log("Generated Unique ID: " + uniqueID);
+
+        return uniqueID;
     }
 }
