@@ -18,6 +18,7 @@ public class SetupPlayerPrefs : MonoBehaviour
     public Slider CameraScreenDistance;
 
     public TMP_InputField Topic;
+    public TMP_InputField OctomapTopic;
 
     public Slider MapSize;
 
@@ -50,6 +51,8 @@ public class SetupPlayerPrefs : MonoBehaviour
             PlayerPrefs.SetString("VideoTopic", "/zed/right/image_rect_color/compressed/optimized");
         if (!PlayerPrefs.HasKey("AltitudeOffset"))
             PlayerPrefs.SetFloat("AltitudeOffset", 0);
+        if (!PlayerPrefs.HasKey("OctomapTopic"))
+            PlayerPrefs.SetString("OctomapTopic", "/zed/rtabmap/octomap_occupied_space");
     }
 
     // Start is called before the first frame update
@@ -65,5 +68,6 @@ public class SetupPlayerPrefs : MonoBehaviour
         CameraResWidth.value = PlayerPrefs.GetInt("CameraResWidth");
         CameraScreenDistance.value = PlayerPrefs.GetFloat("CameraScreenDistance");
         Topic.text = PlayerPrefs.GetString("VideoTopic");
+        OctomapTopic.text = PlayerPrefs.GetString("OctomapTopic");
     }
 }

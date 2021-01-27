@@ -37,6 +37,8 @@ public class DroneController : MonoBehaviour {
     public bool isProjectorActive = false;
     public bool isVideoScreenActive = true;
 
+    public PointCloudSubscriber PointCloudSubscriber;
+
     private int dataSource=1;
     /* 0 simulovaný vstup - náhodný pohyb
      * 1 manuální řízení ovladačem
@@ -110,6 +112,16 @@ public class DroneController : MonoBehaviour {
             oldRosConnector.GetComponent<RosConnector>().Disconnect();
             Destroy(oldRosConnector);
         }
+
+        PointCloudSubscriber.StartOctomapSubscribe(PlayerPrefs.GetString("RosBridgeURL"), PlayerPrefs.GetString("OctomapTopic"));
+    }
+
+    public void ChangeOctomapTopic(string topicName) {
+        PointCloudSubscriber.StartOctomapSubscribe(PlayerPrefs.GetString("RosBridgeURL"), topicName);
+    }
+
+    public void ShowOctomap(bool active) {
+        PointCloudSubscriber.gameObject.SetActive(active);
     }
 
     public void SwitchVideoScreen() //pokud je screen aktivni, tak ho vypne a naopak
@@ -240,7 +252,7 @@ public class DroneController : MonoBehaviour {
             Vector2d latitudelongitude = Map.WorldToGeoPosition(transform.localPosition);
             Vector3 rotation = positionData.GetPitchRoll();
             drone.FlightData.SetData(droneAltitude, latitudelongitude.x, latitudelongitude.y, pitch:rotation.x, roll:rotation.z, yaw:rotation.y + 90f, positionData.GetRotation().y);
-            WebSocketManager.Instance.SendDataToServer(JsonUtility.ToJson(drone.FlightData));
+            WebSocketManager.Instance.SendDataToServer(JsonUtility.ToJson(drone.FlightData), logInfo:false);
         }
         nextUpdate += Time.deltaTime;
     }
