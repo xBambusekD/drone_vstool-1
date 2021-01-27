@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -13,7 +13,6 @@ using Unity.Collections;
 
 public class PointCloudSubscriber : MonoBehaviour
 {
-	public string uri = "ws://192.168.1.15:9090";
 	private RosSocket rosSocket;
 	string subscriptionId = "";
 	string subscription2Id = "";
@@ -40,7 +39,14 @@ public class PointCloudSubscriber : MonoBehaviour
 
 	private long layer = 0;
 
- 	public class RgbPoint3
+    private bool createGO = false;
+    private bool updateMesh = false;
+
+    private Vector3[][] vertices2d;
+    private int[][] triangles2d;
+    private Color[][] colors2d;
+
+    public class RgbPoint3
     {
         public float x;
         public float y;
@@ -96,12 +102,6 @@ public class PointCloudSubscriber : MonoBehaviour
     }
 	
 
-	// Start is called before the first frame update
-	void Start()
-	{
-		rosSocket = new RosSocket(new  RosSharp.RosBridgeClient.Protocols.WebSocketNetProtocol(uri)); // 10.189.42.225:9090
-		Subscribe("/zed/rtabmap/octomap_occupied_space");
-	}
 	void Update(){
 		if(createGO){
 			createGO = false;
@@ -124,23 +124,18 @@ public class PointCloudSubscriber : MonoBehaviour
 				mesh.colors = colors2d[i];
 				MeshGOList[i].GetComponent<MeshFilter>().mesh = mesh;
 			}
-
 		}
 	}
 
+    public void StartOctomapSubscribe(string uri, string topicName) {
+        rosSocket = new RosSocket(new RosSharp.RosBridgeClient.Protocols.WebSocketNetProtocol(uri)); // 10.189.42.225:9090
+        Subscribe(topicName);
+    }
 
 	public void Subscribe(string id)
 	{
 		subscriptionId  = rosSocket.Subscribe<sensor_msgs.PointCloud2>(id, SubscriptionHandler);
 	}
-
-	private bool createGO = false;
-	private bool updateMesh = false;
-
-	private Vector3[][] vertices2d;
-	private int[][] triangles2d;
-	private Color[][] colors2d;
-
 
 	public void SubscriptionHandler(sensor_msgs.PointCloud2 message)
 	{		

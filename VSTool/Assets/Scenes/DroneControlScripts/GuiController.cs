@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Mapbox.Unity.Map;
 using TMPro;
+using Michsky.UI.ModernUIPack;
 
 public class GuiController : MonoBehaviour
 {
@@ -49,6 +50,8 @@ public class GuiController : MonoBehaviour
     public TMP_InputField RosConnectorIF;
     public TMP_InputField Topic;
     public static bool isMap = false;
+
+    public SwitchManager OctomapSwitch;
     
     // Start is called before the first frame update
     void Start()
@@ -63,6 +66,8 @@ public class GuiController : MonoBehaviour
         changeModeIcon();
 
         ScreenButtonClick(); //vypnu screen,v defaultu je totiz zapnuty
+
+        droneController.ShowOctomap(OctomapSwitch.isOn);
     }
 
 
@@ -114,6 +119,12 @@ public class GuiController : MonoBehaviour
     public void changeTopic(){
         PlayerPrefs.SetString("VideoTopic",Topic.text);
     }
+
+    public void ChangeOctomapTopic(string topicName) {
+        PlayerPrefs.SetString("OctomapTopic", topicName);
+        droneController.ChangeOctomapTopic(topicName);
+    }
+
     public void SettingsButtonClick(){
         Settings.SetActive(!Settings.activeSelf);
     }
@@ -134,6 +145,14 @@ public class GuiController : MonoBehaviour
 
         // switchButton(ScreenButton, droneController.isVideoScreenActive);
         // switchButton(ProjectorButton, droneController.isProjectorActive);
+    }
+
+    public void ShowOctomap() {
+        droneController.ShowOctomap(true);
+    }
+
+    public void HideOctomap() {
+        droneController.ShowOctomap(false);
     }
 
     public void ProjecorButtonClick()
