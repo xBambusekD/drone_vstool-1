@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +14,7 @@ public class CameraController : MonoBehaviour {
 
     public GameObject DroneGameObject;
     public GameObject DroneModel;
+    public float CameraSpeed = 0.5f;
 	
 	// Update is called once per frame
 
@@ -69,7 +70,7 @@ public class CameraController : MonoBehaviour {
             if(right)
                 moveHorizontal += 0.5f;
 
-            Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
+            Vector3 rotace = new Vector3(moveVertical * -CameraSpeed, moveHorizontal * CameraSpeed, 0);
 
             //move up 
             // if (transform.localRotation.eulerAngles.x >= 90.0f && transform.localRotation.eulerAngles.x < 180.0f && rotace.x > 0) rotace.x = 0;
@@ -91,7 +92,7 @@ public class CameraController : MonoBehaviour {
     {
         float moveVertical = Input.GetAxis("CameraRotateY");
         float moveHorizontal = Input.GetAxis("CameraRotateX");
-        Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
+        Vector3 rotace = new Vector3(moveVertical * -CameraSpeed, moveHorizontal * CameraSpeed, 0);
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
     }
 

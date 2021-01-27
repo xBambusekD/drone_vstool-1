@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.4
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.40971625, g: 0.4599883, b: 0.5173336, a: 0.4}
+  m_IndirectSpecularColor: {r: 0.44630373, g: 0.48284388, b: 0.5318522, a: 0.4}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3131,6 +3131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DroneGameObject: {fileID: 195406341}
   DroneModel: {fileID: 1175988866}
+  CameraSpeed: 0.06
 --- !u!1 &170076733
 GameObject:
   m_ObjectHideFlags: 0
@@ -36296,6 +36297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c91847f54b530bb498fde791f4dde036, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ZoomSpeed: 0.03
 --- !u!1 &1986796486
 GameObject:
   m_ObjectHideFlags: 0
