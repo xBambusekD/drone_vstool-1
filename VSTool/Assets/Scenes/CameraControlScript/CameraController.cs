@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Michsky.UI.ModernUIPack;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour {
@@ -14,9 +15,13 @@ public class CameraController : MonoBehaviour {
 
     public GameObject DroneGameObject;
     public GameObject DroneModel;
-    public float CameraSpeed = 0.5f;
-	
-	// Update is called once per frame
+    private float CameraSpeed = 0.5f;
+
+    public SliderManager CameraSpeedSlider;
+
+    private void Start() {
+        ChangeCameraSpeed(CameraSpeedSlider.saveValue);
+    }
 
     public void reset(){
         transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
@@ -126,5 +131,9 @@ public class CameraController : MonoBehaviour {
 
     public void rightRelease(){
         right = false;
+    }
+
+    public void ChangeCameraSpeed(float cameraSpeed) {
+        CameraSpeed = cameraSpeed * 0.01f;
     }
 }

@@ -1,12 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using Michsky.UI.ModernUIPack;
 using UnityEngine;
 
 public class CameraZoom : MonoBehaviour
 {
     private bool zoom;
     private bool unzoom;
-    public float ZoomSpeed = 0.2f;
+    private float ZoomSpeed = 0.02f;
+
+    public SliderManager CameraSpeedSlider;
+
+    private void Start() {
+        ChangeCameraSpeed(CameraSpeedSlider.saveValue);
+    }
 
     // Update is called once per frame
     void Update()
@@ -62,5 +69,9 @@ public class CameraZoom : MonoBehaviour
     }
     public void unzoomRelease(){
         unzoom = false;
+    }
+
+    public void ChangeCameraSpeed(float cameraSpeed) {
+        ZoomSpeed = cameraSpeed * 0.01f;
     }
 }
