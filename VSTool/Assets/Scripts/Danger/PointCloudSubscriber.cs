@@ -10,15 +10,16 @@ using Object = UnityEngine.Object;
 using System.Linq;
 using Unity.Jobs;
 using Unity.Collections;
+using Mapbox.Unity.Map;
 
 public class PointCloudSubscriber : MonoBehaviour
 {
 	private RosSocket rosSocket;
 	string subscriptionId = "";
 	string subscription2Id = "";
+    public AbstractMap Map;
 
-
-	public RgbPoint3[] Points;
+    public RgbPoint3[] Points;
 	Vector3[] newverts;
 
 
@@ -47,6 +48,7 @@ public class PointCloudSubscriber : MonoBehaviour
 	private Color[][] colors2d;
 	private RgbPoint3[] lastMessage; 
 	long NumberOfClouds;
+
 	
     [System.Serializable]
 	public class MessegeInfo{
@@ -63,6 +65,11 @@ public class PointCloudSubscriber : MonoBehaviour
 	}
 	[System.Serializable]
 	public class MeshData{
+        public double latitude;
+        public double longitude;
+        public float rotX;
+        public float rotY;
+        public float rotZ;
 		public List<MessegeInfo> Messages;	
 		public MeshData(List<MessegeInfo> list){
 			Messages = list;
@@ -123,10 +130,16 @@ public class PointCloudSubscriber : MonoBehaviour
 			messageInfos.Add(new MessegeInfo(lastMessage[i].x,lastMessage[i].y,lastMessage[i].z,lastMessage[i].rgb[0],lastMessage[i].rgb[1],lastMessage[i].rgb[2]));
 		}
 		MeshData message = new MeshData(messageInfos);
-		string path = Application.dataPath + "/save.json";
-		if(!File.Exists(path)){
-			File.WriteAllText(path,JsonUtility.ToJson(message));
-		}
+        Mapbox.Utils.Vector2d renderPosition = Map.WorldToGeoPosition(transform.position);
+        message.latitude = renderPosition.x;
+        message.longitude = renderPosition.y;
+        Debug.Log(message.latitude);
+        Debug.Log(message.longitude);
+        message.rotX = transform.rotation.eulerAngles.x;
+        message.rotY = transform.rotation.eulerAngles.y;
+        message.rotZ = transform.rotation.eulerAngles.z;
+        string path = Application.dataPath + "/save.json";
+        File.WriteAllText(path, JsonUtility.ToJson(message));
 	}
 
 	// TODO
@@ -138,7 +151,11 @@ public class PointCloudSubscriber : MonoBehaviour
         int NumberOfGO = (CloudsCount / MaxVerts) +1;
         Debug.Log(CloudsCount);
         List<GameObject> MeshGOList = new List<GameObject>();
-
+        GameObject load = new GameObject("Loader");
+        Vector3 position3d = Map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(rosMessege.latitude, rosMessege.longitude));
+        position3d.y = Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(position3d));
+        load.transform.position = position3d;
+        load.transform.eulerAngles = new Vector3(rosMessege.rotX, rosMessege.rotY, rosMessege.rotZ);
         // Generate GameObjects
         for (int i = 0; i < NumberOfGO; i++)
         {
@@ -147,7 +164,7 @@ public class PointCloudSubscriber : MonoBehaviour
             newMeshGameObject.AddComponent<MeshRenderer>();
             newMeshGameObject.AddComponent<MeshCollider>();
             // newMeshGameObject
-            newMeshGameObject.transform.SetParent(transform);
+            newMeshGameObject.transform.SetParent(load.transform);
             newMeshGameObject.transform.localPosition = new Vector3(0, 0, 0);
             newMeshGameObject.transform.localEulerAngles = new Vector3(0, 0, 0);
             newMeshGameObject.transform.gameObject.layer = 11;

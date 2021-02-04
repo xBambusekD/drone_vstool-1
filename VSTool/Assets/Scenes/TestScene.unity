@@ -553,8 +553,8 @@ MonoBehaviour:
   buttonEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 479204375}
-        m_MethodName: MeshUndump
+      - m_Target: {fileID: 938194100}
+        m_MethodName: loadMesh
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -691,7 +691,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &760244336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -704,7 +704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a70532da949bb394ea8157865fe1e8a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uri: ws://192.168.56.101:9090
+  uri: ws://192.168.56.102:9090
   PC2Octree: {fileID: 760244335}
 --- !u!4 &760244337
 Transform:
@@ -714,7 +714,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 760244335}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10, y: 0, z: 0}
+  m_LocalPosition: {x: 142, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -984,8 +984,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfa496638f19e8e46aa7885313bf7c84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uri: ws://192.168.56.101:9090
-  Points: []
 --- !u!4 &938194101
 Transform:
   m_ObjectHideFlags: 0
@@ -994,7 +992,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 938194098}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: 0, z: 0}
+  m_LocalPosition: {x: -61.18, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
