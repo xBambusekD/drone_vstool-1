@@ -25,7 +25,18 @@ SubShader {
         SetTexture [_MainTex] {
             constantColor [_Color]
             Combine previous * constant DOUBLE, previous * constant
-        } 
+        }
+    }
+        Tags { "Queue" = "Overlay+1" }
+
+    Pass
+    {
+        ZWrite Off
+        ZTest Greater
+    }
+    Pass
+    {
+        ZTest Less
     }
 }
  
