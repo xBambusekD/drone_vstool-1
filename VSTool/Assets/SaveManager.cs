@@ -17,7 +17,9 @@ public class SaveManager : MonoBehaviour
         {
             GameObject saveItem = Instantiate(savePrefab);
             saveItem.GetComponentInChildren<TextMeshProUGUI>().text = f.Name;
+            saveItem.transform.localScale = new Vector3(1, 1, 1);
             saveItem.transform.SetParent(savesListGO.transform);
+            saveItem.transform.localScale = new Vector3(1, 1, 1);
         }
 
     }

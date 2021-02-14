@@ -9,7 +9,14 @@ using System;
 
 public class LoadManager : MonoBehaviour
 {
+    public Slider transparencySlider;
     int MaxVerts = 3000;
+    public GameObject LoaderGameObject;
+
+    public void OpenLoader()
+    {
+        LoaderGameObject.SetActive(!LoaderGameObject.activeSelf);
+    }
     public void loadMesh()
     {
         GameObject MapGO = GameObject.Find("Map");
@@ -22,6 +29,8 @@ public class LoadManager : MonoBehaviour
         Debug.Log(CloudsCount);
         List<GameObject> MeshGOList = new List<GameObject>();
         GameObject load = new GameObject("Loader");
+        load.transform.SetParent(GameObject.Find("LoadedObjects").transform);
+        load.layer = 14;
         Vector3 position3d = Map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(rosMessege.latitude, rosMessege.longitude));
         position3d.y = Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(position3d));
         load.transform.position = position3d;
@@ -33,11 +42,12 @@ public class LoadManager : MonoBehaviour
             newMeshGameObject.AddComponent<MeshFilter>();
             newMeshGameObject.AddComponent<MeshRenderer>();
             newMeshGameObject.AddComponent<MeshCollider>();
+            
             // newMeshGameObject
             newMeshGameObject.transform.SetParent(load.transform);
             newMeshGameObject.transform.localPosition = new Vector3(0, 0, 0);
             newMeshGameObject.transform.localEulerAngles = new Vector3(0, 0, 0);
-            newMeshGameObject.transform.gameObject.layer = 11;
+            newMeshGameObject.layer = 14;
             newMeshGameObject.GetComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
             MeshGOList.Add(newMeshGameObject);
         }
@@ -279,6 +289,18 @@ public class LoadManager : MonoBehaviour
 
 
     }
+
+    public void ChangeTransparency()
+    {
+        foreach (Transform child in transform)
+        {
+            foreach (Transform renderObject in child)
+            {
+                renderObject.GetComponent<MeshRenderer>().sharedMaterial.SetFloat("Transparency", transparencySlider.value);
+            }
+        }
+    }
+
 
     [System.Serializable]
     public class MessegeInfo

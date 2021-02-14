@@ -96,7 +96,8 @@ public class PointCloudSubscriber : MonoBehaviour
 				newMeshGameObject.AddComponent<MeshFilter>();
 				newMeshGameObject.AddComponent<MeshRenderer>();
 				newMeshGameObject.AddComponent<MeshCollider>();
-				// newMeshGameObject
+                // newMeshGameObject
+                newMeshGameObject.layer = 8;
 				newMeshGameObject.transform.SetParent(transform);
 				newMeshGameObject.transform.localPosition =new Vector3(0,0,0);	
 				newMeshGameObject.transform.localEulerAngles = new Vector3(0,0,0);
