@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using Mapbox.Unity.Map;
 using System;
+using System.Linq;
 
 public class LoadManager : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class LoadManager : MonoBehaviour
     }
     public void loadMesh()
     {
+        float startTime = Time.realtimeSinceStartup;
         GameObject MapGO = GameObject.Find("Map");
         AbstractMap Map = MapGO.GetComponent<AbstractMap>();
         string path = Application.streamingAssetsPath +"/Saves/"+ transform.GetComponentInChildren<TextMeshProUGUI>().text;
@@ -53,11 +55,12 @@ public class LoadManager : MonoBehaviour
         }
 
         List<MessegeInfo> Points = rosMessege.Messages;
+        long NumberOfClouds = Points.Count;
 
-        Vector3[][] vertices = new Vector3[NumberOfGO][];
-        int[][] triangles = new int[NumberOfGO][];
-        Color[][] colors = new Color[NumberOfGO][];
 
+        float inc = 0.3f;
+        int tris = 0;
+        int vert = 0;
         long arraySize;
         for (int l = 0; l < NumberOfGO; l++)
         {
@@ -69,225 +72,72 @@ public class LoadManager : MonoBehaviour
             {
                 arraySize = MaxVerts;
             }
-
-            float inc = 0.3f;
-            int vinc = 0;
-            int tris = 0;
-            int vert = 0;
-            int first = l * MaxVerts;
-            int last = l * (int)MaxVerts + (int)arraySize;
-
-            vertices[l] = new Vector3[arraySize * 8];
-            triangles[l] = new int[36 * (last - first)];
-            colors[l] = new Color[arraySize * 8];
-
-
-
-            for (int k = first; k < last; k++)
+            Vector3[] vertices = new Vector3[arraySize * 8];
+            int[] triangles = new int[arraySize * 36];
+            Color[] colors = new Color[arraySize * 8];
+            for (int i = 0; i < arraySize; i++)
             {
-                for (int i = 0; i < (last - first) * 8; i++)
-                {
-                    if (i == 0 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x - inc, Points[k].z - inc, Points[k].y + inc);
-                    }
-                    else if (i == 1 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x - inc, Points[k].z - inc, Points[k].y - inc);
-                    }
-                    else if (i == 2 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x - inc, Points[k].z + inc, Points[k].y - inc);
-                    }
-                    else if (i == 3 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x - inc, Points[k].z + inc, Points[k].y + inc);
-                    }
-                    else if (i == 4 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x + inc, Points[k].z + inc, Points[k].y + inc);
-                    }
-                    else if (i == 5 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x + inc, Points[k].z + inc, Points[k].y - inc);
-                    }
-                    else if (i == 6 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x + inc, Points[k].z - inc, Points[k].y - inc);
-                    }
-                    else if (i == 7 + vinc)
-                    {
-                        vertices[l][i] = new Vector3(Points[k].x + inc, Points[k].z - inc, Points[k].y + inc);
-                    }
-                }
-                vinc = vinc + 8;
-                for (int i = 0; i < 36; i++)
-                {
-                    if (i == 0)
-                    {
-                        triangles[l][i + tris] = 0 + vert;
-                    }
-                    else if (i == 1)
-                    {
-                        triangles[l][i + tris] = 2 + vert;
-                    }
-                    else if (i == 2)
-                    {
-                        triangles[l][i + tris] = 1 + vert;
-                    }
-                    else if (i == 3)
-                    {
-                        triangles[l][i + tris] = 0 + vert;
-                    }
-                    else if (i == 4)
-                    {
-                        triangles[l][i + tris] = 3 + vert;
-                    }
-                    else if (i == 5)
-                    {
-                        triangles[l][i + tris] = 2 + vert;
-                    }
-                    else if (i == 6)
-                    {
-                        triangles[l][i + tris] = 2 + vert;
-                    }
-                    else if (i == 7)
-                    {
-                        triangles[l][i + tris] = 3 + vert;
-                    }
-                    else if (i == 8)
-                    {
-                        triangles[l][i + tris] = 4 + vert;
-                    }
-                    else if (i == 9)
-                    {
-                        triangles[l][i + tris] = 2 + vert;
-                    }
-                    else if (i == 10)
-                    {
-                        triangles[l][i + tris] = 4 + vert;
-                    }
-                    else if (i == 11)
-                    {
-                        triangles[l][i + tris] = 5 + vert;
-                    }
-                    else if (i == 12)
-                    {
-                        triangles[l][i + tris] = 1 + vert;
-                    }
-                    else if (i == 13)
-                    {
-                        triangles[l][i + tris] = 2 + vert;
-                    }
-                    else if (i == 14)
-                    {
-                        triangles[l][i + tris] = 5 + vert;
-                    }
-                    else if (i == 15)
-                    {
-                        triangles[l][i + tris] = 1 + vert;
-                    }
-                    else if (i == 16)
-                    {
-                        triangles[l][i + tris] = 5 + vert;
-                    }
-                    else if (i == 17)
-                    {
-                        triangles[l][i + tris] = 6 + vert;
-                    }
-                    else if (i == 18)
-                    {
-                        triangles[l][i + tris] = 0 + vert;
-                    }
-                    else if (i == 19)
-                    {
-                        triangles[l][i + tris] = 7 + vert;
-                    }
-                    else if (i == 20)
-                    {
-                        triangles[l][i + tris] = 4 + vert;
-                    }
-                    else if (i == 21)
-                    {
-                        triangles[l][i + tris] = 0 + vert;
-                    }
-                    else if (i == 22)
-                    {
-                        triangles[l][i + tris] = 4 + vert;
-                    }
-                    else if (i == 23)
-                    {
-                        triangles[l][i + tris] = 3 + vert;
-                    }
-                    else if (i == 24)
-                    {
-                        triangles[l][i + tris] = 5 + vert;
-                    }
-                    else if (i == 25)
-                    {
-                        triangles[l][i + tris] = 4 + vert;
-                    }
-                    else if (i == 26)
-                    {
-                        triangles[l][i + tris] = 7 + vert;
-                    }
-                    else if (i == 27)
-                    {
-                        triangles[l][i + tris] = 5 + vert;
-                    }
-                    else if (i == 28)
-                    {
-                        triangles[l][i + tris] = 7 + vert;
-                    }
-                    else if (i == 29)
-                    {
-                        triangles[l][i + tris] = 6 + vert;
-                    }
-                    else if (i == 30)
-                    {
-                        triangles[l][i + tris] = 0 + vert;
-                    }
-                    else if (i == 31)
-                    {
-                        triangles[l][i + tris] = 6 + vert;
-                    }
-                    else if (i == 32)
-                    {
-                        triangles[l][i + tris] = 7 + vert;
-                    }
-                    else if (i == 33)
-                    {
-                        triangles[l][i + tris] = 0 + vert;
-                    }
-                    else if (i == 34)
-                    {
-                        triangles[l][i + tris] = 1 + vert;
-                    }
-                    else if (i == 35)
-                    {
-                        triangles[l][i + tris] = 6 + vert;
-                    }
-                }
-                vert += 8;
-                tris += 36;
-                for (int i = 0; i < 8; i++)
-                {
-                    int ci = i + (8 * (k - first));
-                    colors[l][ci] = new Color32((byte)Points[k].r, (byte)Points[k].g, (byte)Points[k].b, 255);
-                }
+                vertices[i * 8 + 0] = new Vector3(Points[i + MaxVerts * l].x - inc, Points[i + MaxVerts * l].z - inc, Points[i + MaxVerts * l].y + inc);
+                vertices[i * 8 + 1] = new Vector3(Points[i + MaxVerts * l].x - inc, Points[i + MaxVerts * l].z - inc, Points[i + MaxVerts * l].y - inc);
+                vertices[i * 8 + 2] = new Vector3(Points[i + MaxVerts * l].x - inc, Points[i + MaxVerts * l].z + inc, Points[i + MaxVerts * l].y - inc);
+                vertices[i * 8 + 3] = new Vector3(Points[i + MaxVerts * l].x - inc, Points[i + MaxVerts * l].z + inc, Points[i + MaxVerts * l].y + inc);
+                vertices[i * 8 + 4] = new Vector3(Points[i + MaxVerts * l].x + inc, Points[i + MaxVerts * l].z + inc, Points[i + MaxVerts * l].y + inc);
+                vertices[i * 8 + 5] = new Vector3(Points[i + MaxVerts * l].x + inc, Points[i + MaxVerts * l].z + inc, Points[i + MaxVerts * l].y - inc);
+                vertices[i * 8 + 6] = new Vector3(Points[i + MaxVerts * l].x + inc, Points[i + MaxVerts * l].z - inc, Points[i + MaxVerts * l].y - inc);
+                vertices[i * 8 + 7] = new Vector3(Points[i + MaxVerts * l].x + inc, Points[i + MaxVerts * l].z - inc, Points[i + MaxVerts * l].y + inc);
+                triangles[i * 36 + 0] = 0 + 8 * i;
+                triangles[i * 36 + 1] = 2 + 8 * i;
+                triangles[i * 36 + 2] = 1 + 8 * i;
+                triangles[i * 36 + 3] = 0 + 8 * i;
+                triangles[i * 36 + 4] = 3 + 8 * i;
+                triangles[i * 36 + 5] = 2 + 8 * i;
+                triangles[i * 36 + 6] = 2 + 8 * i;
+                triangles[i * 36 + 7] = 3 + 8 * i;
+                triangles[i * 36 + 8] = 4 + 8 * i;
+                triangles[i * 36 + 9] = 2 + 8 * i;
+                triangles[i * 36 + 10] = 4 + 8 * i;
+                triangles[i * 36 + 11] = 5 + 8 * i;
+                triangles[i * 36 + 12] = 1 + 8 * i;
+                triangles[i * 36 + 13] = 2 + 8 * i;
+                triangles[i * 36 + 14] = 5 + 8 * i;
+                triangles[i * 36 + 15] = 1 + 8 * i;
+                triangles[i * 36 + 16] = 5 + 8 * i;
+                triangles[i * 36 + 17] = 6 + 8 * i;
+                triangles[i * 36 + 18] = 0 + 8 * i;
+                triangles[i * 36 + 19] = 7 + 8 * i;
+                triangles[i * 36 + 20] = 4 + 8 * i;
+                triangles[i * 36 + 21] = 0 + 8 * i;
+                triangles[i * 36 + 22] = 4 + 8 * i;
+                triangles[i * 36 + 23] = 3 + 8 * i;
+                triangles[i * 36 + 24] = 5 + 8 * i;
+                triangles[i * 36 + 25] = 4 + 8 * i;
+                triangles[i * 36 + 26] = 7 + 8 * i;
+                triangles[i * 36 + 27] = 5 + 8 * i;
+                triangles[i * 36 + 28] = 7 + 8 * i;
+                triangles[i * 36 + 29] = 6 + 8 * i;
+                triangles[i * 36 + 30] = 0 + 8 * i;
+                triangles[i * 36 + 31] = 6 + 8 * i;
+                triangles[i * 36 + 32] = 7 + 8 * i;
+                triangles[i * 36 + 33] = 0 + 8 * i;
+                triangles[i * 36 + 34] = 1 + 8 * i;
+                triangles[i * 36 + 35] = 6 + 8 * i;
+                colors[8 * i + 0] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 1] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 2] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 3] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 4] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 5] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 6] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
+                colors[8 * i + 7] = new Color32((byte)Points[i + MaxVerts * l].r, (byte)Points[i + MaxVerts * l].g, (byte)Points[i + MaxVerts * l].b, 255);
             }
-        }
-        for (int i = 0; i < NumberOfGO; i++)
-        {
             Mesh mesh = new Mesh();
-            mesh.vertices = vertices[i];
-            mesh.triangles = triangles[i];
-            mesh.colors = colors[i];
-            MeshGOList[i].GetComponent<MeshFilter>().mesh = mesh;
-            MeshGOList[i].GetComponent<MeshCollider>().sharedMesh = mesh;
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            mesh.colors = colors;
+            MeshGOList[l].GetComponent<MeshFilter>().mesh = mesh;
+            MeshGOList[l].GetComponent<MeshCollider>().sharedMesh = mesh;
         }
-
-
+        Debug.Log(((Time.realtimeSinceStartup - startTime) * 1000f) + "ms");
     }
 
     public void ChangeTransparency()

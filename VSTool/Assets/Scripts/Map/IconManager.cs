@@ -8,7 +8,7 @@ public class IconManager : MonoBehaviour
 {
     public Transform iconTargetTransform;
     public GameObject iconPrefab;
-
+    public Transform firstIcon;
     public Camera cam;
     public Camera defcam;
     public Camera mapcam;
@@ -16,7 +16,7 @@ public class IconManager : MonoBehaviour
     private bool _onScreen;
 
     public GameObject Drone;
-
+    private bool freeCamara;
     public Transform middle;
  
 
@@ -34,7 +34,18 @@ public class IconManager : MonoBehaviour
             icon.gameObject.SetActive(false);
         }
     }
-    
+
+    public void setFreeMode()
+    {
+        Debug.Log("freeset");
+        freeCamara = true;
+    }
+
+    public void unsetFreeMode()
+    {
+        Debug.Log("freeunset");
+        freeCamara = false;
+    }
 
     // Update is called once per frame
     void Update()
@@ -78,11 +89,16 @@ public class IconManager : MonoBehaviour
 
             img.transform.position = pos;
 
-            // // Ziskam text so vzdialenostou
-            TextMeshProUGUI text = child.GetComponentInChildren<TextMeshProUGUI>();
+           
             // Ziskam vzdialenost
             float dist = Vector3.Distance(Drones.drones[0].transform.position,Drones.drones[i].transform.position);
-            text.text = Mathf.Round(dist) + "m";
+            // // Ziskam text so vzdialenostou
+            if (i != 0)
+            {
+                TextMeshProUGUI text = child.GetComponentInChildren<TextMeshProUGUI>();
+                text.text = Mathf.Round(dist) + "m";
+            } else
+                child.GetComponentInChildren<TextMeshProUGUI>().enabled = false;
 
 
             float norm = (dist - minimumDistance) / (maximumDistance - minimumDistance);
@@ -97,7 +113,7 @@ public class IconManager : MonoBehaviour
             _onScreen = cam.pixelRect.Contains( iconPos ) && iconPos.z > cam.nearClipPlane;
             
             // && dist > 20.0
-            if(_onScreen && i!= 0){
+            if(_onScreen && ((i != 0 && !freeCamara) || (i == 0 && freeCamara))){
                 img.enabled = true;
                 arrow.enabled = false;
             } else {
@@ -107,5 +123,6 @@ public class IconManager : MonoBehaviour
             i++;
         }
          i=0;
+
     }
 }

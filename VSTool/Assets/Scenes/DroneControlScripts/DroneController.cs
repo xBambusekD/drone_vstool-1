@@ -31,6 +31,7 @@ public class DroneController : MonoBehaviour {
     public GameObject videoObjects;
     public GameObject videoScreen;
     public GameObject videoProjector;
+    public GameObject videoUI;
 
     public TMP_InputField altitudeOffsetIF;
 
@@ -164,6 +165,8 @@ public class DroneController : MonoBehaviour {
 
         if (source == 2 && dataSource != 2)
         {
+            if(!videoUI.activeSelf)
+                videoUI.SetActive(true);
             Vector3 pos = positionData.GetPosition();
             Vector3 rot = positionData.GetRotation();
             if (rosConnector == null)

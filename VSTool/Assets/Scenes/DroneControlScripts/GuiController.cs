@@ -54,7 +54,8 @@ public class GuiController : MonoBehaviour
 
     public TMP_InputField altitudeOffset;
     public static bool isMap = false;
-    
+
+    public Transform OccupancyHandler;
     // Start is called before the first frame update
     void Start()
     {
@@ -179,6 +180,11 @@ public class GuiController : MonoBehaviour
         //Debug.Log("ModeButtonClick");
         droneController.changeDataSource();
         changeModeIcon();
+    }
+
+    public void EnableOctree()
+    {
+        OccupancyHandler.GetComponent<PointCloudSubscriber>().enabled = !OccupancyHandler.GetComponent<PointCloudSubscriber>().enabled;
     }
 
 

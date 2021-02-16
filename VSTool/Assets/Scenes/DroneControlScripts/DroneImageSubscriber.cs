@@ -2,6 +2,7 @@
 Author: Bc. Kamil Sedlmajer
 */
 
+using System;
 using UnityEngine;
 using UnityEditor.UI;
 using UnityEngine.UI;
@@ -43,7 +44,8 @@ namespace RosSharp.RosBridgeClient
         protected override void Start()
         {
             base.Start();
-            rawImage = GameObject.Find("MainCanvas/VideoMovableWindow/Content/Video").GetComponent<RawImage>();
+            
+            
             texture2D = new Texture2D(width, height); //, TextureFormat.BGRA32, false
             texture2D.wrapMode = TextureWrapMode.Clamp;
 
@@ -57,9 +59,12 @@ namespace RosSharp.RosBridgeClient
                 projectorMaterial.SetTexture("_MainTex", texture2D);
                 projectorMaterial.SetTextureScale("_MainTex", new Vector2(1, 1));
             }
-
+            
             droneRosConnector = gameObject.GetComponent<MyRosConnector>();
+            rawImage = GameObject.Find("MainCanvas/VideoMovableWindow/Content/Video").GetComponent<RawImage>();
             rawImage.texture = texture2D;
+            GameObject.Find("MainCanvas/VideoMovableWindow").SetActive(false);
+
         }
 
         private void Update()
