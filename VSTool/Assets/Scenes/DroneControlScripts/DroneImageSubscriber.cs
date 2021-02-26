@@ -4,7 +4,6 @@ Author: Bc. Kamil Sedlmajer
 
 using System;
 using UnityEngine;
-using UnityEditor.UI;
 using UnityEngine.UI;
 
 namespace RosSharp.RosBridgeClient

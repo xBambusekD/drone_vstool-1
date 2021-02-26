@@ -31,6 +31,7 @@ public class CameraController : MonoBehaviour {
     public GameObject DroneModelGameObject;
     public IconManager Icons;
     public GameObject IconsGO;
+    public GameObject PitchAndScroollGameObject;
 
     public CameraZoom CameraZoom;
     // Update is called once per frame
@@ -69,8 +70,8 @@ public class CameraController : MonoBehaviour {
         DownDangerGameObject.SetActive(cameraBool);
         UPDangerGameObject.SetActive(cameraBool);
         DroneDangerGameObject.SetActive(cameraBool);
-        Buttons.SetActive(!cameraBool);
         CompassGameObject.SetActive(cameraBool);
+        PitchAndScroollGameObject.SetActive(!cameraBool);
     }
     public void SetFreeMode()
     {
