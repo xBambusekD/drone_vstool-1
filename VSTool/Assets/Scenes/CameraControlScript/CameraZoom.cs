@@ -11,10 +11,6 @@ public class CameraZoom : MonoBehaviour
 
     public SliderManager CameraSpeedSlider;
 
-    private void Start() {
-        ChangeCameraSpeed(CameraSpeedSlider.saveValue);
-    }
-
     // Update is called once per frame
     void Update()
     {

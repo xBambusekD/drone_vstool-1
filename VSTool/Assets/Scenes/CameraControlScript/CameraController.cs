@@ -19,10 +19,6 @@ public class CameraController : MonoBehaviour {
 
     public SliderManager CameraSpeedSlider;
 
-    private void Start() {
-        ChangeCameraSpeed(CameraSpeedSlider.saveValue);
-    }
-
     public void reset(){
         transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
     }
