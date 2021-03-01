@@ -4,22 +4,26 @@ using UnityEngine;
 
 public class MeshLoader : MonoBehaviour
 {
-    private Mesh myMesh;
+    public GameObject renderer;
+
     /// <summary>
     /// Creates a binary dump of a mesh
     /// </summary>
-    void MeshDump()
+    public void MeshDump()
     {
+        Mesh myMesh = renderer.transform.GetChild(0).gameObject.GetComponent<MeshFilter>().mesh;
         System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
         System.IO.FileStream fs = new System.IO.FileStream(Application.dataPath + "meshFile.dat", System.IO.FileMode.Create);
         SerializableMeshInfo smi = new SerializableMeshInfo(myMesh);
-        bf.Serialize(fs, smi);
-        fs.Close();
+        // bf.Serialize(fs, smi);
+        // fs.Close();
     }
     /// <summary>
     /// Loads a mesh from a binary dump
     /// </summary>
-    void MeshUndump()
+
+    public GameObject loader;
+    public void MeshUndump()
     {
         if (!System.IO.File.Exists(Application.dataPath + "meshFile.dat"))
         {
@@ -29,7 +33,7 @@ public class MeshLoader : MonoBehaviour
         System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
         System.IO.FileStream fs = new System.IO.FileStream(Application.dataPath + "meshFile.dat", System.IO.FileMode.Open);
         SerializableMeshInfo smi = (SerializableMeshInfo)bf.Deserialize(fs);
-        myMesh = smi.GetMesh();
+        loader.GetComponent<MeshFilter>().mesh = smi.GetMesh();
         fs.Close();
     }
 }

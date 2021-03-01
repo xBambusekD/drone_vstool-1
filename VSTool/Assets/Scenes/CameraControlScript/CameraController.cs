@@ -1,7 +1,8 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour {
     private bool topCameraMode = false;
@@ -11,12 +12,31 @@ public class CameraController : MonoBehaviour {
     private bool up = false;
     private bool down = false;
 
+    private bool leftFree = false;
+    private bool rightFree = false;
+    private bool upFree = false;
+    private bool downFree = false;
+
     private bool freeCam = false;
+    private bool cockpit = false;
 
     public GameObject DroneGameObject;
     public GameObject DroneModel;
-    private float CameraSpeed = 0.5f;
+    public GameObject VideoScreen;
+    public GameObject DownDangerGameObject;
+    public GameObject UPDangerGameObject;
+    public GameObject DroneDangerGameObject;
+    public GameObject VideoUI;
+    public GameObject Buttons;
+    public GameObject CompassGameObject;
+    public GameObject DroneModelGameObject;
+    public IconManager Icons;
+    public GameObject IconsGO;
+    public GameObject PitchAndScroollGameObject;
 
+    public CameraZoom CameraZoom;
+    
+    private float CameraSpeed = 0.5f;
     public SliderManager CameraSpeedSlider;
 
     public void reset(){
@@ -25,21 +45,45 @@ public class CameraController : MonoBehaviour {
 
     public void SetCokcpitMode()
     {
+        Icons.unsetFreeMode();
+        CameraZoom.unsetFreeMode();
+        SetGameObjects(true);
         transform.SetParent(DroneModel.transform);
         transform.localPosition = new Vector3(0, 0, 0);
         transform.localEulerAngles = new Vector3(0, -90, 0);
+        cockpit = true;
     }
 
     public void SetStandardMode()
     {
+        CameraZoom.unsetFreeMode();
+        Icons.unsetFreeMode();
+        SetGameObjects(true);
         transform.SetParent(DroneGameObject.transform);
         transform.localPosition = new Vector3(0, 0, 0);
         transform.localEulerAngles = new Vector3(0, 0, 0);
+        cockpit = false;
     }
 
+    private void SetGameObjects(bool cameraBool)
+    {
+        IconsGO.transform.GetChild(0).gameObject.SetActive(!cameraBool);
+        VideoUI.SetActive(!cameraBool);
+        VideoScreen.SetActive(cameraBool);
+        DownDangerGameObject.SetActive(cameraBool);
+        UPDangerGameObject.SetActive(cameraBool);
+        DroneDangerGameObject.SetActive(cameraBool);
+        CompassGameObject.SetActive(cameraBool);
+        PitchAndScroollGameObject.SetActive(!cameraBool);
+    }
     public void SetFreeMode()
     {
+        CameraZoom.setFreeMode();
+        Icons.setFreeMode();
+        cockpit = false;
         transform.parent = null;
+        freeCam = true;
+        SetGameObjects(false);
     }
 
 	void Update () {
@@ -53,8 +97,36 @@ public class CameraController : MonoBehaviour {
         // }
         // else
         // {
+        //Free Cam Movement
 
-        HandleCameraInputKeys();
+        if (cockpit)
+            CompassGameObject.transform.eulerAngles = new Vector3(0, 0, DroneModelGameObject.transform.eulerAngles.x);
+        else
+        {
+            CompassGameObject.transform.eulerAngles = new Vector3(0, 0, 0);
+
+        }
+
+        if (upFree)
+        {
+            transform.Translate(Vector3.up * Time.deltaTime * 3.5f, Space.Self); //LEFT
+
+        }
+
+        if (downFree)
+        {
+            transform.Translate(Vector3.down * Time.deltaTime * 3.5f, Space.Self); //LEFT
+        }
+
+        if (leftFree)
+        {
+            transform.Translate(Vector3.left * Time.deltaTime * 3.5f, Space.Self); //LEFT
+        }
+
+        if (rightFree)
+        {
+            transform.Translate(Vector3.right * Time.deltaTime * 3.5f, Space.Self); //LEFT
+        }
 
             //movement
             float moveVertical = 0;
@@ -89,13 +161,47 @@ public class CameraController : MonoBehaviour {
         // }
     }
 
-    private void HandleCameraInputKeys()
+
+    public void upFreeHold()
     {
-        float moveVertical = Input.GetAxis("CameraRotateY");
-        float moveHorizontal = Input.GetAxis("CameraRotateX");
-        Vector3 rotace = new Vector3(moveVertical * -CameraSpeed, moveHorizontal * CameraSpeed, 0);
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
+        upFree = true;
     }
+
+    public void downFreeHold()
+    {
+        downFree = true;
+    }
+
+    public void leftFreeHold()
+    {
+        leftFree = true;
+    }
+
+    public void rightFreeHold()
+    {
+        rightFree = true;
+    }
+
+    public void upFreeRelease()
+    {
+        upFree = false;
+    }
+
+    public void downFreeRelease()
+    {
+        downFree = false;
+    }
+
+    public void leftFreeRelease()
+    {
+        leftFree = false;
+    }
+
+    public void rightFreeRelease()
+    {
+        rightFree = false;
+    }
+
 
     public void upHold(){
         up = true;

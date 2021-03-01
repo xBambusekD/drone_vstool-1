@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
 using UnityEngine;
@@ -11,6 +11,10 @@ public class CameraZoom : MonoBehaviour
 
     public SliderManager CameraSpeedSlider;
 
+    private bool zoom;
+    private bool unzoom;
+
+    private bool freeMode;
     // Update is called once per frame
     void Update()
     {
@@ -33,11 +37,30 @@ public class CameraZoom : MonoBehaviour
             scroll += 0.1f;
         if(unzoom)
             scroll -=0.1f;
-        if ((transform.localPosition.z > -7 || scroll > 0) && (transform.localPosition.z < 0.8f || scroll < 0))
+        if (freeMode)
         {
-            transform.localPosition = transform.localPosition + new Vector3(0, 0, scroll * ZoomSpeed);
+            transform.localPosition = transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
         }
+        else
+        {
+            if ((transform.localPosition.z > -7 || scroll > 0) && (transform.localPosition.z < 0.8f || scroll < 0))
+            {
+                transform.localPosition = transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
+            }
+        }
+        
     }
+
+    public void setFreeMode()
+    {
+        freeMode = true;
+    }
+
+    public void unsetFreeMode()
+    {
+        freeMode = false;
+    }
+
 
     private void HandleCameraInputKeys()
     {
@@ -52,7 +75,6 @@ public class CameraZoom : MonoBehaviour
             transform.localPosition = transform.localPosition + new Vector3(0, 0, -zoomOut * ZoomSpeed);
         }
     }
-
     public void zoomHold(){
         zoom = true;
     }

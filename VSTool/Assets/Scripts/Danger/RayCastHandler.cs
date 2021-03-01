@@ -46,7 +46,7 @@ public class RayCastHandler : MonoBehaviour
         // Ray ray3 = new Ray(transform.position, third);
         float mindistance = 1000;
         if(Physics.SphereCast(ray1,0.01f, out hit)){
-            if(hit.transform.gameObject.layer == 8 || hit.transform.gameObject.layer == 10)
+            if(hit.transform.gameObject.layer == 8 || hit.transform.gameObject.layer == 10 || hit.transform.gameObject.layer == 14)
                 mindistance = hit.distance;
         }  
         // if(Physics.Raycast(ray2, out hit)){

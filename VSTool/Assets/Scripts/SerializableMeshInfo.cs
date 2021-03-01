@@ -15,8 +15,6 @@ public class SerializableMeshInfo
     public float[] uv2;
     [SerializeField]
     public float[] normals;
-    [SerializeField]
-    public Color[] colors;
 
     public SerializableMeshInfo(Mesh m) // Constructor: takes a mesh and fills out SerializableMeshInfo data structure which basically mirrors Mesh object's parts.
     {
@@ -50,11 +48,6 @@ public class SerializableMeshInfo
             normals[i * 3] = m.normals[i].x;
             normals[i * 3 + 1] = m.normals[i].y;
             normals[i * 3 + 2] = m.normals[i].z;
-        }
-        colors = new Color[m.colors.Length];
-        for (int i = 0; i < m.colors.Length; i++)
-        {
-            colors[i] = m.colors[i];
         }
     }
 
@@ -96,7 +89,6 @@ public class SerializableMeshInfo
                 ));
         }
         m.SetNormals(normalsList);
-        m.colors = colors;
 
         return m;
     }

@@ -15,11 +15,14 @@ public class GuiController : MonoBehaviour
 {
     //public GameObject videoScreen;
     //public GameObject videoProjector;
+    public PointCloudSubscriber PointCloudSubscriber;
     public GameObject Settings;
     public GameObject MissionHandler;
     public GameObject HomePoint;
     public GameObject WayPoint;
     public AbstractMap Map;
+
+    public GameObject OctreeGenerator;
 
     public GameObject droneObject; // potřebuju kvůli získání odkazu na connector
     public GameObject Navigation;
@@ -49,10 +52,13 @@ public class GuiController : MonoBehaviour
 
     public TMP_InputField RosConnectorIF;
     public TMP_InputField Topic;
+
+    public TMP_InputField altitudeOffset;
     public static bool isMap = false;
 
     public SwitchManager OctomapSwitch;
-    
+    public Transform OccupancyHandler;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,7 +76,9 @@ public class GuiController : MonoBehaviour
         droneController.ShowOctomap(OctomapSwitch.isOn);
     }
 
-
+    public void changeAltitudeOffset(){
+        PlayerPrefs.SetFloat("AltitudeOffset", float.Parse(altitudeOffset.text));
+    }
 
     // Update is called once per frame
     // void Update()
@@ -193,6 +201,11 @@ public class GuiController : MonoBehaviour
         changeModeIcon();
     }
 
+    public void EnableOctree()
+    {
+        OccupancyHandler.GetComponent<PointCloudSubscriber>().enabled = !OccupancyHandler.GetComponent<PointCloudSubscriber>().enabled;
+    }
+
 
     private void OpenWayPointPanel()
     {
@@ -303,6 +316,7 @@ public class GuiController : MonoBehaviour
         Debug.Log(RosConnectorIF.text);
         PlayerPrefs.SetString("RosBridgeURL", RosConnectorIF.text);
         ReconnectButtonClick();
+        PointCloudSubscriber.SetupConnection();
     }
 
     public void ChangeDrocoServerIP(string value) {

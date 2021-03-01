@@ -33,6 +33,9 @@ public class DroneController : MonoBehaviour {
     public GameObject videoObjects;
     public GameObject videoScreen;
     public GameObject videoProjector;
+    public GameObject videoUI;
+
+    public TMP_InputField altitudeOffsetIF;
 
     public bool isProjectorActive = false;
     public bool isVideoScreenActive = true;
@@ -98,6 +101,12 @@ public class DroneController : MonoBehaviour {
 
     public void setAltitudeOffset(){
         positionDataR.offset = true;
+        Invoke("updateAltitudeOffset",0.1f);
+    }
+
+    private void updateAltitudeOffset()
+    {
+        altitudeOffsetIF.text = PlayerPrefs.GetFloat("AltitudeOffset").ToString();
     }
 
     public void ConnectToRos()  // může být voláno z GUI
@@ -183,6 +192,8 @@ public class DroneController : MonoBehaviour {
 
         if (source == 2 && dataSource != 2)
         {
+            if(!videoUI.activeSelf)
+                videoUI.SetActive(true);
             Vector3 pos = positionData.GetPosition();
             Vector3 rot = positionData.GetRotation();
             if (rosConnector == null)
