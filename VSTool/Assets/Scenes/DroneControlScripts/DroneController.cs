@@ -150,7 +150,7 @@ public class DroneController : MonoBehaviour {
             dataSource = 0;
             Debug.Log("přepnuto na simulovany vstup - nahodna data");
             positionData = positionDataS;
-            positionData.reset(pos, rot);//reset rychlosti akcelerace
+            positionData.reset(pos, rot);//ResetRotation rychlosti akcelerace
         }
 
         if (source==1 && dataSource != 1)
@@ -181,7 +181,7 @@ public class DroneController : MonoBehaviour {
             dataSource = 2;
             Debug.Log("přepnuto vstup z ros");
             positionData = positionDataR;
-            // positionData.reset(pos,rot); //reset rychlosti akcelerace
+            // positionData.ResetRotation(pos,rot); //ResetRotation rychlosti akcelerace
         }
 
         return dataSource;

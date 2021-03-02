@@ -34,6 +34,7 @@ public class CameraController : MonoBehaviour {
     public GameObject IconsGO;
     public GameObject PitchAndScroollGameObject;
     public GameObject MainCameras;
+    public GameObject ResetButton;
 
     public Transform target;
     public Vector3 targetOffset;
@@ -47,6 +48,8 @@ public class CameraController : MonoBehaviour {
     public float zoomRate = 100.0f;
     public float panSpeed = 0.3f;
     public float zoomDampening = 5.0f;
+
+    public Joystick Joystick;
 
     private float xDeg = 0.0f;
     private float yDeg = 0.0f;
@@ -64,16 +67,22 @@ public class CameraController : MonoBehaviour {
     private Vector3 lastOffsettemp;
     // Update is called once per frame
 
-    private void SetGameObjects(bool cameraBool)
+    private void SetGameObjects(bool FreeModeDisabled)
     {
-        IconsGO.transform.GetChild(0).gameObject.SetActive(!cameraBool);
-        VideoUI.SetActive(!cameraBool);
-        VideoScreen.SetActive(cameraBool);
-        DownDangerGameObject.SetActive(cameraBool);
-        UPDangerGameObject.SetActive(cameraBool);
-        DroneDangerGameObject.SetActive(cameraBool);
-        CompassGameObject.SetActive(cameraBool);
-        PitchAndScroollGameObject.SetActive(!cameraBool);
+        IconsGO.transform.GetChild(0).gameObject.SetActive(!FreeModeDisabled);
+        VideoUI.SetActive(!FreeModeDisabled);
+        VideoScreen.SetActive(FreeModeDisabled);
+        DownDangerGameObject.SetActive(FreeModeDisabled);
+        UPDangerGameObject.SetActive(FreeModeDisabled);
+        DroneDangerGameObject.SetActive(FreeModeDisabled);
+        CompassGameObject.SetActive(FreeModeDisabled);
+        ResetButton.SetActive(FreeModeDisabled);
+
+        #if UNITY_ANDROID
+        Joystick.gameObject.SetActive(!FreeModeDisabled);
+        #endif
+        PitchAndScroollGameObject.SetActive(!FreeModeDisabled);
+        transform.GetComponent<FreeCamera>().enabled = !FreeModeDisabled;
     }
     void Start() { Init(); }
     void OnEnable() { Init(); }
@@ -108,53 +117,63 @@ public class CameraController : MonoBehaviour {
 
     void Update ()
     {
+        if (!FreeModeSet)
+        {
+            float scroll = 0;
+
+            scroll = Input.GetAxis("CameraZoom") * 0.5f;
+            if ((MainCameras.transform.localPosition.z > -7 || scroll > 0) && (MainCameras.transform.localPosition.z < 0.8f || scroll < 0))
+            {
+                MainCameras.transform.localPosition = MainCameras.transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
+            }
+
+            //movement
+            if (Input.GetKeyUp("k")) //set initial position to 3rd person view
+            {
+                transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            }
+            else if (Input.GetKeyUp("j")) //set initial position to 3rd person view
+            {
+                transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
+            }
+            else
+            {
+                //movement
+                float moveVertical = Input.GetAxis("Vertical");
+                float moveHorizontal = Input.GetAxis("Horizontal");
+
+                Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
+
+                //move up 
+                if (transform.localRotation.eulerAngles.x >= 90.0f && transform.localRotation.eulerAngles.x < 180.0f && rotace.x > 0) rotace.x = 0;
+
+                //down
+                if (transform.localRotation.eulerAngles.x <= 330.0f && transform.localRotation.eulerAngles.x > 180.0f && rotace.x < 0) rotace.x = 0;
+
+                //move to sides
+                if (transform.localRotation.eulerAngles.y >= 45.0f && transform.localRotation.eulerAngles.y < 180.0f && rotace.y > 0) rotace.y = 0;
+                if (transform.localRotation.eulerAngles.y <= 315.0f && transform.localRotation.eulerAngles.y > 180.0f && rotace.y < 0) rotace.y = 0;
+
+                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
+            }
+        }
+
+
+
+        float horizontalMove = Joystick.Horizontal *0.05f;
+        float verticalMove = Joystick.Vertical *0.05f;
+
+        transform.position += transform.right * horizontalMove;
+        transform.position += transform.up * verticalMove;
+
         if (CockpitModeSet)
             CompassGameObject.transform.eulerAngles = new Vector3(0, 0, DroneModelGameObject.transform.eulerAngles.x);
         else
             CompassGameObject.transform.eulerAngles = new Vector3(0, 0, 0);
-
-        float scroll = 0;
-
-        scroll = Input.GetAxis("CameraZoom") * 0.5f;
-        if ((MainCameras.transform.localPosition.z > -7 || scroll > 0) && (MainCameras.transform.localPosition.z < 0.8f || scroll < 0))
-        {
-            MainCameras.transform.localPosition = MainCameras.transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
-        }
-
-        //movement
-        if (Input.GetKeyUp("k")) //set initial position to 3rd person view
-        {
-            transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
-        }
-        else if (Input.GetKeyUp("j")) //set initial position to 3rd person view
-        {
-            transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
-        }
-        else
-        {
-            //movement
-            float moveVertical = Input.GetAxis("Vertical");
-            float moveHorizontal = Input.GetAxis("Horizontal");
-
-            Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
-
-            //move up 
-            if (transform.localRotation.eulerAngles.x >= 90.0f && transform.localRotation.eulerAngles.x < 180.0f && rotace.x > 0) rotace.x = 0;
-
-            //down
-            if (transform.localRotation.eulerAngles.x <= 330.0f && transform.localRotation.eulerAngles.x > 180.0f && rotace.x < 0) rotace.x = 0;
-
-            //move to sides
-            if (transform.localRotation.eulerAngles.y >= 45.0f && transform.localRotation.eulerAngles.y < 180.0f && rotace.y > 0) rotace.y = 0;
-            if (transform.localRotation.eulerAngles.y <= 315.0f && transform.localRotation.eulerAngles.y > 180.0f && rotace.y < 0) rotace.y = 0;
-
-            transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
-        }
     }
 
     void LateUpdate()
     {
-        // If Control and Alt and Middle button? ZOOM!
         if (Input.touchCount == 2)
         {
             Touch touchZero = Input.GetTouch(0);
@@ -178,6 +197,8 @@ public class CameraController : MonoBehaviour {
             float deltaMagDiff = prevTouchDeltaMag - TouchDeltaMag;
 
             desiredDistance += deltaMagDiff * Time.deltaTime * zoomRate * 0.0025f * Mathf.Abs(desiredDistance);
+            if (FreeModeSet)
+                transform.position -= transform.forward * (deltaMagDiff * Time.deltaTime * zoomRate * 0.0025f );
         }
         // If middle mouse and left alt are selected? ORBIT
         if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
@@ -192,36 +213,11 @@ public class CameraController : MonoBehaviour {
         desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
         currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
 
-        position = target.position - (rotation * Vector3.forward * currentDistance);
-        transform.position = position;
-
-
-        /*
-        if (Input.GetMouseButtonDown(1))
+        if (!FreeModeSet)
         {
-            FirstPosition = Input.mousePosition;
-            lastOffset = targetOffset;
+            position = target.position - (rotation * Vector3.forward * currentDistance);
+            transform.position = position;
         }
-
-        if (Input.GetMouseButton(1))
-        {
-            SecondPosition = Input.mousePosition;
-            delta = SecondPosition - FirstPosition;
-            targetOffset = lastOffset + transform.right * delta.x * 0.003f + transform.up * delta.y * 0.003f;
-
-        }
-
-        ////////Orbit Position
-
-        // affect the desired Zoom distance if we roll the scrollwheel
-        desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
-        currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
-
-        position = target.position - (rotation * Vector3.forward * currentDistance);
-
-        position = position - targetOffset;
-
-        transform.position = position;*/
     }
     private static float ClampAngle(float angle, float min, float max)
     {
@@ -250,7 +246,7 @@ public class CameraController : MonoBehaviour {
         transform.SetParent(DroneModel.transform.GetChild(2).transform);
         transform.localPosition = new Vector3(0, 0, 0);
         transform.localEulerAngles = new Vector3(0, 0, 0);
-
+        targetOffset = new Vector3(0, 0, 0);
 
         StandardModeSet = false;
         CockpitModeSet = true;
@@ -264,7 +260,8 @@ public class CameraController : MonoBehaviour {
         transform.SetParent(DroneGameObject.transform);
         transform.localPosition = new Vector3(0, 0, 0);
         transform.localEulerAngles = new Vector3(0, 0, 0);
-        
+        targetOffset = new Vector3(0, 0, 0);
+
         StandardModeSet = true;
         CockpitModeSet = false;
         FreeModeSet = false;
