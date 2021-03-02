@@ -57,8 +57,7 @@ public class GuiController : MonoBehaviour
     public static bool isMap = false;
 
     public Transform OccupancyHandler;
-    public SwitchManager OctomapSwitch;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -73,7 +72,6 @@ public class GuiController : MonoBehaviour
 
         ScreenButtonClick(); //vypnu screen,v defaultu je totiz zapnuty
 
-        droneController.ShowOctomap(OctomapSwitch.isOn);
     }
 
     public void changeAltitudeOffset(){
