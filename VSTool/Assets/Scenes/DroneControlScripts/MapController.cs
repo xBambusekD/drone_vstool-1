@@ -1,10 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mapbox.Unity.Map;
 using TMPro;
-public class MapController : MonoBehaviour {
+using DroCo;
+
+public class MapController : Singleton<MapController> {
     public AbstractMap Map;
 
     public TMP_InputField MapCenter;
