@@ -57,7 +57,8 @@ public class GuiController : MonoBehaviour
     public static bool isMap = false;
 
     public Transform OccupancyHandler;
-
+    public SwitchManager OctomapSwitch;
+    
     // Start is called before the first frame update
     void Start()
     {

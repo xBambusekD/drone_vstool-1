@@ -35,6 +35,9 @@ public class CameraController : MonoBehaviour {
     public GameObject PitchAndScroollGameObject;
     public GameObject MainCameras;
     public GameObject ResetButton;
+    public float CameraSpeed = 0.5f;
+	
+	// Update is called once per frame
 
     public Transform target;
     public Vector3 targetOffset;
