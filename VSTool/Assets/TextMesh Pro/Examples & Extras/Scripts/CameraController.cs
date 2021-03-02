@@ -195,7 +195,7 @@ namespace TMPro.Examples
 
                 }
 
-                // Check for left mouse button to select a new CameraTarget or to reset Follow position
+                // Check for left mouse button to select a new CameraTarget or to ResetRotation Follow position
                 if (Input.GetMouseButton(0))
                 {
                     RaycastHit hit;

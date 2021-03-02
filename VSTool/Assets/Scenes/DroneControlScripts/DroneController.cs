@@ -165,8 +165,12 @@ public class DroneController : MonoBehaviour {
 
         if (source == 2 && dataSource != 2)
         {
-            if(!videoUI.activeSelf)
+            if (!videoUI.activeSelf)
+            {
                 videoUI.SetActive(true);
+                videoUI.transform.localScale = new Vector3(0, 0, 0);
+            }
+                
             Vector3 pos = positionData.GetPosition();
             Vector3 rot = positionData.GetRotation();
             if (rosConnector == null)

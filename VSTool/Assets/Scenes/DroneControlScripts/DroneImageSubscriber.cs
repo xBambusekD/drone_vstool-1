@@ -43,8 +43,8 @@ namespace RosSharp.RosBridgeClient
         protected override void Start()
         {
             base.Start();
-            
-            
+
+            GameObject.Find("MainCanvas/VideoMovableWindow").transform.localScale = new Vector3(1, 1, 1);
             texture2D = new Texture2D(width, height); //, TextureFormat.BGRA32, false
             texture2D.wrapMode = TextureWrapMode.Clamp;
 

@@ -20,7 +20,7 @@ public class CameraZoom : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float scroll=0;
+        float scroll = 0;
 
         /*
         if (Input.GetKeyDown(KeyCode.PageUp)) isUpButtonPressed = true;
@@ -32,23 +32,12 @@ public class CameraZoom : MonoBehaviour
         else if (isDownButtonPressed) scroll = -0.2f;
         else scroll = Input.GetAxis("Mouse ScrollWheel");
         */
-        // scroll = Input.GetAxis("CameraZoom")*0.5f;
-        if(zoom)
-            scroll += 0.1f;
-        if(unzoom)
-            scroll -=0.1f;
-        if (freeMode)
+        scroll = Input.GetAxis("CameraZoom") * 0.5f;
+        if ((transform.localPosition.z > -7 || scroll > 0) && (transform.localPosition.z < 0.8f || scroll < 0))
         {
             transform.localPosition = transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
         }
-        else
-        {
-            if ((transform.localPosition.z > -7 || scroll > 0) && (transform.localPosition.z < 0.8f || scroll < 0))
-            {
-                transform.localPosition = transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
-            }
-        }
-        
+
     }
 
     public void setFreeMode()
