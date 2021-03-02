@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Mapbox.Unity.Map;
 using TMPro;
+using Michsky.UI.ModernUIPack;
 
 public class GuiController : MonoBehaviour
 {
@@ -56,6 +57,8 @@ public class GuiController : MonoBehaviour
     public static bool isMap = false;
 
     public Transform OccupancyHandler;
+    public SwitchManager OctomapSwitch;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -69,6 +72,8 @@ public class GuiController : MonoBehaviour
         changeModeIcon();
 
         ScreenButtonClick(); //vypnu screen,v defaultu je totiz zapnuty
+
+        droneController.ShowOctomap(OctomapSwitch.isOn);
     }
 
     public void changeAltitudeOffset(){
@@ -122,6 +127,12 @@ public class GuiController : MonoBehaviour
     public void changeTopic(){
         PlayerPrefs.SetString("VideoTopic",Topic.text);
     }
+
+    public void ChangeOctomapTopic(string topicName) {
+        PlayerPrefs.SetString("OctomapTopic", topicName);
+        droneController.ChangeOctomapTopic(topicName);
+    }
+
     public void SettingsButtonClick(){
         Settings.SetActive(!Settings.activeSelf);
     }
@@ -142,6 +153,14 @@ public class GuiController : MonoBehaviour
 
         // switchButton(ScreenButton, droneController.isVideoScreenActive);
         // switchButton(ProjectorButton, droneController.isProjectorActive);
+    }
+
+    public void ShowOctomap() {
+        droneController.ShowOctomap(true);
+    }
+
+    public void HideOctomap() {
+        droneController.ShowOctomap(false);
     }
 
     public void ProjecorButtonClick()
@@ -300,10 +319,18 @@ public class GuiController : MonoBehaviour
         PointCloudSubscriber.SetupConnection();
     }
 
+    public void ChangeDrocoServerIP(string value) {
+        // reconnect only if url really changed
+        if (!WebSocketManager.Instance.APIDomainWS.Equals(value)) {
+            Debug.Log("Reconnecting to the DroCo server: " + value);
+            PlayerPrefs.SetString("DrocoServerURL", value);
+            WebSocketManager.Instance.ReconnectToServer(value);
+        }
+    }
     
     public void ReconnectButtonClick()
     {
-        droneController.ConnectToRos(); 
+        droneController.ConnectToRos();
     }
 
     public void DefineAreaButtonClick()

@@ -1,16 +1,14 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Mapbox.Unity.Map;
-using System; 
-  
+using System;
+using DroCo;
 
-
-
-public class MissionHandler : MonoBehaviour
+public class MissionHandler : Singleton<MissionHandler>
 {
 
     public AbstractMap Map;
@@ -59,7 +57,7 @@ public class MissionHandler : MonoBehaviour
     public void AddDrone(Vector3 position){ 
         GameObject Clone = Instantiate(newDrone, position, ourDrone.rotation);
         Clone.name = "DroneObject" + droneNumber.ToString();
-        Drones.drones.Add(Clone);
+        Drones.drones.Add(new Drone(Clone, new DroneFlightData()));
         Drones.DroneAdded(dronesPanelGrid,dronesPrefab,iconTransform,icon,PopUp, PopUpRenderTexture);
         droneNumber++;
         Clone.transform.SetParent(transform);
@@ -238,7 +236,7 @@ public class MissionHandler : MonoBehaviour
             TextMeshProUGUI height = child.Find("Height").GetComponent<TextMeshProUGUI>();
             TextMeshProUGUI objective = child.Find("Objective").GetComponent<TextMeshProUGUI>();
             float droneAltitude = 0.0f;
-            droneAltitude = Drones.drones[i].transform.localPosition.y - Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(Drones.drones[i].transform.position));
+            droneAltitude = Drones.drones[i].DroneGameObject.transform.localPosition.y - Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(Drones.drones[i].DroneGameObject.transform.position));
             height.text = "Height:" + Mathf.Round(droneAltitude) + "m";
             objective.text = "Objective: " + mission.drones[i].checkpoints[0].name;
             i++;
@@ -278,7 +276,7 @@ public class MissionHandler : MonoBehaviour
 
     }
 
-    public jsonUrlDataClass jsonData;
+    public DroneFlightData jsonData;
     public float offset = 1.0F;
     public float zoneOffset = 100.0F;
     void Update()
@@ -292,7 +290,7 @@ public class MissionHandler : MonoBehaviour
         {
             //Check if mission isnt over
             if(drone.checkpoints.Count > 0){
-                Vector3 dronePosition = Drones.drones[i].transform.position;
+                Vector3 dronePosition = Drones.drones[i].DroneGameObject.transform.position;
                 int last_index = drone.checkpoints[0].points.Count - 1;
                 Vector3 objectivePosition = drone.checkpoints[0].points[last_index].pointGameObject.transform.position;
                 // SETTING
@@ -337,16 +335,16 @@ public class MissionHandler : MonoBehaviour
                             if(mission.drones[i].url != null){
                                 StartCoroutine(getData(mission.drones[i].url));
                                 Vector3 position3d;
-                                Mapbox.Utils.Vector2d mapboxPosition = new Mapbox.Utils.Vector2d(jsonData.latitude,jsonData.longitude);
+                                Mapbox.Utils.Vector2d mapboxPosition = new Mapbox.Utils.Vector2d(jsonData.Latitude,jsonData.Longitude);
                                 position3d = Map.GeoToWorldPosition(mapboxPosition,false);
                                 groundAltitude = Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(position3d));
-                                position3d.y = groundAltitude + (float)jsonData.height;
-                                Drones.drones[i].transform.position = position3d;
+                                position3d.y = groundAltitude + (float)jsonData.Altitude;
+                                Drones.drones[i].DroneGameObject.transform.position = position3d;
                             }
                             else 
                             if(simulationEnabled){
-                                Drones.drones[i].transform.position = Vector3.MoveTowards(dronePosition, objectivePosition, Time.deltaTime * speed);
-                                Drones.drones[i].transform.LookAt(objectivePosition);
+                                Drones.drones[i].DroneGameObject.transform.position = Vector3.MoveTowards(dronePosition, objectivePosition, Time.deltaTime * speed);
+                                Drones.drones[i].DroneGameObject.transform.LookAt(objectivePosition);
                             }
                         }
                     // Drone is at the point
@@ -421,7 +419,7 @@ public class MissionHandler : MonoBehaviour
     }
 
     private void processJsonData(string _url){
-        jsonData = JsonUtility.FromJson<jsonUrlDataClass>(_url);
+        jsonData = JsonUtility.FromJson<DroneFlightData>(_url);
 
     }
     private void AssignCurrentObjective()
@@ -438,17 +436,12 @@ public class MissionHandler : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
-}
-[Serializable]
-public class jsonUrlDataClass{
-    public double height;
-    public double latitude;
-    public double longitude;
+
 }
 
 [System.Serializable]
 public class Mission{
-    public List<Drone> drones;
+    public List<DroneM> drones;
     public List<Checkpoint> checkpoints;
 }
 [System.Serializable]
@@ -475,7 +468,7 @@ public class Point{
 }
 
 [System.Serializable]
-public class Drone{
+public class DroneM{
     public string name;
     public double latitude;
     public double longitude;

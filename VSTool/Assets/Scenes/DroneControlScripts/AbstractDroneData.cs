@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mapbox.Unity.Map;
 
-public abstract class AbstractDroneData : MonoBehaviour
+public abstract class AbstractDroneData
 {
     protected Vector3 position;
     protected Vector3 startPos;

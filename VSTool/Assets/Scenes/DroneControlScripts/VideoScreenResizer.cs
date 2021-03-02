@@ -1,4 +1,4 @@
-﻿/*
+/*
 Author: Bc. Kamil Sedlmajer (kamilsedlmajer@gmail.com)
 */
 
@@ -46,7 +46,7 @@ public class VideoScreenResizer : MonoBehaviour
         float videoSizeWhidth = Mathf.Tan((FOV / 2) * Mathf.Deg2Rad) * 2 * distance;
         float videoSizeHeight = videoSizeWhidth / width * height;
 
-        transform.localPosition = new Vector3(-1*distance, 0, 0);
+        transform.localPosition = new Vector3(-1*distance, transform.localPosition.y, transform.localPosition.z);
         transform.localScale = new Vector3(videoSizeWhidth, videoSizeHeight, 0.01f);
 
     }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,8 +30,7 @@ public class WayPointManager : MonoBehaviour
         pos.y = Mathf.Clamp(pos.y, Icon.GetPixelAdjustedRect().height / 2 +20, Screen.height*0.96f - Icon.GetPixelAdjustedRect().height / 2);
 
         Icon.transform.position = pos;
-
-        float dist = Vector3.Distance(Drones.drones[0].transform.position,Waypoint.position);
+        float dist = Vector3.Distance(Drones.drones[0].DroneGameObject.transform.position,Waypoint.position);
         Distance.text = Mathf.Round(dist) + "m";
     }
 }

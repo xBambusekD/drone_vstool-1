@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +8,7 @@ using TMPro;
 
 public class Drones : MonoBehaviour
 {
-    public static List<GameObject> drones = new List<GameObject>();
+    public static List<Drone> drones = new List<Drone>();
 
     public static List<GameObject> icones = new List<GameObject>();
 
@@ -27,12 +27,12 @@ public class Drones : MonoBehaviour
     public GameObject PopUp;
     void Start()
     {
-        foreach(GameObject item in drones)
+        foreach(Drone item in drones)
         {
             GameObject droneDisplay = (GameObject)Instantiate(dronesPrefab);
             droneDisplay.transform.SetParent(tarfetTransform);
             droneName = droneDisplay.GetComponentsInChildren<TextMeshProUGUI>();
-            droneName[0].text = item.name;
+            droneName[0].text = item.DroneGameObject.name;
             droneName[1].text = drones.Count.ToString();
             droneDisplay.transform.localScale = new Vector3(1,1,1);
             droneDisplay.GetComponent<LookAtDrone>().PopUp = PopUp;
@@ -47,7 +47,7 @@ public class Drones : MonoBehaviour
         foreach(Transform child in tarfetTransform.transform)
         {
             droneName = child.GetComponentsInChildren<TextMeshProUGUI>();
-            distance = Vector3.Distance(drones[0].transform.position,drones[i].transform.position);
+            distance = Vector3.Distance(drones[0].DroneGameObject.transform.position,drones[i].DroneGameObject.transform.position);
             droneName[1].text = Mathf.Round(distance) + "m";
             i++;
         }
@@ -56,7 +56,7 @@ public class Drones : MonoBehaviour
 
     public static void DroneAdded(Transform tarfetTransform, GameObject dronesPrefab,Transform iconTargetTransform,GameObject iconPrefab,GameObject PopUp,RenderTexture PopUpRenderTexture)
     {
-        GameObject item = drones[drones.Count - 1];
+        GameObject item = drones[drones.Count - 1].DroneGameObject;
         GameObject droneDisplay = (GameObject)Instantiate(dronesPrefab);
         droneDisplay.transform.SetParent(tarfetTransform);
         TextMeshProUGUI[] droneName = droneDisplay.GetComponentsInChildren<TextMeshProUGUI>();
@@ -64,7 +64,7 @@ public class Drones : MonoBehaviour
         droneName[1].text = "0m";
         droneDisplay.GetComponent<LookAtDrone>().PopUp = PopUp;
         droneDisplay.GetComponent<LookAtDrone>().RenderTexture = PopUpRenderTexture;
-        float distance = Vector3.Distance(drones[0].transform.position, item.transform.position);
+        float distance = Vector3.Distance(drones[0].DroneGameObject.transform.position, item.transform.position);
         Debug.Log(distance);   
 
         // Icon
