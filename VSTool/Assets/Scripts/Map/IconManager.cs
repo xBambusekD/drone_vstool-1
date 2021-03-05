@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -91,7 +91,7 @@ public class IconManager : MonoBehaviour
 
            
             // Ziskam vzdialenost
-            float dist = Vector3.Distance(Drones.drones[0].transform.position,Drones.drones[i].transform.position);
+            float dist = Vector3.Distance(Drones.drones[0].DroneGameObject.transform.position,Drones.drones[i].DroneGameObject.transform.position);
             // // Ziskam text so vzdialenostou
             if (i != 0)
             {

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
 using UnityEngine;
@@ -10,9 +10,6 @@ public class CameraZoom : MonoBehaviour
     private float ZoomSpeed = 0.02f;
 
     public SliderManager CameraSpeedSlider;
-
-    private bool zoom;
-    private bool unzoom;
 
     private bool freeMode;
     // Update is called once per frame
