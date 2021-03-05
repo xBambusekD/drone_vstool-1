@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -70,7 +70,7 @@ public class SetupPlayerPrefs : MonoBehaviour
         CameraResWidth.value = PlayerPrefs.GetInt("CameraResWidth");
         CameraScreenDistance.value = PlayerPrefs.GetFloat("CameraScreenDistance");
         Topic.text = PlayerPrefs.GetString("VideoTopic");
-        OctomapTopic.text = PlayerPrefs.GetString("OctomapTopic");
         offset.text = PlayerPrefs.GetFloat("AltitudeOffset").ToString();
+        OctomapTopic.text = PlayerPrefs.GetString("OctomapTopic");
     }
 }

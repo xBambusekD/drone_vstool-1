@@ -18,7 +18,7 @@ class DroneDataManual : AbstractDroneData
 
     public override void reset(Vector3 pos, Vector3 rot) //zresetuje rychlosti akcelerace
     {
-        moveX = moveX = moveZ = rotate = 0; //reset rychlosti akcelerace
+        moveX = moveX = moveZ = rotate = 0; //ResetRotation rychlosti akcelerace
         position = pos;
         rotation = rot.y;
     }

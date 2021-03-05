@@ -177,7 +177,7 @@ public class DroneController : MonoBehaviour {
             dataSource = 0;
             Debug.Log("přepnuto na simulovany vstup - nahodna data");
             positionData = positionDataS;
-            positionData.reset(pos, rot);//reset rychlosti akcelerace
+            positionData.reset(pos, rot);//ResetRotation rychlosti akcelerace
         }
 
         if (source==1 && dataSource != 1)
@@ -192,8 +192,12 @@ public class DroneController : MonoBehaviour {
 
         if (source == 2 && dataSource != 2)
         {
-            if(!videoUI.activeSelf)
+            if (!videoUI.activeSelf)
+            {
                 videoUI.SetActive(true);
+                videoUI.transform.localScale = new Vector3(0, 0, 0);
+            }
+                
             Vector3 pos = positionData.GetPosition();
             Vector3 rot = positionData.GetRotation();
             if (rosConnector == null)
@@ -204,7 +208,7 @@ public class DroneController : MonoBehaviour {
             dataSource = 2;
             Debug.Log("přepnuto vstup z ros");
             positionData = positionDataR;
-            // positionData.reset(pos,rot); //reset rychlosti akcelerace
+            // positionData.ResetRotation(pos,rot); //ResetRotation rychlosti akcelerace
         }
 
         return dataSource;
