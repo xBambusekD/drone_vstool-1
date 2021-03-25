@@ -19,8 +19,8 @@ public class PositionHandler : MonoBehaviour
 
     private void NewMethod()
     {
-        transform.position = Drones.drones[MissionHandler.activeDrone].transform.position;
-        transform.rotation = Drones.drones[MissionHandler.activeDrone].transform.rotation;
+        transform.position = Drones.drones[MissionHandler.activeDrone].DroneGameObject.transform.position;
+        transform.rotation = Drones.drones[MissionHandler.activeDrone].DroneGameObject.transform.rotation;
         transform.eulerAngles = new Vector3(transform.eulerAngles.x,transform.eulerAngles.y-90,transform.eulerAngles.z);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,11 +25,11 @@ public class IconManager : MonoBehaviour
     private int i = 0;
     void Start()
     {
-        foreach(GameObject item in Drones.drones)
+        foreach(Drone item in Drones.drones)
         {
             GameObject icon = (GameObject)Instantiate(iconPrefab);
             icon.transform.SetParent(iconTargetTransform);
-            icon.name = "icon" + item.name;
+            icon.name = "icon" + item.DroneGameObject.name;
             icon.transform.localScale = new Vector3(1,1,1);
             icon.gameObject.SetActive(false);
         }
@@ -76,9 +76,9 @@ public class IconManager : MonoBehaviour
             float minY = img.GetPixelAdjustedRect().height / 2 +30; // 20 vyska textu vzdialenosti
             float maxY = Screen.height*0.96f - img.GetPixelAdjustedRect().height / 2 -10;
 
-            Vector2 pos = cam.WorldToScreenPoint(Drones.drones[i].transform.position);
+            Vector2 pos = cam.WorldToScreenPoint(Drones.drones[i].DroneGameObject.transform.position);
             
-            if(Vector3.Dot((Drones.drones[i].transform.position - cam.transform.position), cam.transform.forward) < 0)
+            if(Vector3.Dot((Drones.drones[i].DroneGameObject.transform.position - cam.transform.position), cam.transform.forward) < 0)
                 if(pos.x < Screen.width / 2)
                     pos.x = maxX;
                 else
@@ -109,7 +109,7 @@ public class IconManager : MonoBehaviour
             
             child.transform.localScale = Vector3.Lerp(maxScale, minScale, norm);
 
-            Vector3 iconPos = cam.WorldToScreenPoint(Drones.drones[i].transform.position);
+            Vector3 iconPos = cam.WorldToScreenPoint(Drones.drones[i].DroneGameObject.transform.position);
             _onScreen = cam.pixelRect.Contains( iconPos ) && iconPos.z > cam.nearClipPlane;
             
             // && dist > 20.0
