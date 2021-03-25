@@ -71,7 +71,7 @@ public class GuiController : MonoBehaviour
 
         ScreenButtonClick(); //vypnu screen,v defaultu je totiz zapnuty
 
-        droneController.ShowOctomap(OctomapSwitch.isOn);
+        
     }
 
     public void changeAltitudeOffset(){
@@ -128,7 +128,7 @@ public class GuiController : MonoBehaviour
 
     public void ChangeOctomapTopic(string topicName) {
         PlayerPrefs.SetString("OctomapTopic", topicName);
-        droneController.ChangeOctomapTopic(topicName);
+        //droneController.ChangeOctomapTopic(topicName);
     }
 
     public void SettingsButtonClick(){

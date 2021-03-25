@@ -122,12 +122,8 @@ public class DroneController : MonoBehaviour {
             Destroy(oldRosConnector);
         }
 
-        PointCloudSubscriber.StartOctomapSubscribe(PlayerPrefs.GetString("RosBridgeURL"), PlayerPrefs.GetString("OctomapTopic"));
     }
 
-    public void ChangeOctomapTopic(string topicName) {
-        PointCloudSubscriber.StartOctomapSubscribe(PlayerPrefs.GetString("RosBridgeURL"), topicName);
-    }
 
     public void ShowOctomap(bool active) {
         PointCloudSubscriber.gameObject.SetActive(active);
