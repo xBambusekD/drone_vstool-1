@@ -35,7 +35,6 @@ public class CameraController : MonoBehaviour {
     public GameObject PitchAndScroollGameObject;
     public GameObject MainCameras;
     public GameObject ResetButton;
-
     public Transform target;
     public Vector3 targetOffset;
     public float distance = 0.0f;
@@ -115,53 +114,11 @@ public class CameraController : MonoBehaviour {
         yDeg = Vector3.Angle(Vector3.up, transform.up);
     }
 
-    void Update ()
+    void LateUpdate()
     {
-        if (!FreeModeSet)
-        {
-            float scroll = 0;
-
-            scroll = Input.GetAxis("CameraZoom") * 0.5f;
-            if ((MainCameras.transform.localPosition.z > -7 || scroll > 0) && (MainCameras.transform.localPosition.z < 0.8f || scroll < 0))
-            {
-                MainCameras.transform.localPosition = MainCameras.transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
-            }
-
-            //movement
-            if (Input.GetKeyUp("k")) //set initial position to 3rd person view
-            {
-                transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
-            }
-            else if (Input.GetKeyUp("j")) //set initial position to 3rd person view
-            {
-                transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
-            }
-            else
-            {
-                //movement
-                float moveVertical = Input.GetAxis("Vertical");
-                float moveHorizontal = Input.GetAxis("Horizontal");
-
-                Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
-
-                //move up 
-                if (transform.localRotation.eulerAngles.x >= 90.0f && transform.localRotation.eulerAngles.x < 180.0f && rotace.x > 0) rotace.x = 0;
-
-                //down
-                if (transform.localRotation.eulerAngles.x <= 330.0f && transform.localRotation.eulerAngles.x > 180.0f && rotace.x < 0) rotace.x = 0;
-
-                //move to sides
-                if (transform.localRotation.eulerAngles.y >= 45.0f && transform.localRotation.eulerAngles.y < 180.0f && rotace.y > 0) rotace.y = 0;
-                if (transform.localRotation.eulerAngles.y <= 315.0f && transform.localRotation.eulerAngles.y > 180.0f && rotace.y < 0) rotace.y = 0;
-
-                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
-            }
-        }
-
-
-
-        float horizontalMove = Joystick.Horizontal *0.05f;
-        float verticalMove = Joystick.Vertical *0.05f;
+        Debug.Log(FreeModeSet);
+        float horizontalMove = Joystick.Horizontal * 0.05f;
+        float verticalMove = Joystick.Vertical * 0.05f;
 
         transform.position += transform.right * horizontalMove;
         transform.position += transform.up * verticalMove;
@@ -170,10 +127,8 @@ public class CameraController : MonoBehaviour {
             CompassGameObject.transform.eulerAngles = new Vector3(0, 0, DroneModelGameObject.transform.eulerAngles.x);
         else
             CompassGameObject.transform.eulerAngles = new Vector3(0, 0, 0);
-    }
 
-    void LateUpdate()
-    {
+#if UNITY_ANDROID
         if (Input.touchCount == 2)
         {
             Touch touchZero = Input.GetTouch(0);
@@ -218,6 +173,7 @@ public class CameraController : MonoBehaviour {
             position = target.position - (rotation * Vector3.forward * currentDistance);
             transform.position = position;
         }
+#endif
     }
     private static float ClampAngle(float angle, float min, float max)
     {
@@ -230,17 +186,19 @@ public class CameraController : MonoBehaviour {
 
     public void SetFreeMode()
     {
+        transform.GetComponent<FreeCamera>().enabled = true;
+        FreeModeSet = true;
         Icons.setFreeMode();
         SetGameObjects(false);
         transform.parent = null;
-
         StandardModeSet = false;
         CockpitModeSet = false;
-        FreeModeSet = true;
+        
     }
 
     public void SetCokcpitMode()
     {
+        transform.GetComponent<FreeCamera>().enabled = false;
         Icons.unsetFreeMode();
         SetGameObjects(true);
         transform.SetParent(DroneModel.transform.GetChild(2).transform);
@@ -255,6 +213,7 @@ public class CameraController : MonoBehaviour {
 
     public void SetStandardMode()
     {
+        transform.GetComponent<FreeCamera>().enabled = true;
         Icons.unsetFreeMode();
         SetGameObjects(true);
         transform.SetParent(DroneGameObject.transform);
