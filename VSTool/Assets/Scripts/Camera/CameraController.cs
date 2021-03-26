@@ -80,8 +80,6 @@ public class CameraController : MonoBehaviour {
         #if UNITY_ANDROID
         Joystick.gameObject.SetActive(!FreeModeDisabled);
         #endif
-        PitchAndScroollGameObject.SetActive(!FreeModeDisabled);
-        transform.GetComponent<FreeCamera>().enabled = !FreeModeDisabled;
     }
     void Start() { Init(); }
     void OnEnable() { Init(); }
@@ -116,7 +114,47 @@ public class CameraController : MonoBehaviour {
 
     void LateUpdate()
     {
-        Debug.Log(FreeModeSet);
+        if (!FreeModeSet)
+        {
+            float scroll = 0;
+
+            scroll = Input.GetAxis("CameraZoom") * 0.5f;
+            if ((MainCameras.transform.localPosition.z > -7 || scroll > 0) && (MainCameras.transform.localPosition.z < 0.8f || scroll < 0))
+            {
+                MainCameras.transform.localPosition = MainCameras.transform.localPosition + new Vector3(0, 0, scroll * 0.4f);
+            }
+
+            //movement
+            if (Input.GetKeyUp("k")) //set initial position to 3rd person view
+            {
+                transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            }
+            else if (Input.GetKeyUp("j")) //set initial position to 3rd person view
+            {
+                transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
+            }
+            else
+            {
+                //movement
+                float moveVertical = Input.GetAxis("Vertical");
+                float moveHorizontal = Input.GetAxis("Horizontal");
+
+                Vector3 rotace = new Vector3(moveVertical * -0.8f, moveHorizontal * 0.8f, 0);
+
+                //move up 
+                if (transform.localRotation.eulerAngles.x >= 90.0f && transform.localRotation.eulerAngles.x < 180.0f && rotace.x > 0) rotace.x = 0;
+
+                //down
+                if (transform.localRotation.eulerAngles.x <= 330.0f && transform.localRotation.eulerAngles.x > 180.0f && rotace.x < 0) rotace.x = 0;
+
+                //move to sides
+                if (transform.localRotation.eulerAngles.y >= 45.0f && transform.localRotation.eulerAngles.y < 180.0f && rotace.y > 0) rotace.y = 0;
+                if (transform.localRotation.eulerAngles.y <= 315.0f && transform.localRotation.eulerAngles.y > 180.0f && rotace.y < 0) rotace.y = 0;
+
+                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rotace);
+            }
+        }
+
         float horizontalMove = Joystick.Horizontal * 0.05f;
         float verticalMove = Joystick.Vertical * 0.05f;
 
@@ -199,6 +237,10 @@ public class CameraController : MonoBehaviour {
     public void SetCokcpitMode()
     {
         transform.GetComponent<FreeCamera>().enabled = false;
+        StandardModeSet = false;
+        CockpitModeSet = true;
+        FreeModeSet = false;
+        
         Icons.unsetFreeMode();
         SetGameObjects(true);
         transform.SetParent(DroneModel.transform.GetChild(2).transform);
@@ -213,7 +255,10 @@ public class CameraController : MonoBehaviour {
 
     public void SetStandardMode()
     {
-        transform.GetComponent<FreeCamera>().enabled = true;
+        transform.GetComponent<FreeCamera>().enabled = false;
+        StandardModeSet = true;
+        CockpitModeSet = false;
+        FreeModeSet = false;
         Icons.unsetFreeMode();
         SetGameObjects(true);
         transform.SetParent(DroneGameObject.transform);

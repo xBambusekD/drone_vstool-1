@@ -8,18 +8,15 @@ public class IconManager : MonoBehaviour
 {
     public Transform iconTargetTransform;
     public GameObject iconPrefab;
-    public Transform firstIcon;
     public Camera cam;
     public Camera defcam;
     public Camera mapcam;
     // Start is called before the first frame update
     private bool _onScreen;
 
-    public GameObject Drone;
     private bool freeCamara;
     public Transform middle;
  
-
     public int distanceOfSight = 50;
     
     private int i = 0;
