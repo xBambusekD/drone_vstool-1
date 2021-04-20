@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -9,7 +9,7 @@ public class SaveManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameObject savePrefab = Resources.Load<GameObject>("GUI/SaveItem");
+        GameObject savePrefab = Resources.Load<GameObject>("Prefabs/SaveItem");
         DirectoryInfo dir = new DirectoryInfo(Application.streamingAssetsPath + "/Saves/");
         FileInfo[] info = dir.GetFiles("*.json");
 

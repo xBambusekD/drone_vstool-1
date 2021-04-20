@@ -52,15 +52,19 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public void ReconnectToServer(string domain, int port) {
-        if (websocket.IsAlive) {
-            websocket.Close();
+        if (websocket != null) {
+            if (websocket.IsAlive) {
+                websocket.Close();
+            }
         }
         ConnectToServer(domain, port);
     }
 
     public void ReconnectToServer(string wsURI) {
-        if (websocket.IsAlive) {
-            websocket.Close();
+        if (websocket != null) {
+            if (websocket.IsAlive) {
+                websocket.Close();
+            }
         }
         ConnectToServer(wsURI);
     }
@@ -136,14 +140,17 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     /// </summary>
     /// <param name="data"></param>
     private async void SendWebSocketMessage(string data) {
-        //if (websocket.State == WebSocketState.Open) {
-        if (websocket.IsAlive == true) {
-            websocket.Send(data);
+        if (websocket != null) {
+            if (websocket.IsAlive) {
+                websocket.Send(data);
+            }
         }
     }
 
     private void OnDestroy() {
-        websocket.Close();
+        if (websocket != null) {
+            websocket.Close();
+        }
     }
 
 }

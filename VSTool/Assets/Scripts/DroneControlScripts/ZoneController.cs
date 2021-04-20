@@ -1,4 +1,4 @@
-﻿/*
+/*
 Author: Bc. Kamil Sedlmajer (kamilsedlmajer@gmail.com)
 */
 
@@ -24,8 +24,8 @@ public class ZoneController : MonoBehaviour
         actZone.name = "zones";
         actZone.transform.parent = Zones.transform;
 
-        lineGeneratorPrefab = Resources.Load<GameObject>("Zones/ZoneLine");
-        pointer = Resources.Load<GameObject>("Zones/Capsule");
+        lineGeneratorPrefab = Resources.Load<GameObject>("Prefabs/ZoneLine");
+        pointer = Resources.Load<GameObject>("Prefabs/Capsule");
     }
 
     // Update is called once per frame
@@ -58,7 +58,7 @@ public class ZoneController : MonoBehaviour
         actZone.name = "zones";
         actZone.transform.parent = Zones.transform;
 
-        Material newMat = Resources.Load("Zones/ZoneMaterialGreen", typeof(Material)) as Material;
+        Material newMat = Resources.Load("Materials/ZoneMaterialGreen", typeof(Material)) as Material;
 
         if (polygonPoints.Count > 1)
             for (int i = 0; i < polygonPoints.Count; i++)
