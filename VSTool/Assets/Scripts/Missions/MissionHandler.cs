@@ -70,11 +70,23 @@ public class MissionHandler : Singleton<MissionHandler>
     }
     
     private void LoadJsonData(){
-        path = Application.streamingAssetsPath + "/mission.json";
-        jsonContent =File.ReadAllText(path);
+        string filePath = Application.streamingAssetsPath + "/mission.json";
+             string jsonString;
+             
+             if (Application.platform == RuntimePlatform.Android)
+             {
+                 WWW reader = new WWW(filePath);
+                 while (!reader.isDone) { }
+     
+                 jsonString = reader.text;
+             }
+             else
+             {
+                 jsonString = File.ReadAllText(filePath);
+             }
         try
         {
-            mission = JsonUtility.FromJson<Mission>(jsonContent);
+            mission = JsonUtility.FromJson<Mission>(jsonString);
         }
         catch (System.Exception)
         {
@@ -100,7 +112,7 @@ public class MissionHandler : Singleton<MissionHandler>
 
     private void GeneratePoint(Checkpoint item){
         GameObject WayPointPointerPrefab;
-        WayPointPointerPrefab = Resources.Load<GameObject>("Zones/WayPointPointer");
+        WayPointPointerPrefab = Resources.Load<GameObject>("Prefabs/WayPointPointer");
         GameObject WayPointPointer = Instantiate(WayPointPointerPrefab);
         WayPointPointer.transform.SetParent(transform);
                     // Vytvor vektor z gps
@@ -125,7 +137,7 @@ public class MissionHandler : Singleton<MissionHandler>
         Color yellow = new Color(1.0F, 0.9333333F, 0.0F, 0.25F);
         Color red = new Color(1.0F, 0.0F, 0.0F, 0.25F);
         ZoneGameObject.AddComponent<MeshFilter>();
-        ZoneGameObject.AddComponent<MeshRenderer>().material = Resources.Load<Material>("Zones/WayPointMaterial");
+        ZoneGameObject.AddComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/WayPointMaterial");
         if(checkpoint.drones.Count > 0)
             ZoneGameObject.GetComponent<MeshRenderer>().material.SetColor("_Color",yellow);
         else
@@ -139,7 +151,7 @@ public class MissionHandler : Singleton<MissionHandler>
         // Ziskam list bodov zony
         int j = 0;
         foreach(var point in checkpoint.points){
-            GameObject WayPointPointer = Instantiate(Resources.Load<GameObject>("Zones/ZoneWall")); 
+            GameObject WayPointPointer = Instantiate(Resources.Load<GameObject>("Prefabs/ZoneWall")); 
             WayPointPointer.transform.SetParent(ZoneGameObject.transform);
 
             // Vytvor vektor z gps
@@ -212,7 +224,7 @@ public class MissionHandler : Singleton<MissionHandler>
     }
 
     GameObject GenerateMiddlePoint(Checkpoint checkpoint){
-        GameObject Middle = Instantiate(Resources.Load<GameObject>("Zones/ZoneWall"));
+        GameObject Middle = Instantiate(Resources.Load<GameObject>("Prefabs/ZoneWall"));
         Vector3 center = new Vector3(0, 0, 0);
         float count = 0;
         foreach (var pointOfZone in checkpoint.points){

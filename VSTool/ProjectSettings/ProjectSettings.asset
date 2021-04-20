@@ -146,7 +146,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.DefaultCompany.Drone3rdPerson
+    Android: com.VUT_FIT.DroCo
     Standalone: com.VUTFIT.DroCo
   buildNumber:
     Standalone: 0

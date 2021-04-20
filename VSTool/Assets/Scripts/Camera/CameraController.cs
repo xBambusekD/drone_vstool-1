@@ -208,7 +208,7 @@ public class CameraController : MonoBehaviour {
 
         if (!FreeModeSet)
         {
-            position = target.position - (rotation * Vector3.forward * currentDistance);
+            position = target.position - (rotation * transform.forward * currentDistance);
             transform.position = position;
         }
 #endif

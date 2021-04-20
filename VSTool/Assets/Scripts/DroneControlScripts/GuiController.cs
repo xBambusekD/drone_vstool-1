@@ -33,16 +33,12 @@ public class GuiController : MonoBehaviour
 
     public Button NavigationButton;
     public Button DefineAreaButton;
-    public Button ShowAreaButton;
     public Button ModeButton;
-    public Button MinimapButton;
-    public RawImage MinimapRawImage;
 
     public GameObject WayPointPanel;
 
     public GameObject ClickModePanel;
 
-    public int MinimapState = 0;
 
     // Mapa premenne
     public GameObject MainCanvas;
