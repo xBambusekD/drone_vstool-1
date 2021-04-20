@@ -309,9 +309,4 @@ public class PointCloudSubscriber : MonoBehaviour
             }
         }
     }
-
-    public void StartOctomapSubscribe(string uri, string topicName) {
-        rosSocket = new RosSocket(new RosSharp.RosBridgeClient.Protocols.WebSocketNetProtocol(uri)); // 10.189.42.225:9090
-        Subscribe(topicName);
-    }
 }

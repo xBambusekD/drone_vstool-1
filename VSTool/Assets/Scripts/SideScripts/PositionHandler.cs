@@ -15,15 +15,6 @@ public class PositionHandler : MonoBehaviour
             Invoke("NewMethod",0.1f);
             RosSharp.RosBridgeClient.GlobalPositionSubscriber.MessageRecieved = false;
         }
-        // if (Input.GetKeyUp("o"))
-        // {
-        //     Invoke("NewMethod1",1);
-        // }
-    }
-
-    private void NewMethod1()
-    {
-        transform.position = new Vector3(transform.position.x, Drones.drones[MissionHandler.activeDrone].DroneGameObject.transform.position.y, transform.position.z);
     }
 
     private void NewMethod()

@@ -6,11 +6,12 @@ using TMPro;
 using System;
 public class RayCastHandler : MonoBehaviour
 {
-    public float first = 10,second =5,third = 3;
+    public float firstDistance = 10,secondDistance =5,thirdDistance = 3;
     // Update is called once per frame
 
     //Middle point 
     public GameObject Middle;
+    public GameObject DroneGameObject;
 
     public float Radius = 100;
 
@@ -34,43 +35,21 @@ public class RayCastHandler : MonoBehaviour
         frontrightDistance.text = "";
         backleftDistance.text = "";
         backrightDistance.text = "";
-
-
     }
-
 
     void ManageRays(Vector3 SideVector,  sites site){
         RaycastHit hit;
-        Ray ray1 = new Ray(transform.position, SideVector);
-        // Ray ray2 = new Ray(transform.position, second);
-        // Ray ray3 = new Ray(transform.position, third);
+        Ray ray = new Ray(DroneGameObject.transform.position, SideVector);
         float mindistance = 1000;
-        if(Physics.SphereCast(ray1,0.01f, out hit)){
+        if(Physics.SphereCast(ray,0.01f, out hit)){
             if(hit.transform.gameObject.layer == 8 || hit.transform.gameObject.layer == 10 || hit.transform.gameObject.layer == 14)
                 mindistance = hit.distance;
         }  
-        // if(Physics.Raycast(ray2, out hit)){
-        //     if(hit.collider.tag == "terrain"|| hit.collider.tag == "building"){
-        //         distance2 = hit.distance;
-        //     }
-        // }  
-
-        // if(Physics.Raycast(ray3, out hit)){
-        //     if(hit.collider.tag == "terrain"|| hit.collider.tag == "building"){
-        //         distance3 = hit.distance;
-        //     }
-        // }  
-
-        // if(distance2 < mindistance)
-        //     mindistance = distance2;
-        // if(distance3 < mindistance)
-        //     mindistance = distance3;
-        
 
         switch(site){
             case sites.back:
                 backDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     back.SetActive(false);
                     backDistance.gameObject.SetActive(false);
                 }
@@ -79,12 +58,12 @@ public class RayCastHandler : MonoBehaviour
                     backDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     back1.SetActive(true);
                     else
                     back1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     back2.SetActive(true);
                     else
                     back2.SetActive(false);
@@ -93,7 +72,7 @@ public class RayCastHandler : MonoBehaviour
                 break;
             case sites.backleft:
                 backleftDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     backleft.SetActive(false);
                     backleftDistance.gameObject.SetActive(false);
                 }
@@ -102,19 +81,19 @@ public class RayCastHandler : MonoBehaviour
                     backleftDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     backleft1.SetActive(true);
                     else
                     backleft1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     backleft2.SetActive(true);
                     else
                     backleft2.SetActive(false);
                 break;
             case sites.backright:
                backrightDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     backright.SetActive(false);
                     backrightDistance.gameObject.SetActive(false);
                 }
@@ -123,19 +102,19 @@ public class RayCastHandler : MonoBehaviour
                     backrightDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     backright1.SetActive(true);
                     else
                     backright1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     backright2.SetActive(true);
                     else
                     backright2.SetActive(false);
                 break;
             case sites.front:
                 frontDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     front.SetActive(false);
                     frontDistance.gameObject.SetActive(false);
                 }
@@ -144,19 +123,19 @@ public class RayCastHandler : MonoBehaviour
                     frontDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     front1.SetActive(true);
                     else
                     front1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     front2.SetActive(true);
                     else
                     front2.SetActive(false);
                 break;
             case sites.frontleft:
                 frontleftDistance.text =(Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     frontleft.SetActive(false);
                     frontleftDistance.gameObject.SetActive(false);
                 }
@@ -165,19 +144,19 @@ public class RayCastHandler : MonoBehaviour
                     frontleftDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     frontleft1.SetActive(true);
                     else
                     frontleft1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     frontleft2.SetActive(true);
                     else
                     frontleft2.SetActive(false);
                 break;
             case sites.frontright:
                 frontrightDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     frontright.SetActive(false);
                     frontrightDistance.gameObject.SetActive(false);
                 }
@@ -186,19 +165,19 @@ public class RayCastHandler : MonoBehaviour
                     frontrightDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     frontright1.SetActive(true);
                     else
                     frontright1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     frontright2.SetActive(true);
                     else
                     frontright2.SetActive(false);
                 break;
             case sites.left:
                 leftDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     left.SetActive(false);
                     leftDistance.gameObject.SetActive(false);
                 }
@@ -207,19 +186,19 @@ public class RayCastHandler : MonoBehaviour
                     leftDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     left1.SetActive(true);
                     else
                     left1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     left2.SetActive(true);
                     else
                     left2.SetActive(false);
                 break;
             case sites.right:
                 rightDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     right.SetActive(false);
                     rightDistance.gameObject.SetActive(false);
                 }
@@ -228,19 +207,19 @@ public class RayCastHandler : MonoBehaviour
                     rightDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     right1.SetActive(true);
                     else
                     right1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     right2.SetActive(true);
                     else
                     right2.SetActive(false);
                 break;
             case sites.top:
                topDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     top.SetActive(false);
                     topDistance.gameObject.SetActive(false);
                 }
@@ -249,19 +228,19 @@ public class RayCastHandler : MonoBehaviour
                     topDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     top1.SetActive(true);
                     else
                     top1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     top2.SetActive(true);
                     else
                     top2.SetActive(false);
                 break;
             case sites.bottom:
                bottomDistance.text = (Math.Round(mindistance, 2)).ToString();
-                if(mindistance > first){
+                if(mindistance > firstDistance){
                     bottom.SetActive(false);
                     bottomDistance.gameObject.SetActive(false);
                 }
@@ -270,12 +249,12 @@ public class RayCastHandler : MonoBehaviour
                     bottomDistance.gameObject.SetActive(true);
                 }
 
-                if(mindistance < second)
+                if(mindistance < secondDistance)
                     bottom1.SetActive(true);
                     else
                     bottom1.SetActive(false);
 
-                if(mindistance < third)
+                if(mindistance < thirdDistance)
                     bottom2.SetActive(true);
                     else
                     bottom2.SetActive(false);
@@ -286,20 +265,16 @@ public class RayCastHandler : MonoBehaviour
     void Update()
     {
         // Left
-        // ManageRays( new Vector3(-1,0,1), Vector3.left, new Vector3(-1,0,-1),sites.left);
         ManageRays(-transform.right, sites.left);
 
         // Right
-        // ManageRays(Vector3.right,new Vector3(1,0,1),new Vector3(1,0,-1),sites.right);
         ManageRays(transform.right, sites.right);
         
         
         // Right Upper
-        // ManageRays(new Vector3(1,1,1),new Vector3(1,1,-1),new Vector3(1,1,0),sites.frontright);
         ManageRays(transform.right+transform.forward,sites.frontright);
 
         // Left Lower
-        // ManageRays(-new Vector3(1,1,1),-new Vector3(1,1,-1),-new Vector3(1,1,0),sites.backleft);
         ManageRays(-(transform.right+transform.forward),sites.backleft);
 
         // Left Upper
