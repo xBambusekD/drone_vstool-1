@@ -135,9 +135,9 @@ public class GuiController : MonoBehaviour
     {
         int mode = droneController.getDataSource();
 
-        if(mode==0) ModeButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("GUI/style02/rand_style02_color10");
-        else if(mode == 1) ModeButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("GUI/style02/gamepad_style02_color10");
-        else ModeButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("GUI/style02/ROS_style02_color10");
+        if(mode==0) ModeButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("GUI/Sprites/IconPack/rand_style02_color10");
+        else if(mode == 1) ModeButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("GUI/Sprites/IconPack/gamepad_style02_color10");
+        else ModeButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("GUI/Sprites/IconPack/ROS_style02_color10");
     }
 
 
@@ -203,8 +203,8 @@ public class GuiController : MonoBehaviour
 
     private void OpenWayPointPanel()
     {
-        Button WayPointButtonPrefab = Resources.Load<Button>("GUI/WayPointButtonPrefab");
-        Button WayPointDeleteButtonPrefab = Resources.Load<Button>("GUI/WpDeleteButtonPrefab");
+        Button WayPointButtonPrefab = Resources.Load<Button>("Prefabs/WayPointButtonPrefab");
+        Button WayPointDeleteButtonPrefab = Resources.Load<Button>("Prefabs/WpDeleteButtonPrefab");
         //Transform waypoints = WayPointPanel.transform.Find("WayPoints");
 
         //odstraním starý seznam bodů
@@ -285,7 +285,7 @@ public class GuiController : MonoBehaviour
         navigationController.AddPoint(position, true);
         WayPointPanel.SetActive(false);
 
-        TextMeshProUGUI WPInsertedText = Instantiate(Resources.Load<TextMeshProUGUI>("GUI/WayPointInserted"));
+        TextMeshProUGUI WPInsertedText = Instantiate(Resources.Load<TextMeshProUGUI>("Prefabs/WayPointInserted"));
         WPInsertedText.transform.parent = transform;
         WPInsertedText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0,210,0);
         WPInsertedText.text = "WayPoint inserted!";

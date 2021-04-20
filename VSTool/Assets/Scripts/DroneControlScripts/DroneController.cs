@@ -244,7 +244,7 @@ public class DroneController : MonoBehaviour {
             else if (state == 2)
                 ConnectorText.text = "Problematic";
             else if (state == 3)
-                ConnectorText.text = "Cennection lost" +
+                ConnectorText.text = "Connection lost" +
                     "" +
                     "" +
                     "" +

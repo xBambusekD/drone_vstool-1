@@ -102,40 +102,10 @@ public class CameraZoom : MonoBehaviour {
             yDeg = ClampAngle(yDeg, yMinLimit, yMaxLimit);
  
         }
-        desiredRotation = Quaternion.Euler(yDeg, xDeg, 0);
-        currentRotation = transform.rotation;
-        rotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
-        transform.rotation = rotation;
- 
- 
-        if (Input.GetMouseButtonDown (1))
-        {
-            FirstPosition = Input.mousePosition;
-            lastOffset = targetOffset;
-        }
- 
-        if (Input.GetMouseButton (1))
-        {
-            SecondPosition = Input.mousePosition;
-            delta = SecondPosition - FirstPosition;
-            targetOffset = lastOffset + transform.right * delta.x*0.003f + transform.up * delta.y*0.003f;
- 
-        }
- 
-        ////////Orbit Position
- 
-        // affect the desired Zoom distance if we roll the scrollwheel
-        desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
-        currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
- 
-        position = target.position - (rotation * Vector3.forward * currentDistance );
- 
-        position = position - targetOffset;
- 
-        transform.position = position;
+        
     }
-    private static float ClampAngle(float angle, float min, float max)
-    {
+
+    private static float ClampAngle(float angle, float min, float max) {
         if (angle < -360)
             angle += 360;
         if (angle > 360)

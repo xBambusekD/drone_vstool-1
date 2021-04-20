@@ -1,4 +1,4 @@
-﻿/*
+/*
 Author: Bc. Kamil Sedlmajer (kamilsedlmajer@gmail.com)
 */
 
@@ -53,8 +53,8 @@ public class NavigationController : MonoBehaviour
 
         GameObject WayPointPointerPrefab;
 
-        if(!onGround) WayPointPointerPrefab = Resources.Load<GameObject>("Zones/WayPointPointer");
-        else WayPointPointerPrefab = Resources.Load<GameObject>("Zones/WayPointGroundPointer");
+        if(!onGround) WayPointPointerPrefab = Resources.Load<GameObject>("Prefabs/WayPointPointer");
+        else WayPointPointerPrefab = Resources.Load<GameObject>("Prefabs/WayPointGroundPointer");
 
         GameObject WayPointPointer = Instantiate(WayPointPointerPrefab);
         WayPointPointer.transform.localPosition = position;

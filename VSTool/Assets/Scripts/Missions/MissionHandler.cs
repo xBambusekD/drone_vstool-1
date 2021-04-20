@@ -250,7 +250,8 @@ public class MissionHandler : Singleton<MissionHandler>
             float droneAltitude = 0.0f;
             droneAltitude = Drones.drones[i].DroneGameObject.transform.localPosition.y - Map.QueryElevationInUnityUnitsAt(Map.WorldToGeoPosition(Drones.drones[i].DroneGameObject.transform.position));
             height.text = "Height:" + Mathf.Round(droneAltitude) + "m";
-            objective.text = "Objective: " + mission.drones[i].checkpoints[0].name;
+            if(mission.drones[i].checkpoints.Count > 0)
+                objective.text = "Objective: " + mission.drones[i].checkpoints[0].name;
             i++;
         }
 
