@@ -31,7 +31,7 @@ public class VideoScreenResizer : MonoBehaviour
         }
 
         Material material = gameObject.GetComponent<Renderer>().sharedMaterial;
-        material.SetTexture("_MainTex", noVideoTexture);
+        // material.SetTexture("_MainTex", noVideoTexture);
         material.SetTextureScale("_MainTex", new Vector2(1, 1));
     }
 

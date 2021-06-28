@@ -39,6 +39,16 @@ public class GuiController : MonoBehaviour
 
     public GameObject ClickModePanel;
 
+    public GameObject RosBridgeIp;
+    public GameObject VideoTopic;
+    public GameObject OctomapTopic;
+
+    public GameObject RTMPServer;
+    public GameObject DrocoServer;
+
+    public GameObject VideoScreen;
+
+
 
     // Mapa premenne
     public GameObject MainCanvas;
@@ -68,6 +78,26 @@ public class GuiController : MonoBehaviour
         ScreenButtonClick(); //vypnu screen,v defaultu je totiz zapnuty
 
         
+    }
+
+    private void SetDroneSwitch(bool DJI)
+    {
+        RTMPServer.SetActive(DJI);
+        DrocoServer.SetActive(DJI);
+
+        RosBridgeIp.SetActive(!DJI);
+        VideoTopic.SetActive(!DJI);
+        OctomapTopic.SetActive(!DJI);
+    }
+
+    public void SetDJI()
+    {
+        SetDroneSwitch(true);
+    }
+
+    public void SetROS()
+    {
+        SetDroneSwitch(false);
     }
 
     public void changeAltitudeOffset(){
