@@ -21,6 +21,7 @@ public class GuiController : MonoBehaviour
     public GameObject HomePoint;
     public GameObject WayPoint;
     public AbstractMap Map;
+    public MeshRenderer VideoScreenMeshRenderer;
 
     public GameObject OctreeGenerator;
 
@@ -46,10 +47,9 @@ public class GuiController : MonoBehaviour
     public GameObject RTMPServer;
     public GameObject DrocoServer;
 
-    public GameObject VideoScreen;
 
-
-
+    public Material LiveVidoMaterial;
+    public Material DJIVideoMaterial;
     // Mapa premenne
     public GameObject MainCanvas;
     public GameObject MapCanvas;
@@ -93,11 +93,13 @@ public class GuiController : MonoBehaviour
     public void SetDJI()
     {
         SetDroneSwitch(true);
+        VideoScreenMeshRenderer.material = DJIVideoMaterial;
     }
 
     public void SetROS()
     {
         SetDroneSwitch(false);
+        VideoScreenMeshRenderer.material = LiveVidoMaterial;
     }
 
     public void changeAltitudeOffset(){
