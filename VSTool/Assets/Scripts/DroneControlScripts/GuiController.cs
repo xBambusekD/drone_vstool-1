@@ -47,6 +47,9 @@ public class GuiController : MonoBehaviour
     public GameObject RTMPServer;
     public GameObject DrocoServer;
 
+    public GameObject PersonDetectionManager;
+    public GameObject PersonGenerator;
+
 
     public Material LiveVidoMaterial;
     public Material DJIVideoMaterial;
@@ -63,6 +66,10 @@ public class GuiController : MonoBehaviour
     public static bool isMap = false;
 
     public Transform OccupancyHandler;
+
+    public GameObject VideoScreen;
+    public GameObject VideoProjector;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -90,6 +97,17 @@ public class GuiController : MonoBehaviour
         OctomapTopic.SetActive(!DJI);
     }
 
+    public void SetVideoScreen()
+    {
+        VideoScreen.SetActive(true);
+        VideoProjector.SetActive(false);
+    }
+
+    public void SetProjector() {
+        VideoProjector.SetActive(true);
+        VideoScreen.SetActive(false);
+    }
+
     public void SetDJI()
     {
         SetDroneSwitch(true);
@@ -100,6 +118,16 @@ public class GuiController : MonoBehaviour
     {
         SetDroneSwitch(false);
         VideoScreenMeshRenderer.material = LiveVidoMaterial;
+    }
+
+    public void StartPersonDetection() {
+        PersonDetectionManager.SetActive(true);
+        PersonGenerator.SetActive(true);
+    }
+
+    public void StopPersonDetection() {
+        PersonDetectionManager.SetActive(false);
+        PersonGenerator.SetActive(false);
     }
 
     public void changeAltitudeOffset(){

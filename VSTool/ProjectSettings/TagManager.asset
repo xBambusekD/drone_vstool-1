@@ -10,6 +10,7 @@ TagManager:
   - WayPointButton
   - Map
   - PopUp
+  - debug_tools
   layers:
   - Default
   - TransparentFX
@@ -26,7 +27,7 @@ TagManager:
   - navigArrows
   - zoneWall
   - octree
-  - 
+  - danger
   - 
   - 
   - 

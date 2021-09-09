@@ -12,6 +12,7 @@ public class CustomPipelinePlayer : MonoBehaviour {
 	public Texture2D BlittedImage;
 
 	public Material TargetMaterial;
+    public Material projectorMaterial;
     public TMP_InputField port;
     public string pipeline = "udpsrc port=1338 ! application/x-rtp ! rtpjitterbuffer ! rtph264depay ! decodebin";
 
@@ -38,9 +39,12 @@ public class CustomPipelinePlayer : MonoBehaviour {
 		BlittedImage.anisoLevel=0;
 		BlittedImage.wrapMode=TextureWrapMode.Clamp;
 
-		if(TargetMaterial!=null)
+		if(TargetMaterial!=null){}
 			TargetMaterial.mainTexture=BlittedImage;
-	}
+
+            if (projectorMaterial != null)
+                projectorMaterial.mainTexture = BlittedImage;
+    }
 
     public void ChangeThePort() {
         m_Texture.Player.Stop();
