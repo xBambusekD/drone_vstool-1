@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace RosSharp.RosBridgeClient
 {
     [RequireComponent(typeof(RosConnector))]
-    public class DroneImageSubscriber : Subscriber<Messages.Sensor.CompressedImage>, IDroneImageSubscriber
+    public class DroneImageSubscriber : UnitySubscriber<Messages.Sensor.CompressedImage>, IDroneImageSubscriber
     {
         private Texture2D texture2D;
         public Material material;

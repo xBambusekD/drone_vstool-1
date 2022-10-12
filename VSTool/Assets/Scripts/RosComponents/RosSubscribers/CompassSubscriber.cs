@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RosSharp.RosBridgeClient.Messages;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class CompassSubscriber : Subscriber<Messages.Float64>
+    public class CompassSubscriber : UnitySubscriber<Messages.Float64>
     {
         public float orientation;
 

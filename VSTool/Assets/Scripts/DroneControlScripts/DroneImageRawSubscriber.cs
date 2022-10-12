@@ -1,4 +1,4 @@
-﻿/*
+/*
 Author: Bc. Kamil Sedlmajer (kamilsedlmajer@gmail.com)
 */
 
@@ -8,7 +8,7 @@ using UnityEngine.Experimental.Rendering;
 namespace RosSharp.RosBridgeClient
 {
     [RequireComponent(typeof(RosConnector))]
-    public class DroneImageRawSubscriber : Subscriber<Messages.Sensor.Image> , IDroneImageSubscriber
+    public class DroneImageRawSubscriber : UnitySubscriber<Messages.Sensor.Image> , IDroneImageSubscriber
     {
         public Material material;
         public Material projectorMaterial;

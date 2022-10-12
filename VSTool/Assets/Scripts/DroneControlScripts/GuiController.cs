@@ -9,7 +9,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Mapbox.Unity.Map;
 using TMPro;
-using Michsky.UI.ModernUIPack;
+using Michsky.MUIP;
 
 public class GuiController : MonoBehaviour
 {

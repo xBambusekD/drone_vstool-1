@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RosSharp.RosBridgeClient.Messages;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class GlobalPositionSubscriber : Subscriber<Messages.NavSatFix>
+    public class GlobalPositionSubscriber : UnitySubscriber<Messages.NavSatFix>
     {
         private bool StartPosition = true;
 

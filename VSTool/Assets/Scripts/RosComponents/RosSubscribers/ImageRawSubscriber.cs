@@ -1,4 +1,4 @@
-﻿/*
+/*
 Author: Bc. Kamil Sedlmajer (kamilsedlmajer@gmail.com)
 */
 
@@ -8,7 +8,7 @@ using UnityEngine.Experimental.Rendering;
 namespace RosSharp.RosBridgeClient
 {
     [RequireComponent(typeof(RosConnector))]
-    public class ImageRawSubscriber : Subscriber<Messages.Sensor.Image>
+    public class ImageRawSubscriber : UnitySubscriber<Messages.Sensor.Image>
     {
         private Texture2D texture2D;
         public Material material;

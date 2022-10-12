@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RosSharp.RosBridgeClient.Messages;
 
 namespace RosSharp.RosBridgeClient
 {
-    public class ImuSubscriber : Subscriber<Messages.Imu>
+    public class ImuSubscriber : UnitySubscriber<Messages.Imu>
     {
         public Messages.Imu imuData;
 

@@ -63,7 +63,7 @@ namespace RosSharp.RosBridgeClient
 
         protected override void OnConnected(object sender, EventArgs e)
         {
-            isConnected.Set();
+            IsConnected.Set();
             Debug.Log("Connected to RosBridge: " + RosBridgeServerUrl);
             //EnableSubscribers();
             ConnectionState = 1;
@@ -76,7 +76,7 @@ namespace RosSharp.RosBridgeClient
                 
                 Debug.Log("Disconnected from RosBridge: " + RosBridgeServerUrl);
                 ConnectionState = -1;
-                isConnected.Reset();
+                IsConnected.Reset();
                 //Awake(); //další pokus
             }
             catch (Exception ex)
