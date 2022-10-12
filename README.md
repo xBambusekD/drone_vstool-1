@@ -21,11 +21,11 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
    - Download Modern UI Pack from https://assetstore.unity.com/packages/tools/gui/modern-ui-pack-150824
    - Install Mapbox SDK from https://www.mapbox.com/install/unity/
    - Download Unity Toggle https://github.com/Kalxoznik/Unity-Toggle-controller
-   - Copy all assets into Assets/Submodules
- - RosSharp Setup:
-   - Download ROSSharp v1.4 source code https://github.com/siemens/ros-sharp/releases/tag/v1.4
-   - Extract and Copy **ros-sharp-1.4\Unity3D\Assets\RosSharp** file into Assets/Submodules
-   - Replace **RosSharp\Scripts\RosBridgeClient\RosCommuncation\RosConnector.cs** with **VSTool\RosReplace\RosConnector.cs**
+   - Download Joystick Pack https://assetstore.unity.com/packages/tools/input-management/joystick-pack-107631
+   - Download latest ROSSharp release https://github.com/siemens/ros-sharp/releases
+     - Extract and Copy content of the unitypackage into Assets/Submodules
+     - Replace **RosSharp\Scripts\RosBridgeClient\RosCommuncation\RosConnector.cs** with **VSTool\RosReplace\RosConnector.cs**
+   - Move all dowloaded packages into Assets/Submodules
 
 ## Publications
  - [HUBINÁK, Róbert. Application for Efficient Drone Control Using Augmented Virtuality. Brno, 2020. Bachelor's thesis. Brno University of Technology, Faculty of Information Technology. Supervised by Beran Vítězslav.](https://www.fit.vut.cz/study/thesis-file/22839/22839.pdf)
