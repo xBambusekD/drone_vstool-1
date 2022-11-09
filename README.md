@@ -20,6 +20,7 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
  - Setup:
    - Download Modern UI Pack from https://assetstore.unity.com/packages/tools/gui/modern-ui-pack-150824
    - Install Mapbox SDK from https://www.mapbox.com/install/unity/
+     - Import **Mapbox** folder only (AR-related are not needed)
    - Download Unity Toggle https://github.com/Kalxoznik/Unity-Toggle-controller
    - Download Joystick Pack https://assetstore.unity.com/packages/tools/input-management/joystick-pack-107631
    - Download latest ROSSharp release https://github.com/siemens/ros-sharp/releases
