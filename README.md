@@ -8,6 +8,7 @@
  
 The system thus allows you to pilot the drone in FPV (first-person-view), but at any time it can switch to TPV (third --person-view), so that one can look around freely in a situation with poor orientation, further directs the pilot to other mission objectives, points out close objects or other drones, etc. The system is currently being expanded with the functions of multiple drones, sharing more sensory information across the system, increasing the security of network communication. The development also aims to use a system for drone control training for pilots, increase the realism of drone behavior in simulated mode, more efficient mission management and visualization of the status for the operator of the whole event.
 
+<img src=DroCo_TestFlight.png />
 <img src=vstool_ui.png />
 
 ## Installation
