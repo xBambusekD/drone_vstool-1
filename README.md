@@ -1,5 +1,5 @@
 # DroCo – V2
-Branch DroCoV2 presents completely new and clean version 2.0 of the original DroCo, currently still in development.
+Branch DroCoV2 presents completely new and clean version 2.0 of the original DroCo, currently still in development. Tested on Unity version 2021.3.11.
 
 ## What's new
  - New map base layer – [ArcGIS](https://developers.arcgis.com/unity/).
