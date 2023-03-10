@@ -9,7 +9,7 @@
 [Bb]uilds/
 [Ll]ogs/
 [Mm]emoryCaptures/
-/VSTool/[Aa]ssets/[Ss]ubmodules*
+/DroCo/[Aa]ssets/[Ss]ubmodules*
 
 # Never ignore Asset meta data
 !/[Aa]ssets/**/*.meta
