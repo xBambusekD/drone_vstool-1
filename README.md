@@ -40,8 +40,14 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
    git lfs install
    git lfs pull
    ```
+### Setup ArcGIS
  - Create ArcGIS developer account and [create your API Key](https://developers.arcgis.com/unity/authentication/tutorials/create-an-api-key/).
  - Paste the API Key to `ProjectSettings -> ArcGIS Maps SDK -> API Key` and to `ArcGIS Maps SDK -> Auth -> API Key`.
+### Setup GStreamer
+ - Install GStreamer [1.20.1](https://gstreamer.freedesktop.org/data/pkg/windows/1.20.1/) – install both, regular and devel version based on your computer's architecture (msvc and x86_64 works for me).
+ - Add gstreamer binary folder path to System Environment Variables – `Computer -> System properties -> Advanced System Settings -> Advanced Tab -> Environment Variables... -> System Variables -> Variable: Path -> Edit -> New -> C:\gstreamer\1.0\msvc_x86_64\bin`
+ - Create new system variable – `New Variable: GST_SDK_PATH= C:\gstreamer\1.0\x86_64\`
+ - If GStreamer is still not working inside Unity, try to install or reinstall the latest [MSVC redistributable libraries](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170).
 
 ## Publications
  - [HUBINÁK, Róbert. Application for Efficient Drone Control Using Augmented Virtuality. Brno, 2020. Bachelor's thesis. Brno University of Technology, Faculty of Information Technology. Supervised by Beran Vítězslav.](https://www.fit.vut.cz/study/thesis-file/22839/22839.pdf)
