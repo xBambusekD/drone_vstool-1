@@ -6,7 +6,7 @@ using UnityEngine;
 
 [Serializable]
 public class DroneFlightData {
-    public string DroneId;
+    public string ClientID;
     public double Altitude;
     public double Latitude;
     public double Longitude;
@@ -16,7 +16,7 @@ public class DroneFlightData {
     public double Compass;
 
     public DroneFlightData() {
-        DroneId = "unset";
+        ClientID = "unset";
         Altitude = 0;
         Latitude = 0;
         Longitude = 0;

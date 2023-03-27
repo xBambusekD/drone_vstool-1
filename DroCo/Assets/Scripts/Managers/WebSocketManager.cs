@@ -15,6 +15,21 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     /// </summary>
     private WebSocket websocket;
 
+    private string ClientID;
+    private bool handshake_done = false;
+
+    [Serializable]
+    private class Response<T> {
+        public string type;
+        public T data;
+    }
+
+    [Serializable]
+    private class HandshakeResponseData {
+        public string ClientID;
+        public int rtmp_port;
+    }
+
     private void Update() {
         if (websocket != null && websocket.State == WebSocketState.Open)
             websocket.DispatchMessageQueue();
@@ -36,21 +51,59 @@ public class WebSocketManager : Singleton<WebSocketManager> {
         }
     }
 
+    public async void SendToServer(string msg) {
+        if (websocket != null) {
+            try {
+                await websocket.SendText(msg);
+            } catch (WebSocketException ex){
+                Debug.LogError(ex);
+            }
+        }
+    }
+
+    public void SendDroneListRequest() {
+        Debug.Log("Sending drone list request.");
+        SendToServer("{\"type\":\"drone_list\"}");
+    }
+
     private void HandleReceivedData(byte[] message) {
-        string data = Encoding.Default.GetString(message);
-        DroneManager.Instance.HandleReceivedDroneData(data);
+        string msgstr = Encoding.Default.GetString(message);
+        Response<string> msg = JsonUtility.FromJson<Response<string>>(msgstr);
+
+        if (!handshake_done && msg.type == "hello_resp") {
+            Response<HandshakeResponseData> hr = JsonUtility.FromJson<Response<HandshakeResponseData>>(msgstr);
+            if (hr != null) {
+                ClientID = hr.data.ClientID;
+                GameManager.Instance.RTMPPort = hr.data.rtmp_port;
+                handshake_done = true;
+                Debug.Log("Handshake successful.");
+                DroneManager.Instance.HandleHandshakeDone();
+            }
+        } else if (handshake_done && msg.type == "drone_list_resp") {
+            Response<DroneStaticData[]> dsdr = JsonUtility.FromJson<Response<DroneStaticData[]>>(msgstr);
+            DroneManager.Instance.HandleReceivedDroneList(dsdr.data);
+        } else if (handshake_done && msg.type == "data_broadcast") {
+            Response<DroneFlightData> dsfdr = JsonUtility.FromJson<Response<DroneFlightData>>(msgstr);
+            DroneManager.Instance.HandleReceivedDroneData(dsfdr.data);
+        } else if (!handshake_done && msg.type == "data_broadcast") {
+        } else {
+            Debug.LogError("Unknown data received!");
+        }
     }
 
     private void OnClose(WebSocketCloseCode closeCode) {
         Debug.Log("Connection closed!");
+        handshake_done = false;
     }
 
     private void OnError(string errorMsg) {
         Debug.LogError(errorMsg);
+        handshake_done = false;
     }
 
     private void OnConnected() {
-        Debug.Log("On connected");
+        Debug.Log("Connected - sending handshake");
+        SendToServer("{\"type\":\"hello\",\"data\":{\"ctype\":1}}");
     }
 
     /// <summary>

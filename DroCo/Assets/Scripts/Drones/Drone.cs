@@ -13,27 +13,29 @@ public class Drone : MonoBehaviour {
         get; set;
     }
 
+    public DroneStaticData StaticData {
+        get; set;
+    }
+
     public CustomPipelinePlayer StreamPlayer;
     public Material VideoMaterial;
     public MeshRenderer VideoScreen;
 
     private ArcGISLocationComponent GPSLocation;
 
-    public Drone(GameObject droneGameObject, DroneFlightData flightData) {
-        UpdateDroneFlightData(flightData);
+    public Drone(GameObject droneGameObject) {
     }
 
 
-    public void InitDrone(DroneFlightData flightData) {
+    public void InitDrone(DroneStaticData staticData) {
         GPSLocation = GetComponent<ArcGISLocationComponent>();
         GPSLocation.enabled = true;
 
-        UpdateDroneFlightData(flightData);
         //Material mat = new Material(VideoMaterial);
         //VideoScreen.material = mat;
         try {
             //StreamPlayer.TargetMaterial = mat;
-            StreamPlayer.pipeline = "rtmpsrc location=rtmp://" + GameManager.Instance.ServerIP + ":" + GameManager.Instance.RTMPPort + "/live/" + flightData.DroneId.ToLower().Replace("-", "_") + " ! decodebin";
+            StreamPlayer.pipeline = "rtmpsrc location=rtmp://" + GameManager.Instance.ServerIP + ":" + GameManager.Instance.RTMPPort + "/live/" + staticData.ClientID + " ! decodebin";
             StreamPlayer.gameObject.SetActive(true);
         } catch {
 
