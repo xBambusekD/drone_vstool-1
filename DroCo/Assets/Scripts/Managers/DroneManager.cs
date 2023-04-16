@@ -33,6 +33,14 @@ public class DroneManager : Singleton<DroneManager> {
         }
     }
 
+    public void HandleReceivedVehicleData(DroneVehicleData vehicleData) {
+        if (Drones.ContainsKey(vehicleData.ClientID)) {
+            Drones[vehicleData.ClientID].UpdateDroneVehicleData(vehicleData);
+        } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
+            WebSocketManager.Instance.SendDroneListRequest();
+        }
+    }
+
     private void AddDrone(DroneStaticData dsd) {
         Debug.Log("adding new drone with id: " + dsd.ClientID);
 

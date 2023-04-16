@@ -85,6 +85,9 @@ public class WebSocketManager : Singleton<WebSocketManager> {
         } else if (handshake_done && msg.type == "data_broadcast") {
             Response<DroneFlightData> dsfdr = JsonUtility.FromJson<Response<DroneFlightData>>(msgstr);
             DroneManager.Instance.HandleReceivedDroneData(dsfdr.data);
+        } else if (handshake_done && msg.type == "vehicle_detection_rects") {
+            Response<DroneVehicleData> dsvdr = JsonUtility.FromJson<Response<DroneVehicleData>>(msgstr);
+            DroneManager.Instance.HandleReceivedVehicleData(dsvdr.data);
         } else if (!handshake_done && msg.type == "data_broadcast") {
         } else {
             Debug.LogError("Unknown data received!");

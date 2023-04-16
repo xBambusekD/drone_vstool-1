@@ -17,7 +17,7 @@ public class Drone : MonoBehaviour {
         get; set;
     }
 
-    public CustomPipelinePlayer StreamPlayer;
+    public CustomPipelinePlayer2 StreamPlayer;
     public Material VideoMaterial;
     public MeshRenderer VideoScreen;
 
@@ -26,6 +26,10 @@ public class Drone : MonoBehaviour {
     public Drone(GameObject droneGameObject) {
     }
 
+    /*public void Start() {
+        Instantiate(StreamPlayer);
+    }*/
+
 
     public void InitDrone(DroneStaticData staticData) {
         GPSLocation = GetComponent<ArcGISLocationComponent>();
@@ -33,6 +37,11 @@ public class Drone : MonoBehaviour {
 
         //Material mat = new Material(VideoMaterial);
         //VideoScreen.material = mat;
+        //StreamPlayer = new CustomPipelinePlayer2();
+        //StreamPlayer = AddComponent()
+        //Instantiate(StreamPlayer);
+
+
         try {
             //StreamPlayer.TargetMaterial = mat;
             StreamPlayer.pipeline = "rtmpsrc location=rtmp://" + GameManager.Instance.ServerIP + ":" + GameManager.Instance.RTMPPort + "/live/" + staticData.ClientID + " ! decodebin";
@@ -49,4 +58,8 @@ public class Drone : MonoBehaviour {
         GPSLocation.Rotation = new ArcGISRotation(flightData.Yaw, flightData.Pitch, flightData.Roll);     
     }
 
+    public void UpdateDroneVehicleData(DroneVehicleData vehicleData) {
+        //if(StreamPlayer == null) return;
+        StreamPlayer.VehicleData = vehicleData;
+    }
 }
