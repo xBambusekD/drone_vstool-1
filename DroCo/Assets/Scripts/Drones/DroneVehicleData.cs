@@ -8,6 +8,6 @@ public class MyRect {
 
 [Serializable]
 public class DroneVehicleData {
-    public string ClientID;
+    public string client_id;
     public MyRect[] rects;
 }

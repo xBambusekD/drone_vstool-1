@@ -5,7 +5,7 @@ using UnityEngine;
 
 [Serializable]
 public class DroneStaticData {
-    public string ClientID;
-    public string Name;
-    public string Serial;
+    public string client_id;
+    public string name;
+    public string serial;
 }

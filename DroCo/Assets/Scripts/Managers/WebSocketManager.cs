@@ -66,6 +66,11 @@ public class WebSocketManager : Singleton<WebSocketManager> {
         SendToServer("{\"type\":\"drone_list\"}");
     }
 
+    public void SendCarDetectionRequest(string clientID, bool run = true) {
+        Debug.Log("{\"type\":\"vehicle_detection_set\", \"data\":{\"drone_stream_id\":\"" + clientID + "\", \"state\":" + run.ToString().ToLower() + "}}");
+        SendToServer("{\"type\":\"vehicle_detection_set\", \"data\":{\"drone_stream_id\":\"" + clientID + "\", \"state\":" + run.ToString().ToLower() + "}}");
+    }
+
     private void HandleReceivedData(byte[] message) {
         string msgstr = Encoding.Default.GetString(message);
         Response<string> msg = JsonUtility.FromJson<Response<string>>(msgstr);
@@ -77,7 +82,7 @@ public class WebSocketManager : Singleton<WebSocketManager> {
                 GameManager.Instance.RTMPPort = hr.data.rtmp_port;
                 handshake_done = true;
                 Debug.Log("Handshake successful.");
-                DroneManager.Instance.HandleHandshakeDone();
+                GameManager.Instance.HandleHandshakeDone();
             }
         } else if (handshake_done && msg.type == "drone_list_resp") {
             Response<DroneStaticData[]> dsdr = JsonUtility.FromJson<Response<DroneStaticData[]>>(msgstr);
@@ -87,10 +92,11 @@ public class WebSocketManager : Singleton<WebSocketManager> {
             DroneManager.Instance.HandleReceivedDroneData(dsfdr.data);
         } else if (handshake_done && msg.type == "vehicle_detection_rects") {
             Response<DroneVehicleData> dsvdr = JsonUtility.FromJson<Response<DroneVehicleData>>(msgstr);
+            //Debug.Log(msgstr);
             DroneManager.Instance.HandleReceivedVehicleData(dsvdr.data);
         } else if (!handshake_done && msg.type == "data_broadcast") {
         } else {
-            Debug.LogError("Unknown data received!");
+            Debug.LogError("Unknown data received! " + msgstr);
         }
     }
 

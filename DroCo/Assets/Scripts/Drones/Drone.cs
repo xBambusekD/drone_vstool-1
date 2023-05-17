@@ -17,9 +17,10 @@ public class Drone : MonoBehaviour {
         get; set;
     }
 
-    public CustomPipelinePlayer2 StreamPlayer;
-    public Material VideoMaterial;
-    public MeshRenderer VideoScreen;
+    public VehicleDataRenderer VehicleRenderer;
+    public CustomPipelinePlayer StreamPlayer;
+    //public Material VideoMaterial;
+    //public MeshRenderer VideoScreen;
 
     private ArcGISLocationComponent GPSLocation;
 
@@ -44,7 +45,7 @@ public class Drone : MonoBehaviour {
 
         try {
             //StreamPlayer.TargetMaterial = mat;
-            StreamPlayer.pipeline = "rtmpsrc location=rtmp://" + GameManager.Instance.ServerIP + ":" + GameManager.Instance.RTMPPort + "/live/" + staticData.ClientID + " ! decodebin";
+            StreamPlayer.pipeline = "rtmpsrc location=rtmp://" + GameManager.Instance.ServerIP + ":" + GameManager.Instance.RTMPPort + "/live/" + staticData.client_id + " ! decodebin";
             StreamPlayer.gameObject.SetActive(true);
         } catch {
 
@@ -54,12 +55,13 @@ public class Drone : MonoBehaviour {
     public void UpdateDroneFlightData(DroneFlightData flightData) {
         FlightData = flightData;
 
-        GPSLocation.Position = new ArcGISPoint(flightData.Longitude, flightData.Latitude, flightData.Altitude, new ArcGISSpatialReference(4326));
-        GPSLocation.Rotation = new ArcGISRotation(flightData.Yaw, flightData.Pitch, flightData.Roll);     
+        GPSLocation.Position = new ArcGISPoint(flightData.gps.longitude, flightData.gps.latitude, flightData.altitude, new ArcGISSpatialReference(4326));
+        GPSLocation.Rotation = new ArcGISRotation(flightData.aircraft_orientation.yaw, flightData.aircraft_orientation.pitch, flightData.aircraft_orientation.roll);     
     }
 
     public void UpdateDroneVehicleData(DroneVehicleData vehicleData) {
-        //if(StreamPlayer == null) return;
-        StreamPlayer.VehicleData = vehicleData;
+        if(StreamPlayer == null && VehicleRenderer == null) return;
+        VehicleRenderer.gameObject.SetActive(true);
+        VehicleRenderer.UpdateVehicleData(vehicleData);
     }
 }

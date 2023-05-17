@@ -27,6 +27,9 @@ public class CameraFollow : MonoBehaviour {
     //public float CameraHeight;
     public LookDirection ObjectVisibleFrom;
 
+    public bool LookRotation;
+    public Vector3 LookRotationVector = new Vector3();
+
     private LookDirection currentVisibleFrom;
 
 
@@ -73,7 +76,11 @@ public class CameraFollow : MonoBehaviour {
         Vector3 updatedRelativePosition = Target.position + rot * cameraOffset;
         transform.position = updatedRelativePosition;
         transform.LookAt(Target);
-        transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
+        if (LookRotation) {
+            transform.eulerAngles = LookRotationVector + new Vector3(0f, transform.eulerAngles.y, 0f);
+        } else {
+            transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
+        }
     }
 
     public void ChangeCameraDirection(LookDirection direction) {
