@@ -1,0 +1,3 @@
+[submodule "DroCo/Submodules/mrayGStreamerUnity"]
+	path = DroCo/Submodules/mrayGStreamerUnity
+	url = git@github.com:mrayy/mrayGStreamerUnity.git
