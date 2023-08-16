@@ -12,13 +12,20 @@ using UnityEngine.InputSystem;
 
 public class GameManager : Singleton<GameManager> {
 
+    public enum DisplayState {
+        Scene3DView,
+        Map2DView
+    }
+
     public string ServerIP = "butcluster.ddns.net";
     public int ServerPort = 5555;
     public int RTMPPort = 1935;
 
     public string APIKey = "";
-    public ArcGISMapComponent ArcGISMap;
-    public ArcGISCameraComponent ArcGISCamera;
+    public ArcGISMapComponent Scene3DViewArcGISMap;
+    public ArcGISMapComponent Map2DViewArcGISMap;
+    public ArcGISCameraComponent MainCamera;
+    public ArcGISCameraComponent MinimapCamera;
 
     private bool carDetectorRunning = false;
 
@@ -30,9 +37,29 @@ public class GameManager : Singleton<GameManager> {
     private bool mapCentered = false;
     private DroneFlightData firstDroneFlightData;
 
+    [SerializeField]
+    private MinimapUI minimapUI;
+    private ArcGISCameraControllerTouch sceneViewCameraController;
+    private ArcGISCameraControllerTouch minimapCameraController;
+
+    public DisplayState CurrentDisplayState {
+        get; private set;
+    }
+
+
     private void Start() {
         WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
         //InvokeRepeating("ListAllGameObjects", 0f, 20f);
+
+        sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
+        minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
+
+        StartCoroutine(InitSceneView());
+    }
+
+    private IEnumerator InitSceneView() {
+        yield return new WaitForEndOfFrame();
+        Open3DSceneView();
     }
 
     private void Update() {
@@ -42,6 +69,33 @@ public class GameManager : Singleton<GameManager> {
                 WebSocketManager.Instance.SendCarDetectionRequest(drone.Key, carDetectorRunning);
             }
         }
+    }
+
+    public void SwitchSceneMapView() {
+        switch (CurrentDisplayState) {
+            case DisplayState.Map2DView:
+                Open3DSceneView();
+                break;
+            case DisplayState.Scene3DView:
+                Open2DMapView();
+                break;
+        }
+    }
+
+    private void Open3DSceneView() {
+        CurrentDisplayState = DisplayState.Scene3DView;
+        minimapUI.SetSceneView();
+
+        sceneViewCameraController.enabled = CameraManager.Instance.FollowingTarget ? false : true;
+        minimapCameraController.enabled = false;
+    }
+
+    private void Open2DMapView() {
+        CurrentDisplayState = DisplayState.Map2DView;
+        minimapUI.SetMinimapView();
+
+        sceneViewCameraController.enabled = false;
+        minimapCameraController.enabled = true;
     }
 
 
@@ -63,12 +117,12 @@ public class GameManager : Singleton<GameManager> {
         if (!mapCentered) {
             mapCentered = true;
             firstDroneFlightData = flightData;
-            
-            ArcGISMap.OriginPosition = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude, new ArcGISSpatialReference(4326));
-            ArcGISMap.MapType = Esri.GameEngine.Map.ArcGISMapType.Local;
-            ArcGISMap.MapTypeChanged += new ArcGISMapComponent.MapTypeChangedEventHandler(CreateArcGISMap);
 
-            var cameraLocationComponent = ArcGISCamera.GetComponent<ArcGISLocationComponent>();
+            Scene3DViewArcGISMap.OriginPosition = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude, new ArcGISSpatialReference(4326));
+            Scene3DViewArcGISMap.MapType = Esri.GameEngine.Map.ArcGISMapType.Local;
+            Scene3DViewArcGISMap.MapTypeChanged += new ArcGISMapComponent.MapTypeChangedEventHandler(CreateArcGISMap);
+
+            var cameraLocationComponent = MainCamera.GetComponent<ArcGISLocationComponent>();
             cameraLocationComponent.Position = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude + 50, new ArcGISSpatialReference(4326));
             cameraLocationComponent.Rotation = new ArcGISRotation(65, 68, 0);
         }
@@ -89,7 +143,7 @@ public class GameManager : Singleton<GameManager> {
     //}
 
     public void CreateArcGISMap() {
-        var arcGISm = new Esri.GameEngine.Map.ArcGISMap(ArcGISMap.MapType);
+        var arcGISm = new Esri.GameEngine.Map.ArcGISMap(Scene3DViewArcGISMap.MapType);
         arcGISm.Basemap = new Esri.GameEngine.Map.ArcGISBasemap(Esri.GameEngine.Map.ArcGISBasemapStyle.ArcGISImagery, APIKey);
 
         //arcGISm.Elevation = new Esri.GameEngine.Map.ArcGISMapElevation(new Esri.GameEngine.Elevation.ArcGISImageElevationSource("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer", "Terrain 3D", ""));
@@ -107,14 +161,14 @@ public class GameManager : Singleton<GameManager> {
         //var buildingLayer = new Esri.GameEngine.Layers.ArcGIS3DObjectSceneLayer("https://gis.brno.cz/ags1/rest/services/Hosted/3D_budovy_LOD2_WM/SceneServer", "Building Layer", 1.0f, true, "");
         //ArcGISMap.Layers.Add(buildingLayer);
 
-        ArcGISMap.EnableExtent = true;
+        Scene3DViewArcGISMap.EnableExtent = true;
 
         var extentCenter = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude, new ArcGISSpatialReference(4326));
         var extent = new ArcGISExtentCircle(extentCenter, 10000);
 
         arcGISm.ClippingArea = extent;
 
-        ArcGISMap.View.Map = arcGISm;
+        Scene3DViewArcGISMap.View.Map = arcGISm;
     }
 
     //private void CreateArcGISCamera() {

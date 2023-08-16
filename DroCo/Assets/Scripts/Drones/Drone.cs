@@ -7,7 +7,7 @@ using Esri.GameEngine.Elevation.Base;
 using Esri.GameEngine.Geometry;
 using UnityEngine;
 
-public class Drone : MonoBehaviour {
+public class Drone : InteractiveObject {
 
     public DroneFlightData FlightData {
         get; set;
@@ -24,6 +24,14 @@ public class Drone : MonoBehaviour {
 
     private ArcGISLocationComponent GPSLocation;
 
+    public GameObject DroneModel;
+
+    public ListItemButton DroneListItem;
+
+    public GameObject Drone2DPrefab;
+    private Drone2D drone2DRepresentation;
+
+
     public Drone(GameObject droneGameObject) {
     }
 
@@ -35,6 +43,9 @@ public class Drone : MonoBehaviour {
     public void InitDrone(DroneStaticData staticData) {
         GPSLocation = GetComponent<ArcGISLocationComponent>();
         GPSLocation.enabled = true;
+
+        drone2DRepresentation = Instantiate(Drone2DPrefab, GameManager.Instance.Map2DViewArcGISMap.transform).GetComponent<Drone2D>();
+        drone2DRepresentation.InitDrone();
 
         //Material mat = new Material(VideoMaterial);
         //VideoScreen.material = mat;
@@ -56,7 +67,12 @@ public class Drone : MonoBehaviour {
         FlightData = flightData;
 
         GPSLocation.Position = new ArcGISPoint(flightData.gps.longitude, flightData.gps.latitude, flightData.altitude, new ArcGISSpatialReference(4326));
-        GPSLocation.Rotation = new ArcGISRotation(flightData.aircraft_orientation.yaw, flightData.aircraft_orientation.pitch, flightData.aircraft_orientation.roll);     
+        GPSLocation.Rotation = new ArcGISRotation(flightData.aircraft_orientation.yaw, flightData.aircraft_orientation.pitch, flightData.aircraft_orientation.roll);
+
+        drone2DRepresentation.UpdateFlightData(flightData);
+
+        DroneListItem.UpdateHeight(flightData.altitude);
+        DroneListItem.UpdateDistance(Vector3.Distance(Camera.main.transform.position, this.transform.position));
     }
 
     public void UpdateDroneVehicleData(DroneVehicleData vehicleData) {
@@ -64,4 +80,10 @@ public class Drone : MonoBehaviour {
         VehicleRenderer.gameObject.SetActive(true);
         VehicleRenderer.UpdateVehicleData(vehicleData);
     }
+
+    public override void Highlight(bool highlight) {
+        base.Highlight(highlight);
+        drone2DRepresentation.Highlight(highlight);
+    }
+
 }

@@ -12,18 +12,35 @@ public class DroneManager : Singleton<DroneManager> {
 
 
     public void HandleReceivedDroneList(DroneStaticData[] droneStaticDatas) {
+        List<string> dronesToKeep = new List<string>();
+        List<string> dronesToRemove = new List<string>();
+
         foreach (DroneStaticData dsd in droneStaticDatas) {
             if (Drones.ContainsKey(dsd.client_id)) {
                 Drones[dsd.client_id].StaticData = dsd;
             } else {
                 AddDrone(dsd);
             }
+
+            dronesToKeep.Add(dsd.client_id);
+        }
+
+        foreach (KeyValuePair<string, Drone> drone in Drones) {
+            if (!dronesToKeep.Contains(drone.Key)) {
+                dronesToRemove.Add(drone.Key);
+            }
+        }
+
+        foreach (string droneId in dronesToRemove) {
+            Drones.TryGetValue(droneId, out Drone droneToBeRemoved);
+            Drones.Remove(droneId);
+            Destroy(droneToBeRemoved.gameObject);
         }
     }
 
     public void HandleReceivedDroneData(DroneFlightData flightData) {
         if (Drones.ContainsKey(flightData.client_id)) {
-            //GameManager.Instance.CenterMap(flightData);
+            GameManager.Instance.CenterMap(flightData);
             Drones[flightData.client_id].UpdateDroneFlightData(flightData);
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
             WebSocketManager.Instance.SendDroneListRequest();
@@ -45,5 +62,11 @@ public class DroneManager : Singleton<DroneManager> {
         Drone newDrone = newDroneGameObj.GetComponent<Drone>();
         newDrone.InitDrone(dsd);
         Drones.Add(dsd.client_id, newDrone);
+
+        // Init drone's UI
+        newDrone.DroneListItem = UIManager.Instance.MainScreen.UnitList.SpawnListItemDrone(dsd, newDrone);
+        RenderTexture renderTexture = new RenderTexture(1280, 720, 24);
+        newDrone.TPVCamera.targetTexture = renderTexture;
+        newDrone.DroneListItem.InitCameraViewTexture(renderTexture);
     }
 }
