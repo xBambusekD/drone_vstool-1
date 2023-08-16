@@ -29,11 +29,6 @@ public class GameManager : Singleton<GameManager> {
 
     private bool carDetectorRunning = false;
 
-    //private ArcGISMapComponent arcGISMapComponent;
-    //private ArcGISCameraComponent cameraComponent;
-    //private ArcGISPoint geographicCoordinates = new ArcGISPoint(-74.054921, 40.691242, 3000, ArcGISSpatialReference.WGS84());
-    //private ArcGISPoint geographicCoordinates = new ArcGISPoint(-74.054921, 40.691242, 3000, ArcGISSpatialReference.WGS84());
-
     private bool mapCentered = false;
     private DroneFlightData firstDroneFlightData;
 
@@ -49,7 +44,6 @@ public class GameManager : Singleton<GameManager> {
 
     private void Start() {
         WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
-        //InvokeRepeating("ListAllGameObjects", 0f, 20f);
 
         sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
         minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
@@ -63,12 +57,12 @@ public class GameManager : Singleton<GameManager> {
     }
 
     private void Update() {
-        if (Keyboard.current[Key.C].wasPressedThisFrame) {
-            carDetectorRunning = !carDetectorRunning;
-            foreach (KeyValuePair<string, Drone> drone in DroneManager.Instance.Drones) {
-                WebSocketManager.Instance.SendCarDetectionRequest(drone.Key, carDetectorRunning);
-            }
-        }
+        //if (Keyboard.current[Key.C].wasPressedThisFrame) {
+        //    carDetectorRunning = !carDetectorRunning;
+        //    foreach (KeyValuePair<string, Drone> drone in DroneManager.Instance.Drones) {
+        //        WebSocketManager.Instance.SendCarDetectionRequest(drone.Key, carDetectorRunning);
+        //    }
+        //}
     }
 
     public void SwitchSceneMapView() {
@@ -118,48 +112,49 @@ public class GameManager : Singleton<GameManager> {
             mapCentered = true;
             firstDroneFlightData = flightData;
 
+            // Set scene view map and load all possible 3d structures and layers
             Scene3DViewArcGISMap.OriginPosition = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude, new ArcGISSpatialReference(4326));
             Scene3DViewArcGISMap.MapType = Esri.GameEngine.Map.ArcGISMapType.Local;
             Scene3DViewArcGISMap.MapTypeChanged += new ArcGISMapComponent.MapTypeChangedEventHandler(CreateArcGISMap);
+            CreateArcGISMap();
 
+            // Set 2d minimap and center it to the position of the first drone
+            Map2DViewArcGISMap.OriginPosition = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, 0, new ArcGISSpatialReference(4326));
+            Map2DViewArcGISMap.MapType = Esri.GameEngine.Map.ArcGISMapType.Local;
+
+            // Center the main camera
             var cameraLocationComponent = MainCamera.GetComponent<ArcGISLocationComponent>();
             cameraLocationComponent.Position = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude + 50, new ArcGISSpatialReference(4326));
             cameraLocationComponent.Rotation = new ArcGISRotation(65, 68, 0);
+
+            // Center the minimap camera
+            var minimapCameraLocationComponent = MinimapCamera.GetComponent<ArcGISLocationComponent>();
+            minimapCameraLocationComponent.Position = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, 500, new ArcGISSpatialReference(4326));
+            
         }
     }
 
-    //private void CreateArcGISMapComponent() {
-    //    arcGISMapComponent = FindObjectOfType<ArcGISMapComponent>();
-
-    //    if (!arcGISMapComponent) {
-    //        GameObject arcGISMapGameObject = new GameObject("ArcGISMap");
-    //        arcGISMapComponent = arcGISMapGameObject.AddComponent<ArcGISMapComponent>();
-    //    }
-
-    //    arcGISMapComponent.OriginPosition = geographicCoordinates;
-    //    arcGISMapComponent.MapType = Esri.GameEngine.Map.ArcGISMapType.Local;
-
-    //    arcGISMapComponent.MapTypeChanged += new ArcGISMapComponent.MapTypeChangedEventHandler(CreateArcGISMap);
-    //}
-
     public void CreateArcGISMap() {
+        Debug.Log("CREATE ARCGIS MAP");
         var arcGISm = new Esri.GameEngine.Map.ArcGISMap(Scene3DViewArcGISMap.MapType);
         arcGISm.Basemap = new Esri.GameEngine.Map.ArcGISBasemap(Esri.GameEngine.Map.ArcGISBasemapStyle.ArcGISImagery, APIKey);
 
-        //arcGISm.Elevation = new Esri.GameEngine.Map.ArcGISMapElevation(new Esri.GameEngine.Elevation.ArcGISImageElevationSource("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer", "Terrain 3D", ""));
-        //arcGISm.Elevation = new Esri.GameEngine.Map.ArcGISMapElevation(new Esri.GameEngine.Elevation.ArcGISImageElevationSource("https://gis.brno.cz/ags1/rest/services/OMI/omi_dtm_2019_wgs_1m_e/ImageServer", "BrnoElevation", ""));
+        // Check whether the drone is flying in some known location
+        MapManager.Location knownLocation = MapManager.Instance.GetKnownLocation(firstDroneFlightData.gps);
 
-        //var layer_1 = new Esri.GameEngine.Layers.ArcGISImageLayer("https://tiles.arcgis.com/tiles/nGt4QxSblgDfeJn9/arcgis/rest/services/UrbanObservatory_NYC_TransitFrequency/MapServer", "MyLayer_1", 1.0f, true, "");
-        //arcGISMap.Layers.Add(layer_1);
+        // Load Scene Layer data for the known location
+        foreach (string layerData in MapManager.Instance.Get3DObjectSceneLayerData()) {
+            var objectSceneLayer = new Esri.GameEngine.Layers.ArcGIS3DObjectSceneLayer(layerData, knownLocation + "_3DObjectSceneLayer", 1.0f, true, "");
+            arcGISm.Layers.Add(objectSceneLayer);
+        }
 
-        //var layer_2 = new Esri.GameEngine.Layers.ArcGISImageLayer("https://tiles.arcgis.com/tiles/nGt4QxSblgDfeJn9/arcgis/rest/services/New_York_Industrial/MapServer", "MyLayer_2", 1.0f, true, "");
-        //arcGISMap.Layers.Add(layer_2);
+        // Add base elevation layer
+        arcGISm.Elevation.ElevationSources.Add(new Esri.GameEngine.Elevation.ArcGISImageElevationSource("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer", "Terrain 3D", ""));
 
-        //var layer_3 = new Esri.GameEngine.Layers.ArcGISImageLayer("https://tiles.arcgis.com/tiles/4yjifSiIG17X0gW4/arcgis/rest/services/NewYorkCity_PopDensity/MapServer", "MyLayer_3", 1.0f, true, "");
-        //arcGISMap.Layers.Add(layer_3);
-
-        //var buildingLayer = new Esri.GameEngine.Layers.ArcGIS3DObjectSceneLayer("https://gis.brno.cz/ags1/rest/services/Hosted/3D_budovy_LOD2_WM/SceneServer", "Building Layer", 1.0f, true, "");
-        //ArcGISMap.Layers.Add(buildingLayer);
+        // If location has some specific or more detailed elevation layer, add it on top of the base layer
+        foreach (string elevationData in MapManager.Instance.GetElevationData()) {
+            arcGISm.Elevation.ElevationSources.Add(new Esri.GameEngine.Elevation.ArcGISImageElevationSource(elevationData, knownLocation + "_elevation", ""));
+        }
 
         Scene3DViewArcGISMap.EnableExtent = true;
 
@@ -170,32 +165,5 @@ public class GameManager : Singleton<GameManager> {
 
         Scene3DViewArcGISMap.View.Map = arcGISm;
     }
-
-    //private void CreateArcGISCamera() {
-    //    cameraComponent = Camera.main.gameObject.GetComponent<ArcGISCameraComponent>();
-
-    //    if (!cameraComponent) {
-    //        var cameraGameObject = Camera.main.gameObject;
-
-    //        cameraGameObject.transform.SetParent(arcGISMapComponent.transform, false);
-
-    //        cameraComponent = cameraGameObject.AddComponent<ArcGISCameraComponent>();
-
-    //        cameraGameObject.AddComponent<ArcGISCameraControllerComponent>();
-
-    //        cameraGameObject.AddComponent<ArcGISRebaseComponent>();
-    //    }
-
-    //    var cameraLocationComponent = cameraComponent.GetComponent<ArcGISLocationComponent>();
-    //    cameraLocationComponent.Position = geographicCoordinates;
-    //    cameraLocationComponent.Rotation = new ArcGISRotation(65, 68, 0);
-
-    //    if (!cameraLocationComponent) {
-    //        cameraLocationComponent = cameraComponent.gameObject.AddComponent<ArcGISLocationComponent>();
-
-    //        cameraLocationComponent.Position = geographicCoordinates;
-    //        cameraLocationComponent.Rotation = new ArcGISRotation(65, 68, 0);
-    //    }
-    //}
 }
 

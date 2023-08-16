@@ -18,6 +18,8 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     private string ClientID;
     private bool handshake_done = false;
 
+    private bool droneRequestSent = false;
+
     [Serializable]
     private class Response<T> {
         public string type;
@@ -62,8 +64,17 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public void SendDroneListRequest() {
-        Debug.Log("Sending drone list request.");
-        SendToServer("{\"type\":\"drone_list\"}");
+        if (!droneRequestSent) {
+            Debug.Log("Sending drone list request.");
+            SendToServer("{\"type\":\"drone_list\"}");
+            droneRequestSent = true;
+            StartCoroutine(RequestTimeout());
+        }
+    }
+
+    private IEnumerator RequestTimeout() {
+        yield return new WaitForSeconds(10f);
+        droneRequestSent = false;
     }
 
     public void SendCarDetectionRequest(string clientID, bool run = true) {
@@ -88,6 +99,7 @@ public class WebSocketManager : Singleton<WebSocketManager> {
             Response<DroneStaticData[]> dsdr = JsonUtility.FromJson<Response<DroneStaticData[]>>(msgstr);
             Debug.Log(msgstr);
             DroneManager.Instance.HandleReceivedDroneList(dsdr.data);
+            droneRequestSent = false;
         } else if (handshake_done && msg.type == "data_broadcast") {
             Response<DroneFlightData> dsfdr = JsonUtility.FromJson<Response<DroneFlightData>>(msgstr);
             DroneManager.Instance.HandleReceivedDroneData(dsfdr.data);
