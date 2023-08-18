@@ -38,6 +38,8 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public async void ConnectToServer(string domain, int port) {
+        ClosePreviousConnection();
+
         try {
             APIDomainWS = GetWSURI(domain, port);
             websocket = new WebSocket(APIDomainWS);
@@ -50,6 +52,12 @@ public class WebSocketManager : Singleton<WebSocketManager> {
             await websocket.Connect();
         } catch (UriFormatException ex) {
             Debug.LogError(ex);
+        }
+    }
+
+    private void ClosePreviousConnection() {
+        if (websocket != null && websocket.State == WebSocketState.Open) {
+            websocket.CancelConnection();
         }
     }
 
@@ -116,11 +124,13 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     private void OnClose(WebSocketCloseCode closeCode) {
         Debug.Log("Connection closed!");
         handshake_done = false;
+        GameManager.Instance.HandleConnectionFailed();
     }
 
     private void OnError(string errorMsg) {
         Debug.LogError(errorMsg);
         handshake_done = false;
+        GameManager.Instance.HandleConnectionFailed();
     }
 
     private void OnConnected() {

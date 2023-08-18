@@ -17,6 +17,11 @@ public class GameManager : Singleton<GameManager> {
         Map2DView
     }
 
+    public enum ConnectionStatus {
+        Connected,
+        Disconnected
+    }
+
     public string ServerIP = "butcluster.ddns.net";
     public int ServerPort = 5555;
     public int RTMPPort = 1935;
@@ -34,6 +39,9 @@ public class GameManager : Singleton<GameManager> {
 
     [SerializeField]
     private MinimapUI minimapUI;
+    [SerializeField]
+    private ConnectionBar connectionBar;
+
     private ArcGISCameraControllerTouch sceneViewCameraController;
     private ArcGISCameraControllerTouch minimapCameraController;
 
@@ -43,12 +51,27 @@ public class GameManager : Singleton<GameManager> {
 
 
     private void Start() {
-        WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
+        LoadLastServerIP();
 
         sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
         minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
 
         StartCoroutine(InitSceneView());
+    }
+
+    private void LoadLastServerIP() {
+        ServerIP = PlayerPrefs.GetString("serverIP", null);
+        connectionBar.SetConnectionStatus(ConnectionStatus.Disconnected);
+        if (!string.IsNullOrEmpty(ServerIP)) {
+            WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
+            connectionBar.SetServerIP(ServerIP);
+        }
+    }
+
+    public void SaveServerIP(string serverIP) {
+        ServerIP = serverIP;
+        PlayerPrefs.SetString("serverIP", ServerIP);
+        WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
     }
 
     private IEnumerator InitSceneView() {
@@ -105,6 +128,11 @@ public class GameManager : Singleton<GameManager> {
 
     public void HandleHandshakeDone() {
         WebSocketManager.Instance.SendDroneListRequest();
+        connectionBar.SetConnectionStatus(ConnectionStatus.Connected);
+    }
+
+    public void HandleConnectionFailed() {
+        connectionBar.SetConnectionStatus(ConnectionStatus.Disconnected);
     }
 
     public void CenterMap(DroneFlightData flightData) {

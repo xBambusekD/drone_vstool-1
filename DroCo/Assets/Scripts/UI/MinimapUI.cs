@@ -33,7 +33,6 @@ public class MinimapUI : MonoBehaviour {
     private IEnumerator InitMinimapTextures() {
         yield return new WaitForEndOfFrame();
 
-        Debug.Log("Size: " + minimapCameraView.rectTransform.rect.width + " " + minimapCameraView.rectTransform.rect.height);
         minimapTexture = new RenderTexture((int) minimapCameraView.rectTransform.rect.width, (int) minimapCameraView.rectTransform.rect.height, 24);
         sceneViewTexture = new RenderTexture((int) minimapCameraView.rectTransform.rect.width, (int) minimapCameraView.rectTransform.rect.height, 24);
         //fullScreenMinimapTexture = new RenderTexture(Screen.width, Screen.height, 24);
