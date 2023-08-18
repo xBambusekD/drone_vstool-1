@@ -21,6 +21,7 @@ using Esri.ArcGISMapsSDK.Samples.Components;
 using System;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -29,6 +30,7 @@ using UnityEngine.InputSystem.EnhancedTouch;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(HPTransform))]
 public class ArcGISCameraControllerTouch : MonoBehaviour {
+
     private ArcGISMapComponent arcGISMapComponent;
     private HPTransform hpTransform;
 
@@ -59,6 +61,9 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
     public double MinSpeed = 1000.0;
 
     public float PinchSpeed = 0.03f;
+
+    public bool EnableRotation = true;
+
 
     private void Awake() {
 #if ENABLE_INPUT_SYSTEM
@@ -222,9 +227,12 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
             return;
         }
 
-        DragMouseEvent();
+        // Move only if pointer is not over UI
+        if (!EventSystem.current.IsPointerOverGameObject()) {
+            DragMouseEvent();
 
-        UpdateNavigation();
+            UpdateNavigation();
+        }
     }
 
     /// <summary>
@@ -296,7 +304,7 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
         var deltaMouse = GetMousePosition() - lastMouseScreenPosition;
 
         if (!firstOnFocus) {
-            if (IsMouseRightClicked()) {
+            if (IsMouseRightClicked() && EnableRotation) {
                 if (!deltaMouse.Equals(Vector3.zero)) {
                     RotateAround(ref cartesianPosition, ref cartesianRotation, deltaMouse);
                 }

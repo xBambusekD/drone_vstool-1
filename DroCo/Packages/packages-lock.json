@@ -8,11 +8,11 @@
       "hash": "c5101c07762251edc82caad9e8a39d51b1229c31"
     },
     "com.esri.arcgis-maps-sdk": {
-      "version": "file:C:/Users/bambu/Documents/VUT/DRONES/droco/arcgis-maps-unity/arcgis-maps-sdk-unity-1.1.0.tgz",
+      "version": "file:C:/Users/bambu/Documents/VUT/DRONES/droco/arcgis-maps-unity/arcgis-maps-sdk-unity-1.2.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
-        "com.unity.burst": "1.6.5",
+        "com.unity.burst": "1.6.6",
         "com.unity.mathematics": "1.2.6"
       }
     },
@@ -175,15 +175,6 @@
         "com.unity.modules.animation": "1.0.0",
         "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.particlesystem": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.toonshader": {
-      "version": "0.8.3-preview",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.render-pipelines.core": "10.0.0"
       },
       "url": "https://packages.unity.com"
     },

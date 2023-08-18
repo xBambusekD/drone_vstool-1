@@ -18,6 +18,8 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     private string ClientID;
     private bool handshake_done = false;
 
+    private bool droneRequestSent = false;
+
     [Serializable]
     private class Response<T> {
         public string type;
@@ -36,6 +38,8 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public async void ConnectToServer(string domain, int port) {
+        ClosePreviousConnection();
+
         try {
             APIDomainWS = GetWSURI(domain, port);
             websocket = new WebSocket(APIDomainWS);
@@ -51,6 +55,12 @@ public class WebSocketManager : Singleton<WebSocketManager> {
         }
     }
 
+    private void ClosePreviousConnection() {
+        if (websocket != null && websocket.State == WebSocketState.Open) {
+            websocket.CancelConnection();
+        }
+    }
+
     public async void SendToServer(string msg) {
         if (websocket != null) {
             try {
@@ -62,8 +72,17 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public void SendDroneListRequest() {
-        Debug.Log("Sending drone list request.");
-        SendToServer("{\"type\":\"drone_list\"}");
+        if (!droneRequestSent) {
+            Debug.Log("Sending drone list request.");
+            SendToServer("{\"type\":\"drone_list\"}");
+            droneRequestSent = true;
+            StartCoroutine(RequestTimeout());
+        }
+    }
+
+    private IEnumerator RequestTimeout() {
+        yield return new WaitForSeconds(10f);
+        droneRequestSent = false;
     }
 
     public void SendCarDetectionRequest(string clientID, bool run = true) {
@@ -86,7 +105,9 @@ public class WebSocketManager : Singleton<WebSocketManager> {
             }
         } else if (handshake_done && msg.type == "drone_list_resp") {
             Response<DroneStaticData[]> dsdr = JsonUtility.FromJson<Response<DroneStaticData[]>>(msgstr);
+            Debug.Log(msgstr);
             DroneManager.Instance.HandleReceivedDroneList(dsdr.data);
+            droneRequestSent = false;
         } else if (handshake_done && msg.type == "data_broadcast") {
             Response<DroneFlightData> dsfdr = JsonUtility.FromJson<Response<DroneFlightData>>(msgstr);
             DroneManager.Instance.HandleReceivedDroneData(dsfdr.data);
@@ -103,11 +124,13 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     private void OnClose(WebSocketCloseCode closeCode) {
         Debug.Log("Connection closed!");
         handshake_done = false;
+        GameManager.Instance.HandleConnectionFailed();
     }
 
     private void OnError(string errorMsg) {
         Debug.LogError(errorMsg);
         handshake_done = false;
+        GameManager.Instance.HandleConnectionFailed();
     }
 
     private void OnConnected() {
