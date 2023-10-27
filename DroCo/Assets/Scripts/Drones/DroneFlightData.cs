@@ -7,6 +7,10 @@ using UnityEngine;
 public class GPS {
     public double latitude;
     public double longitude;
+
+    public override string ToString() {
+        return $"{{latitude:{latitude}, longitude:{longitude}}}";
+    }
 }
 
 [Serializable]
@@ -15,6 +19,10 @@ public class AircraftOrientation {
     public double roll;
     public double yaw;
     public double compass;
+    
+    public override string ToString() {
+        return $"{{pitch:{pitch}, roll:{roll}, yaw:{yaw}, compass:{compass}}}";
+    }
 }
 
 [Serializable]
@@ -22,6 +30,10 @@ public class AircraftVelocity {
     public double velocity_x;
     public double velocity_y;
     public double velocity_z;
+
+    public override string ToString() {
+        return $"{{x:{velocity_x}, y:{velocity_y}, z:{velocity_z}}}";
+    }
 }
 
 [Serializable]
@@ -30,6 +42,10 @@ public class GimbalOrientation {
     public double roll;
     public double yaw;
     public double yaw_relative;
+
+    public override string ToString() {
+        return $"{{pitch:{pitch}, roll:{roll}, yaw:{yaw}, yaw_relative:{yaw_relative}}}";
+    }
 }
 
 [Serializable]
@@ -45,6 +61,10 @@ public class DroneFlightData {
     public DroneFlightData() {
         client_id = "unset";
         altitude = 0;
+    }
+
+    public override string ToString() {
+        return $"{{client_id:{client_id}, altitude:{altitude}, gps:{gps}, aircraft_orientation:{aircraft_orientation}, gimbal_orientation:{gimbal_orientation}, timestamp:{timestamp}}}";
     }
 
     //public void SetData(double height, double latitude, double longitute, double pitch, double roll, double yaw, double compass) {

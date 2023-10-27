@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class CameraManager : Singleton<CameraManager> {
     public enum CameraView {
@@ -9,6 +10,9 @@ public class CameraManager : Singleton<CameraManager> {
         ThirdPerson,
         FreeLook
     }
+
+    [SerializeField]
+    private bool UseARCameraSwitch = false;
 
     [SerializeField]
     private Camera MainCamera;
@@ -25,10 +29,19 @@ public class CameraManager : Singleton<CameraManager> {
     //public Camera DroneViewCamera;
     //public Camera DroneFPVCamera;
     //public GameObject DroneModel;
+    public GameObject UI;
+    private InteractiveObject selectedObject;
+
+    public GameObject ARCameraBackground;
+    private RawImage arCameraBackgroundImage;
+
+
     private void Start() {
         cameraControllerTouch = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
         cameraFollow = MainCamera.GetComponent<CameraFollowSimple>();
         FollowingTarget = false;
+
+        arCameraBackgroundImage = ARCameraBackground.GetComponentInChildren<RawImage>();
     }
 
 
@@ -39,13 +52,15 @@ public class CameraManager : Singleton<CameraManager> {
             }
         }
 
-        //if (Keyboard.current[Key.Numpad1].wasPressedThisFrame) {
-        //    SetCameraView(CameraView.FirstPerson);
-        //} else if (Keyboard.current[Key.Numpad2].wasPressedThisFrame) {
-        //    SetCameraView(CameraView.ThirdPerson);
-        //} else if (Keyboard.current[Key.Numpad3].wasPressedThisFrame) {
-        //    SetCameraView(CameraView.FreeLook);
-        //}
+        if (UseARCameraSwitch) {
+            if (Keyboard.current[Key.Numpad1].wasPressedThisFrame) {
+                SetCameraView(CameraView.FirstPerson);
+                //} else if (Keyboard.current[Key.Numpad2].wasPressedThisFrame) {
+                //    SetCameraView(CameraView.ThirdPerson);
+            } else if (Keyboard.current[Key.Numpad3].wasPressedThisFrame) {
+                SetCameraView(CameraView.FreeLook);
+            }
+        }
     }
 
     private float GetMouseScollValue() {
@@ -68,10 +83,10 @@ public class CameraManager : Singleton<CameraManager> {
         }
     }
 
-    public void StartFollowingTarget(Transform transformToFollow) {
+    public void StartFollowingTarget(Transform transformToFollow, Transform cameraToAlign) {
         cameraControllerTouch.enabled = false;
         cameraFollow.enabled = true;
-        cameraFollow.StartFollowing(transformToFollow);
+        cameraFollow.StartFollowing(transformToFollow, cameraToAlign);
         FollowingTarget = true;
     }
 
@@ -82,28 +97,42 @@ public class CameraManager : Singleton<CameraManager> {
         FollowingTarget = false;
     }
 
-    //public void SetCameraView(CameraView view) {
-    //    switch (view) {
-    //        case CameraView.FirstPerson:
-    //            MainCamera.gameObject.SetActive(false);
-    //            DroneViewCamera.gameObject.SetActive(false);
-    //            DroneFPVCamera.gameObject.SetActive(true);
-    //            DroneModel.gameObject.SetActive(false);
-    //            break;
-    //        case CameraView.ThirdPerson:
-    //            MainCamera.gameObject.SetActive(true);
-    //            DroneViewCamera.gameObject.SetActive(true);
-    //            DroneFPVCamera.gameObject.SetActive(false);
-    //            DroneModel.gameObject.SetActive(true);
-    //            break;
-    //        case CameraView.FreeLook:
-    //            MainCamera.gameObject.SetActive(true);
-    //            DroneViewCamera.gameObject.SetActive(false);
-    //            DroneFPVCamera.gameObject.SetActive(false);
-    //            DroneModel.gameObject.SetActive(true);
-    //            break;
-    //    }
-    //    Debug.Log("Setting camera view to: " + view);
-    //}
+    public void SetCameraView(CameraView view) {
+        switch (view) {
+            case CameraView.FirstPerson:
+                MainCamera.gameObject.SetActive(false);
+                //DroneViewCamera.gameObject.SetActive(false);
+                selectedObject.FPVOnlyCamera.gameObject.SetActive(true);
+                selectedObject.DroneModel.gameObject.SetActive(false);
+                UI.SetActive(false);
+                selectedObject.FPVOnlyCamera.tag = "MainCamera";
+                MainCamera.tag = "Untagged";
+                ARCameraBackground.SetActive(true);
+                ARCameraBackground.GetComponent<Canvas>().worldCamera = selectedObject.FPVOnlyCamera;
+                arCameraBackgroundImage.texture = selectedObject.GetCameraTexture();
+                break;
+            //case CameraView.ThirdPerson:
+            //    MainCamera.gameObject.SetActive(true);
+            //    DroneViewCamera.gameObject.SetActive(true);
+            //    DroneFPVCamera.gameObject.SetActive(false);
+            //    DroneModel.gameObject.SetActive(true);
+            //    break;
+            case CameraView.FreeLook:
+                MainCamera.gameObject.SetActive(true);
+                //DroneViewCamera.gameObject.SetActive(false);
+                selectedObject.FPVOnlyCamera.gameObject.SetActive(false);
+                selectedObject.DroneModel.gameObject.SetActive(true);
+                UI.SetActive(true);
+                MainCamera.tag = "MainCamera";
+                selectedObject.FPVOnlyCamera.tag = "Untagged";
+                ARCameraBackground.SetActive(false);
+                break;
+        }
+        Debug.Log("Setting camera view to: " + view);
+    }
+
+    public void SetCurrentInteractiveObject(InteractiveObject intObject) {
+        selectedObject = intObject;
+    }
 
 }

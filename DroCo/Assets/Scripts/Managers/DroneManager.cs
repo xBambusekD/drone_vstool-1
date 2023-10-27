@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class DroneManager : Singleton<DroneManager> {
 
+    [SerializeField]
+    private bool UseBuffer = false;
+
     public IDictionary<string, Drone> Drones = new Dictionary<string, Drone>();
 
     public GameObject DronePrefab;
-    public ArcGISMapComponent Map;
+    public Transform Scene3DView;
 
 
     public void HandleReceivedDroneList(DroneStaticData[] droneStaticDatas) {
@@ -41,7 +44,11 @@ public class DroneManager : Singleton<DroneManager> {
     public void HandleReceivedDroneData(DroneFlightData flightData) {
         if (Drones.ContainsKey(flightData.client_id)) {
             GameManager.Instance.CenterMap(flightData);
-            Drones[flightData.client_id].UpdateDroneFlightData(flightData);
+            if (UseBuffer) {
+                Drones[flightData.client_id].DeliverNewFlightData(flightData);
+            } else {
+                Drones[flightData.client_id].UpdateDroneFlightData(flightData);
+            }
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
             WebSocketManager.Instance.SendDroneListRequest();
         }
@@ -58,7 +65,7 @@ public class DroneManager : Singleton<DroneManager> {
     private void AddDrone(DroneStaticData dsd) {
         Debug.Log("adding new drone with id: " + dsd.client_id);
 
-        GameObject newDroneGameObj = Instantiate(DronePrefab, Map.transform);
+        GameObject newDroneGameObj = Instantiate(DronePrefab, Scene3DView);
         Drone newDrone = newDroneGameObj.GetComponent<Drone>();
         newDrone.InitDrone(dsd);
         Drones.Add(dsd.client_id, newDrone);

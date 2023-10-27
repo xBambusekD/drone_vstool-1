@@ -18,6 +18,8 @@ public class ListItemButton : MonoBehaviour {
     private GameObject CameraView;
     [SerializeField]
     private RawImage CameraViewImage;
+    [SerializeField]
+    private TMP_Text DelayText;
 
     private InteractiveObject interactiveObject;
     private Button button;
@@ -63,6 +65,7 @@ public class ListItemButton : MonoBehaviour {
         buttonSelected = true;
         CameraView.SetActive(true);
         interactiveObject.Highlight(true);
+        interactiveObject.SetCameras();
     }
 
     public void OnDeselect() {
@@ -87,5 +90,10 @@ public class ListItemButton : MonoBehaviour {
 
     public void InitCameraViewTexture(RenderTexture texture) {
         CameraViewImage.texture = texture;
+    }
+
+    public void ChangeDelay(float delay) {
+        DelayText.text = "Delay: " + delay.ToString() + " ms";
+        interactiveObject.ChangeFlightDataDelay(delay);
     }
 }
