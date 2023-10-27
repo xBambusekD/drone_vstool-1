@@ -14,11 +14,11 @@ TagManager:
   - Map
   - Minimap
   - DroneScreen
-  - 
+  - Drone
   - Buildings
   - MinimapObject
-  - 
-  - 
+  - Mission
+  - ARBackground
   - 
   - 
   - 

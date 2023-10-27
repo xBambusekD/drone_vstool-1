@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.autodesk.fbx": {
+      "version": "4.1.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.endel.nativewebsocket": {
       "version": "https://github.com/endel/NativeWebSocket.git#upm",
       "depth": 0,
@@ -8,13 +15,20 @@
       "hash": "c5101c07762251edc82caad9e8a39d51b1229c31"
     },
     "com.esri.arcgis-maps-sdk": {
-      "version": "file:C:/Users/bambu/Documents/VUT/DRONES/droco/arcgis-maps-unity/arcgis-maps-sdk-unity-1.2.0.tgz",
+      "version": "file:C:/Users/bambu/Documents/VUT/DRONES/droco/arcgis-maps-unity/arcgis-maps-sdk-unity-1.3.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
         "com.unity.burst": "1.6.6",
         "com.unity.mathematics": "1.2.6"
       }
+    },
+    "com.pimdewitte.unitymainthreaddispatcher": {
+      "version": "https://github.com/PimDeWitte/UnityMainThreadDispatcher.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1ad4ddc45079ab5a2c32ecb586e4903903546d8f"
     },
     "com.unity.burst": {
       "version": "1.7.3",
@@ -39,6 +53,16 @@
       "depth": 1,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.formats.fbx": {
+      "version": "4.1.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.timeline": "1.5.2",
+        "com.autodesk.fbx": "4.1.2"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {

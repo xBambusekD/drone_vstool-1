@@ -10,13 +10,27 @@ public abstract class InteractiveObject : MonoBehaviour {
 
     public Camera TPVCamera;
     public Camera FPVOnlyCamera;
+    public Transform DroneModel;
+
+    [SerializeField]
+    public CustomPipelinePlayer PipelinePlayer;
 
     public virtual void Highlight(bool highlight) {
         HighlighterTrigger.ChangeTriggeringState(highlight);
     }
 
     public virtual void FocusCamera() {
-        CameraManager.Instance.StartFollowingTarget(TPVCamera.transform);
+        CameraManager.Instance.StartFollowingTarget(transform, TPVCamera.transform);
     }
+
+    public virtual void SetCameras() {
+        CameraManager.Instance.SetCurrentInteractiveObject(this);
+    }
+
+    public virtual Texture GetCameraTexture() {
+        return PipelinePlayer.VideoTexture;
+    }
+
+    public abstract void ChangeFlightDataDelay(float delay);
 
 }

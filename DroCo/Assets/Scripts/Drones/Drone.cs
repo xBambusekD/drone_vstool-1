@@ -24,21 +24,34 @@ public class Drone : InteractiveObject {
 
     private ArcGISLocationComponent GPSLocation;
 
-    public GameObject DroneModel;
+    public Transform DroneVideoScreen;
+    public Transform ThirdPersonView;
 
     public ListItemButton DroneListItem;
 
     public GameObject Drone2DPrefab;
     private Drone2D drone2DRepresentation;
 
+    private Queue<DroneFlightData> flightDataBuffer = new Queue<DroneFlightData>();
+    private float flightDataDelay = 0f;
+    public int FlightDataBufferSize = 0;
+    private float dataFrameRate = 0.1f;
+    private float lastMessageReceiveTime = 0f;
 
-    public Drone(GameObject droneGameObject) {
+    private IEnumerator PlayReceivedFlightData() {
+        while (true) {
+            if (flightDataBuffer.Count > 0) {
+                DroneFlightData flightData = flightDataBuffer.Dequeue();
+                UpdateDroneFlightData(flightData);
+                yield return new WaitForSeconds(dataFrameRate);
+            } else {
+                yield return new WaitForEndOfFrame();
+            }
+
+            yield return new WaitForSeconds(flightDataDelay);
+            flightDataDelay = 0f;
+        }
     }
-
-    /*public void Start() {
-        Instantiate(StreamPlayer);
-    }*/
-
 
     public void InitDrone(DroneStaticData staticData) {
         GPSLocation = GetComponent<ArcGISLocationComponent>();
@@ -46,6 +59,9 @@ public class Drone : InteractiveObject {
 
         drone2DRepresentation = Instantiate(Drone2DPrefab, GameManager.Instance.Map2DViewArcGISMap.transform).GetComponent<Drone2D>();
         drone2DRepresentation.InitDrone();
+
+        MissionManager.Instance.ChangeTargetFaceCamera(FPVOnlyCamera.transform);
+        MissionManager.Instance.ChangeTarget(transform);
 
         //Material mat = new Material(VideoMaterial);
         //VideoScreen.material = mat;
@@ -61,13 +77,25 @@ public class Drone : InteractiveObject {
         } catch {
 
         }
+
+        StartCoroutine(PlayReceivedFlightData());
+    }
+
+    public void DeliverNewFlightData(DroneFlightData flightData) {
+        dataFrameRate = Time.time - lastMessageReceiveTime;
+        lastMessageReceiveTime = Time.time;
+        Debug.Log(dataFrameRate);
+        flightDataBuffer.Enqueue(flightData);
+        FlightDataBufferSize = flightDataBuffer.Count;
     }
 
     public void UpdateDroneFlightData(DroneFlightData flightData) {
         FlightData = flightData;
-
+        
         GPSLocation.Position = new ArcGISPoint(flightData.gps.longitude, flightData.gps.latitude, flightData.altitude, new ArcGISSpatialReference(4326));
-        GPSLocation.Rotation = new ArcGISRotation(flightData.aircraft_orientation.yaw, flightData.aircraft_orientation.pitch, flightData.aircraft_orientation.roll);
+        DroneModel.localRotation = Quaternion.Euler(-(float) flightData.aircraft_orientation.pitch, (float) flightData.aircraft_orientation.yaw, -(float) flightData.aircraft_orientation.roll);
+        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.gimbal_orientation.pitch, (float) flightData.gimbal_orientation.yaw, -(float) flightData.gimbal_orientation.roll);
+        ThirdPersonView.localRotation = Quaternion.Euler(0f, (float) flightData.aircraft_orientation.yaw, 0f);
 
         drone2DRepresentation.UpdateFlightData(flightData);
 
@@ -86,4 +114,7 @@ public class Drone : InteractiveObject {
         drone2DRepresentation.Highlight(highlight);
     }
 
+    public override void ChangeFlightDataDelay(float delay) {
+        flightDataDelay = delay;
+    }
 }
