@@ -3872,7 +3872,7 @@ MonoBehaviour:
   enableExtent: 1
   extent:
     GeographicCenter:
-      x: 15.59768
+      x: 16.59768
       y: 49.22668
       z: 0
       SRWkid: 4326
