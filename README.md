@@ -42,7 +42,7 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
    ```
 ### Setup ArcGIS
  - Create ArcGIS developer account and [create your API Key](https://developers.arcgis.com/unity/authentication/tutorials/create-an-api-key/).
- - Paste the API Key to `ProjectSettings -> ArcGIS Maps SDK -> API Key` and to `ArcGIS Maps SDK -> Auth -> API Key`.
+ - Paste the API Key to `ProjectSettings -> ArcGIS Maps SDK -> API Key` and to the Object in the Hierarchy in the MainScene – `Scene3DView -> ArcGIS Map -> Authentication -> API Key`.
 ### Setup GStreamer
  - Install GStreamer [1.20.1](https://gstreamer.freedesktop.org/data/pkg/windows/1.20.1/) – install both, regular and devel version based on your computer's architecture (msvc and x86_64 works for me).
  - Add gstreamer binary folder path to System Environment Variables – `Computer -> System properties -> Advanced System Settings -> Advanced Tab -> Environment Variables... -> System Variables -> Variable: Path -> Edit -> New -> C:\gstreamer\1.0\msvc_x86_64\bin`
