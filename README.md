@@ -20,7 +20,7 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
 ## Installation
  - Clone this repo:
    ```bash
-   git clone git@github.com:xBambusekD/drone_vstool.git
+   git clone git@github.com:robofit/drone_vstool.git
    ```
  - Swith to the branch DroCoV2:
    ```bash
