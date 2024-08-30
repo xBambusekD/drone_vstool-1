@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/GStreamerLoad.unity
     guid: 5d6c43892061c0e438fcb5e7442632bf
   - enabled: 1
