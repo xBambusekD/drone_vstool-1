@@ -50,7 +50,7 @@ public class DroneManager : Singleton<DroneManager> {
                 Drones[flightData.client_id].UpdateDroneFlightData(flightData);
             }
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
-            WebSocketManager.Instance.SendDroneListRequest();
+            //WebSocketManager.Instance.SendDroneListRequest();
         }
     }
 
@@ -58,11 +58,11 @@ public class DroneManager : Singleton<DroneManager> {
         if (Drones.ContainsKey(vehicleData.client_id)) {
             Drones[vehicleData.client_id].UpdateDroneVehicleData(vehicleData);
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
-            WebSocketManager.Instance.SendDroneListRequest();
+            //WebSocketManager.Instance.SendDroneListRequest();
         }
     }
 
-    private void AddDrone(DroneStaticData dsd) {
+    public void AddDrone(DroneStaticData dsd) {
         Debug.Log("adding new drone with id: " + dsd.client_id);
 
         GameObject newDroneGameObj = Instantiate(DronePrefab, Scene3DView);

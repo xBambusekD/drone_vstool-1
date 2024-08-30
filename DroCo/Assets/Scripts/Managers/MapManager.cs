@@ -66,9 +66,10 @@ public class PragueData : MapArea {
 }
 
 public class BrnoData : MapArea {
-    public static string BrnoElevation = "https://gis.brno.cz/ags1/rest/services/OMI/omi_dtm_2019_wgs_1m_e/ImageServer";
-    public static string BrnoLOD1 = "https://gis.brno.cz/ags1/rest/services/Hosted/Brno_3D_LOD1_SJTSK/SceneServer";
-    public static string BrnoLOD2 = "https://gis.brno.cz/ags1/rest/services/Hosted/3D_budovy_LOD2_WM/SceneServer";
+    public static string BrnoElevation = "https://gis.brno.cz/ags1/rest/services/OMI/OMI_DMT_2019_wgs_elevation/ImageServer";
+    public static string BrnoCompleteLOD2 = "https://gis.brno.cz/ags1/rest/services/OMI/OMI_3D_budovy_lod2_wgs/SceneServer";
+    //public static string BrnoLOD1 = "https://gis.brno.cz/ags1/rest/services/Hosted/Brno_3D_LOD1_SJTSK/SceneServer";
+    //public static string BrnoLOD2 = "https://gis.brno.cz/ags1/rest/services/Hosted/3D_budovy_LOD2_WM/SceneServer";
 
 
     public BrnoData() {
@@ -76,7 +77,7 @@ public class BrnoData : MapArea {
     }
 
     public override string[] Get3DObjectSceneLayerData() {
-        return new string[] { BrnoLOD2 };
+        return new string[] { BrnoCompleteLOD2 };
     }
 
     public override string[] GetElevationData() {

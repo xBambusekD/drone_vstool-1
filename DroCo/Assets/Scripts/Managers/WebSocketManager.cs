@@ -38,21 +38,21 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public async void ConnectToServer(string domain, int port) {
-        ClosePreviousConnection();
+        //ClosePreviousConnection();
 
-        try {
-            APIDomainWS = GetWSURI(domain, port);
-            websocket = new WebSocket(APIDomainWS);
-            
-            websocket.OnOpen += OnConnected;
-            websocket.OnError += OnError;
-            websocket.OnClose += OnClose;
-            websocket.OnMessage += HandleReceivedData;
+        //try {
+        //    APIDomainWS = GetWSURI(domain, port);
+        //    websocket = new WebSocket(APIDomainWS);
 
-            await websocket.Connect();
-        } catch (UriFormatException ex) {
-            Debug.LogError(ex);
-        }
+        //    websocket.OnOpen += OnConnected;
+        //    websocket.OnError += OnError;
+        //    websocket.OnClose += OnClose;
+        //    websocket.OnMessage += HandleReceivedData;
+
+        //    await websocket.Connect();
+        //} catch (UriFormatException ex) {
+        //    Debug.LogError(ex);
+        //}
     }
 
     private void ClosePreviousConnection() {

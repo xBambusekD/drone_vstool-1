@@ -18,9 +18,10 @@ public class Drone : InteractiveObject {
     }
 
     public VehicleDataRenderer VehicleRenderer;
-    public CustomPipelinePlayer StreamPlayer;
+    //public CustomPipelinePlayer StreamPlayer;
     //public Material VideoMaterial;
     //public MeshRenderer VideoScreen;
+    public MeshRenderer VideoScreen;
 
     private ArcGISLocationComponent GPSLocation;
 
@@ -37,6 +38,13 @@ public class Drone : InteractiveObject {
     public int FlightDataBufferSize = 0;
     private float dataFrameRate = 0.1f;
     private float lastMessageReceiveTime = 0f;
+
+    private bool decoded = false;
+
+    private Texture2D JpegPlayerTexture;
+
+    public Material OcclusionMaterial;
+
 
     private IEnumerator PlayReceivedFlightData() {
         while (true) {
@@ -69,16 +77,9 @@ public class Drone : InteractiveObject {
         //StreamPlayer = AddComponent()
         //Instantiate(StreamPlayer);
 
+        //StartCoroutine(PlayReceivedFlightData());
 
-        try {
-            //StreamPlayer.TargetMaterial = mat;
-            StreamPlayer.pipeline = "rtmpsrc location=rtmp://" + GameManager.Instance.ServerIP + ":" + GameManager.Instance.RTMPPort + "/live/" + staticData.client_id + " ! decodebin";
-            StreamPlayer.gameObject.SetActive(true);
-        } catch {
-
-        }
-
-        StartCoroutine(PlayReceivedFlightData());
+        JpegPlayerTexture = new Texture2D(1, 1);
     }
 
     public void DeliverNewFlightData(DroneFlightData flightData) {
@@ -91,22 +92,40 @@ public class Drone : InteractiveObject {
 
     public void UpdateDroneFlightData(DroneFlightData flightData) {
         FlightData = flightData;
-        
+
         GPSLocation.Position = new ArcGISPoint(flightData.gps.longitude, flightData.gps.latitude, flightData.altitude, new ArcGISSpatialReference(4326));
         DroneModel.localRotation = Quaternion.Euler(-(float) flightData.aircraft_orientation.pitch, (float) flightData.aircraft_orientation.yaw, -(float) flightData.aircraft_orientation.roll);
-        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.gimbal_orientation.pitch, (float) flightData.gimbal_orientation.yaw, -(float) flightData.gimbal_orientation.roll);
+        //DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.aircraft_orientation.pitch, (float) flightData.aircraft_orientation.yaw, -(float) flightData.aircraft_orientation.roll);
+        //DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.gimbal_orientation.pitch, (float) flightData.gimbal_orientation.yaw, -(float) flightData.gimbal_orientation.roll);
+        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.gimbal_orientation.pitch, (float) flightData.aircraft_orientation.yaw + (float) flightData.gimbal_orientation.yaw_relative, -(float) flightData.gimbal_orientation.roll);
         ThirdPersonView.localRotation = Quaternion.Euler(0f, (float) flightData.aircraft_orientation.yaw, 0f);
-
+        
         drone2DRepresentation.UpdateFlightData(flightData);
 
         DroneListItem.UpdateHeight(flightData.altitude);
         DroneListItem.UpdateDistance(Vector3.Distance(Camera.main.transform.position, this.transform.position));
+
+        if (flightData.frame != "") {
+            byte[] frame = Convert.FromBase64String(flightData.frame);
+
+            JpegPlayerTexture.LoadImage(frame);
+
+            if (ArCameraBackground != null) {
+                ArCameraBackground.texture = JpegPlayerTexture;
+            }
+            VideoScreen.material.mainTexture = JpegPlayerTexture;
+            OcclusionMaterial.SetTexture("_CameraFeedTexture", JpegPlayerTexture);
+        }
+    }
+
+    public override Texture GetCameraTexture() {
+        return JpegPlayerTexture;
     }
 
     public void UpdateDroneVehicleData(DroneVehicleData vehicleData) {
-        if(StreamPlayer == null && VehicleRenderer == null) return;
-        VehicleRenderer.gameObject.SetActive(true);
-        VehicleRenderer.UpdateVehicleData(vehicleData);
+        //if(PipelinePlayer == null && VehicleRenderer == null) return;
+        //VehicleRenderer.gameObject.SetActive(true);
+        //VehicleRenderer.UpdateVehicleData(vehicleData);
     }
 
     public override void Highlight(bool highlight) {

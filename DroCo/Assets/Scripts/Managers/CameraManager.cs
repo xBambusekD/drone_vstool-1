@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,6 +36,11 @@ public class CameraManager : Singleton<CameraManager> {
     public GameObject ARCameraBackground;
     private RawImage arCameraBackgroundImage;
 
+    private bool vrSceneActive = false;
+
+    private CameraView currentCameraView = CameraView.FreeLook;
+    private Shader buildingShader;
+    private Shader buildingShaderLit;
 
     private void Start() {
         cameraControllerTouch = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
@@ -42,6 +48,9 @@ public class CameraManager : Singleton<CameraManager> {
         FollowingTarget = false;
 
         arCameraBackgroundImage = ARCameraBackground.GetComponentInChildren<RawImage>();
+
+        buildingShader = UnityEngine.Shader.Find("Custom/MobileOcclusion");
+        buildingShaderLit = UnityEngine.Shader.Find("Universal Render Pipeline/Lit");
     }
 
 
@@ -59,8 +68,45 @@ public class CameraManager : Singleton<CameraManager> {
                 //    SetCameraView(CameraView.ThirdPerson);
             } else if (Keyboard.current[Key.Numpad3].wasPressedThisFrame) {
                 SetCameraView(CameraView.FreeLook);
+            } else if (Keyboard.current[Key.Numpad0].wasPressedThisFrame) {
+                DisplayVRScene();
             }
         }
+    }
+
+    private void DisplayVRScene() {
+        //if (vrSceneActive) {
+        //    selectedObject.FPVOnlyCamera.cullingMask = LayerMask.GetMask("Mission", "ARBackground", "AP");
+        //    vrSceneActive = false;
+        //} else {
+        //    selectedObject.FPVOnlyCamera.cullingMask = LayerMask.GetMask("Mission", "ARBackground", "AP", "Buildings");
+        //    vrSceneActive = true;
+        //}
+        if (vrSceneActive) {
+            foreach (GameObject building in FindGameObjectsInLayer(10)) {
+                building.GetComponent<MeshRenderer>().material.shader = buildingShader;
+            }
+            vrSceneActive = false;
+        } else {
+            foreach (GameObject building in FindGameObjectsInLayer(10)) {
+                building.GetComponent<MeshRenderer>().material.shader = buildingShaderLit;
+            }
+            vrSceneActive = true;
+        }
+    }
+
+    private GameObject[] FindGameObjectsInLayer(int layer) {
+        var goArray = Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[];
+        var goList = new System.Collections.Generic.List<GameObject>();
+        for (int i = 0; i < goArray.Length; i++) {
+            if (goArray[i].layer == layer) {
+                goList.Add(goArray[i]);
+            }
+        }
+        if (goList.Count == 0) {
+            return null;
+        }
+        return goList.ToArray();
     }
 
     private float GetMouseScollValue() {
@@ -104,12 +150,16 @@ public class CameraManager : Singleton<CameraManager> {
                 //DroneViewCamera.gameObject.SetActive(false);
                 selectedObject.FPVOnlyCamera.gameObject.SetActive(true);
                 selectedObject.DroneModel.gameObject.SetActive(false);
+                selectedObject.SetARBackground(arCameraBackgroundImage);
                 UI.SetActive(false);
                 selectedObject.FPVOnlyCamera.tag = "MainCamera";
                 MainCamera.tag = "Untagged";
                 ARCameraBackground.SetActive(true);
                 ARCameraBackground.GetComponent<Canvas>().worldCamera = selectedObject.FPVOnlyCamera;
                 arCameraBackgroundImage.texture = selectedObject.GetCameraTexture();
+
+                currentCameraView = CameraView.FirstPerson;
+                //selectedObject.FPVOnlyCamera.projectionMatrix = CreateProjectionMatrix();
                 break;
             //case CameraView.ThirdPerson:
             //    MainCamera.gameObject.SetActive(true);
@@ -123,16 +173,48 @@ public class CameraManager : Singleton<CameraManager> {
                 selectedObject.FPVOnlyCamera.gameObject.SetActive(false);
                 selectedObject.DroneModel.gameObject.SetActive(true);
                 UI.SetActive(true);
+                selectedObject.SetARBackground(null);
                 MainCamera.tag = "MainCamera";
                 selectedObject.FPVOnlyCamera.tag = "Untagged";
                 ARCameraBackground.SetActive(false);
+
+                currentCameraView = CameraView.FreeLook;
                 break;
         }
         Debug.Log("Setting camera view to: " + view);
     }
 
+    private Matrix4x4 CreateProjectionMatrix() {
+        // Intrinsic parameters
+        Matrix4x4 intrinsicMatrix = new Matrix4x4(
+            new Vector4(1015.9761352539063f, 0.0f, 630.6932373046875f, 0.0f),
+            new Vector4(0.0f, 1017.92529296875f, 346.8971862792969f, 0.0f),
+            new Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+            new Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+        );
+
+        // Extrinsic parameters (assumed identity rotation and zero translation)
+        Matrix4x4 extrinsicMatrix = new Matrix4x4(
+            new Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+            new Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+            new Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+            new Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+        );
+
+        // Full projection matrix (P = K * [R | t])
+        Matrix4x4 projectionMatrix = intrinsicMatrix * extrinsicMatrix;
+
+        Debug.Log("Projection Matrix: " + projectionMatrix);
+
+        return projectionMatrix;
+    }
+
     public void SetCurrentInteractiveObject(InteractiveObject intObject) {
         selectedObject = intObject;
+    }
+
+    public void SwitchCameraView() {
+        SetCameraView(currentCameraView == CameraView.FreeLook ? CameraView.FirstPerson : CameraView.FreeLook);
     }
 
 }
