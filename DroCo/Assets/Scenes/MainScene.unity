@@ -548,6 +548,8 @@ MonoBehaviour:
     Heading: 283.9842836567045
     Pitch: 65.93728988362125
     Roll: 0.00030548385453508804
+  surfacePlacementMode: 0
+  surfacePlacementOffset: 0
 --- !u!114 &65932038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2488,6 +2490,8 @@ MonoBehaviour:
     Heading: 0
     Pitch: 90
     Roll: 0
+  surfacePlacementMode: 0
+  surfacePlacementOffset: 0
 --- !u!114 &394922804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4268,6 +4272,8 @@ MonoBehaviour:
     Heading: 0
     Pitch: 0
     Roll: 0
+  surfacePlacementMode: 0
+  surfacePlacementOffset: 0
 --- !u!114 &910033282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4943,6 +4949,8 @@ MonoBehaviour:
     Heading: 283.9842836567045
     Pitch: 65.93728988362125
     Roll: 0.00030548385453508804
+  surfacePlacementMode: 0
+  surfacePlacementOffset: 0
 --- !u!114 &961739755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6680,6 +6688,27 @@ MonoBehaviour:
   - Name: PLZEN_3
     Type: 1
     Source: https://tiles.arcgis.com/tiles/NUPWFrOotHlwVelG/arcgis/rest/services/3D_budovy_etapa_II/SceneServer
+    Opacity: 1
+    IsVisible: 0
+    Authentication:
+      ConfigurationIndex: -1
+    BuildingSceneLayerFilter:
+      ActiveBuildingAttributeFilterIndex: -1
+      BuildingAttributeFilters: []
+      IsBuildingAttributeFilterEnabled: 0
+      IsBuildingDisciplinesCategoriesFilterEnabled: 0
+      EnabledCategories: 
+      EnabledDisciplines: 
+    MeshModifications:
+      IsEnabled: 1
+      MeshModifications: []
+    SpatialFeatureFilter:
+      IsEnabled: 0
+      Polygons: []
+      Type: 0
+  - Name: OpenStreetMaps
+    Type: 1
+    Source: https://basemaps3d.arcgis.com/arcgis/rest/services/OpenStreetMap3D_Buildings_v1/SceneServer
     Opacity: 1
     IsVisible: 0
     Authentication:
@@ -9330,6 +9359,8 @@ MonoBehaviour:
     Heading: 0
     Pitch: 90
     Roll: 0
+  surfacePlacementMode: 0
+  surfacePlacementOffset: 0
 --- !u!1 &1644203677
 GameObject:
   m_ObjectHideFlags: 0
@@ -9951,6 +9982,8 @@ MonoBehaviour:
     Heading: 0
     Pitch: 90
     Roll: 0
+  surfacePlacementMode: 0
+  surfacePlacementOffset: 0
 --- !u!114 &1707719590
 MonoBehaviour:
   m_ObjectHideFlags: 0
