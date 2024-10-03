@@ -146,5 +146,6 @@ public class Drone : InteractiveObject, IPointerNotifier {
 
     public void OnDestroy() {
         Destroy(DroneListItem.gameObject);
+        Destroy(drone2DRepresentation.gameObject);
     }
 }
