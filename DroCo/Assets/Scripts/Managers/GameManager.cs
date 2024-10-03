@@ -17,6 +17,11 @@ using Esri.GameEngine.Elevation.Base;
 
 public class GameManager : Singleton<GameManager> {
 
+    public enum AppMode {
+        Client,
+        Server
+    }
+
     public enum DisplayState {
         Scene3DView,
         Map2DView
@@ -24,8 +29,13 @@ public class GameManager : Singleton<GameManager> {
 
     public enum ConnectionStatus {
         Connected,
-        Disconnected
+        Disconnected,
+        Listening,
+        Closed
     }
+
+    [SerializeField]
+    private AppMode defaultAppMode = AppMode.Client;
 
     public string ServerIP = "butcluster.ddns.net";
     public int ServerPort = 5555;
@@ -47,13 +57,16 @@ public class GameManager : Singleton<GameManager> {
     private MinimapUI minimapUI;
     [SerializeField]
     private ConnectionBar connectionBar;
+    [SerializeField]
+    private ServerStatusBar serverStatusBar;
 
     private ArcGISCameraControllerTouch sceneViewCameraController;
     private ArcGISCameraControllerTouch minimapCameraController;
 
-    
-    public float BuildingScale = 1.5f;
-    public float BuildingAltitudeOffset = 25f;
+    public AppMode CurrentAppMode {
+        get;
+        private set;
+    }
 
     public DisplayState CurrentDisplayState {
         get; private set;
@@ -61,7 +74,7 @@ public class GameManager : Singleton<GameManager> {
 
 
     private void Start() {
-        LoadLastServerIP();
+        ChangeAppMode(defaultAppMode);
 
         sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
         minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
@@ -69,11 +82,67 @@ public class GameManager : Singleton<GameManager> {
         StartCoroutine(InitSceneView());
     }
 
+    public void ChangeAppMode(AppMode mode) {
+        CurrentAppMode = mode;
+        switch (CurrentAppMode) {
+            case AppMode.Client:
+                CloseServerMode();
+                StartClientMode();
+                break;
+            case AppMode.Server:
+                CloseClientMode();
+                StartServerMode();
+                break;
+        }
+    }
+
+    private void StartClientMode() {
+        connectionBar.gameObject.SetActive(true);
+        serverStatusBar.gameObject.SetActive(false);
+
+        LoadLastServerIP();
+    }
+
+    private void CloseClientMode() {
+        WebSocketClient.Instance.Disconnect();
+
+        // cleanup all drones
+        DroneManager.Instance.DestroyDroneAll();
+    }
+
+    private void StartServerMode() {
+        serverStatusBar.gameObject.SetActive(true);
+        connectionBar.gameObject.SetActive(false);
+
+        WebSocketServer.Instance.StartServer();
+    }
+
+    private void CloseServerMode() {
+        WebSocketServer.Instance.CloseServer();
+        serverStatusBar.SetServerStatus(ConnectionStatus.Closed);
+
+        // cleanup all drones
+        DroneManager.Instance.DestroyDroneAll();
+
+    }
+
+    public void HandleServerRunning(string ip) {
+        serverStatusBar.SetServerIP(ip);
+        serverStatusBar.SetServerStatus(ConnectionStatus.Listening);
+    }
+
+    public void HandleClientDisconnected() {
+        serverStatusBar.SetServerStatus(ConnectionStatus.Listening);
+    }
+    public void HandleClientConnected() {
+        serverStatusBar.SetServerStatus(ConnectionStatus.Connected);
+    }
+
     private void LoadLastServerIP() {
         ServerIP = PlayerPrefs.GetString("serverIP", null);
         connectionBar.SetConnectionStatus(ConnectionStatus.Disconnected);
         if (!string.IsNullOrEmpty(ServerIP)) {
-            WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
+            WebSocketClient.Instance.ConnectToServer(ServerIP, ServerPort);
             connectionBar.SetServerIP(ServerIP);
         }
     }
@@ -81,21 +150,12 @@ public class GameManager : Singleton<GameManager> {
     public void SaveServerIP(string serverIP) {
         ServerIP = serverIP;
         PlayerPrefs.SetString("serverIP", ServerIP);
-        WebSocketManager.Instance.ConnectToServer(ServerIP, ServerPort);
+        WebSocketClient.Instance.ConnectToServer(ServerIP, ServerPort);
     }
 
     private IEnumerator InitSceneView() {
         yield return new WaitForEndOfFrame();
         Open3DSceneView();
-    }
-
-    private void Update() {
-        //if (Keyboard.current[Key.C].wasPressedThisFrame) {
-        //    carDetectorRunning = !carDetectorRunning;
-        //    foreach (KeyValuePair<string, Drone> drone in DroneManager.Instance.Drones) {
-        //        WebSocketManager.Instance.SendCarDetectionRequest(drone.Key, carDetectorRunning);
-        //    }
-        //}
     }
 
     public void SwitchSceneMapView() {
@@ -137,7 +197,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public void HandleHandshakeDone() {
-        WebSocketManager.Instance.SendDroneListRequest();
+        WebSocketClient.Instance.SendDroneListRequest();
         connectionBar.SetConnectionStatus(ConnectionStatus.Connected);
     }
 
@@ -156,13 +216,13 @@ public class GameManager : Singleton<GameManager> {
 
             // Set scene view map and load all possible 3d structures and layers
             Scene3DViewArcGISMap.OriginPosition = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude, new ArcGISSpatialReference(4326));
-            Scene3DViewArcGISMap.MapType = ArcGISMapType.Local;
+            Scene3DViewArcGISMap.MapType = ArcGISMapType.Global;
             Scene3DViewArcGISMap.MapTypeChanged += new ArcGISMapComponent.MapTypeChangedEventHandler(CreateArcGISMap);
             CreateArcGISMap();
 
             // Set 2d minimap and center it to the position of the first drone
             Map2DViewArcGISMap.OriginPosition = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, 0, new ArcGISSpatialReference(4326));
-            Map2DViewArcGISMap.MapType = ArcGISMapType.Local;
+            Map2DViewArcGISMap.MapType = ArcGISMapType.Global;
 
             // Center the main camera
             ArcGISLocationComponent cameraLocationComponent = MainCamera.GetComponent<ArcGISLocationComponent>();
@@ -230,9 +290,6 @@ public class GameManager : Singleton<GameManager> {
         arcGISm.ClippingArea = extent;
 
         Scene3DViewArcGISMap.View.Map = arcGISm;
-
-        //ArcGISRendererComponent arcGISRenderer = Scene3DViewArcGISMap.GetComponentInChildren<ArcGISRendererComponent>();
-        //arcGISRenderer.gameObject.AddComponent<BuildingHeightCorrector>();
     }
 
     private ArcGISLayer IsLayerInMap(string layerData) {
@@ -260,32 +317,6 @@ public class GameManager : Singleton<GameManager> {
         }
         return null;
     }
-
-    //private void OnArcGISLoadStatusChanged(ArcGISLoadStatus loadStatus) {
-    //    Debug.Log("ARCGIS – Load status changed to " + loadStatus);
-
-
-
-    //    //if (loadStatus == ArcGISLoadStatus.Loaded) {
-    //    //    UnityMainThreadDispatcher.Instance().Enqueue(CorrectBuildingHeight(BuildingScale, BuildingAltitudeOffset));
-    //    //}
-    //}
-
-    //private IEnumerator CorrectBuildingHeight(float scale, float altitudeOffset) {
-    //    yield return new WaitForSecondsRealtime(10f);
-    //    Debug.Log("Correcting building heights");
-    //    foreach (Transform go in Scene3DViewArcGISMap.GetComponentsInChildren<Transform>(includeInactive:true)) {
-    //        if (go.name.StartsWith("ArcGISGameObject")) {
-    //            if (go.GetComponent<MeshRenderer>().material.name.StartsWith("SceneNodeSurface")) {
-    //                Debug.Log("Changing building: " + go.name);
-    //                go.localScale = new Vector3(1f, scale, 1f);
-    //                go.position += new Vector3(0f, altitudeOffset, 0f);
-    //                go.gameObject.layer = LayerMask.NameToLayer("Buildings");
-    //            }
-    //        }
-    //    }
-    //    yield return null;
-    //}
 
 }
 

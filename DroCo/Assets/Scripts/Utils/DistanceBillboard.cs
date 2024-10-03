@@ -12,12 +12,14 @@ public class DistanceBillboard : MonoBehaviour {
 
     private void Start() {
         ObjectToFace = Camera.main.transform;
-        ObjectToComputeDistance = ObjectToFace;
+        if (ObjectToComputeDistance == null) {
+            ObjectToComputeDistance = ObjectToFace;
+        }
         MissionManager.Instance.AddToDistanceList(this);
     }
 
     private void Update() {
         transform.LookAt(ObjectToFace.transform);
-        DistanceText.text = Vector3.Distance(transform.position, ObjectToComputeDistance.transform.position).ToString() + " m";
+        DistanceText.text = Vector3.Distance(transform.position, ObjectToComputeDistance.transform.position).ToString("F2") + " m";
     }
 }

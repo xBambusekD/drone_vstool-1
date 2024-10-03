@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Highlighters;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class InteractiveObject : MonoBehaviour {
 
@@ -12,8 +14,7 @@ public abstract class InteractiveObject : MonoBehaviour {
     public Camera FPVOnlyCamera;
     public Transform DroneModel;
 
-    [SerializeField]
-    public CustomPipelinePlayer PipelinePlayer;
+    public RawImage ArCameraBackground = null;
 
     public virtual void Highlight(bool highlight) {
         HighlighterTrigger.ChangeTriggeringState(highlight);
@@ -27,10 +28,11 @@ public abstract class InteractiveObject : MonoBehaviour {
         CameraManager.Instance.SetCurrentInteractiveObject(this);
     }
 
-    public virtual Texture GetCameraTexture() {
-        return PipelinePlayer.VideoTexture;
-    }
+    public abstract Texture GetCameraTexture();
 
     public abstract void ChangeFlightDataDelay(float delay);
 
+    public virtual void SetARBackground(RawImage arCameraBackgroundImage) {
+        ArCameraBackground = arCameraBackgroundImage;
+    }
 }

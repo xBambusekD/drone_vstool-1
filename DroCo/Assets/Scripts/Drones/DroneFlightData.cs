@@ -57,6 +57,7 @@ public class DroneFlightData {
     public AircraftVelocity aircraft_velocity;
     public GimbalOrientation gimbal_orientation;
     public string timestamp;
+    public string frame;
 
     public DroneFlightData() {
         client_id = "unset";
