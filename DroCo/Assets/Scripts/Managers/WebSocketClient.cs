@@ -158,7 +158,7 @@ public class WebSocketClient : Singleton<WebSocketClient> {
     }
 
     private async void OnApplicationQuit() {
-        await websocket.Close();
+        await websocket?.Close();
     }
 
 }

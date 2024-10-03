@@ -251,11 +251,6 @@ public class GameManager : Singleton<GameManager> {
 
         ArcGISMap arcGISm = Scene3DViewArcGISMap.View.Map;
 
-        //ArcGISMap arcGISm = new ArcGISMap(Scene3DViewArcGISMap.MapType);
-        //arcGISm.Basemap = new ArcGISBasemap(ArcGISBasemapStyle.ArcGISImagery, APIKey);
-             
-        //arcGISm.LoadStatusChanged += OnArcGISLoadStatusChanged;
-
         // Check whether the drone is flying in some known location
         MapManager.Location knownLocation = MapManager.Instance.GetKnownLocation(firstDroneFlightData.gps);
 
@@ -269,9 +264,6 @@ public class GameManager : Singleton<GameManager> {
             }
         }
 
-        // Add base elevation layer
-        //arcGISm.Elevation.ElevationSources.Add(new Esri.GameEngine.Elevation.ArcGISImageElevationSource("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer", "Terrain 3D", ""));
-
         // If location has some specific or more detailed elevation layer, add it on top of the base layer
         foreach (string elevationData in MapManager.Instance.GetElevationData()) {
             ArcGISElevationSource elevationSource = IsElevationSourceInMap(elevationData);
@@ -281,13 +273,6 @@ public class GameManager : Singleton<GameManager> {
                 arcGISm.Elevation.ElevationSources.Add(new Esri.GameEngine.Elevation.ArcGISImageElevationSource(elevationData, knownLocation + "_elevation", ""));
             }
         }
-
-        Scene3DViewArcGISMap.EnableExtent = true;
-
-        var extentCenter = new ArcGISPoint(firstDroneFlightData.gps.longitude, firstDroneFlightData.gps.latitude, firstDroneFlightData.altitude, new ArcGISSpatialReference(4326));
-        var extent = new ArcGISExtentCircle(extentCenter, 10000);
-
-        arcGISm.ClippingArea = extent;
 
         Scene3DViewArcGISMap.View.Map = arcGISm;
     }
