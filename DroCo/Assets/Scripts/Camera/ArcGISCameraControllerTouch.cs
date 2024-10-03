@@ -102,9 +102,6 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
     }
 
     private Vector3 GetMousePosition() {
-        //if (Input.touchCount >= 1) {
-        //    return Input.GetTouch(0).position;
-        //} else {
         if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count >= 1) {
             return UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches[0].screenPosition;
         } else {
@@ -146,15 +143,6 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
     }
 
     private float GetMouseScollValue() {
-        //if (Input.touchCount == 2) {
-        //    Touch touch1 = Input.GetTouch(0);
-        //    Touch touch2 = Input.GetTouch(1);
-
-        //    Vector2 touch1Previous = touch1.position - touch1.deltaPosition;
-        //    Vector2 touch2Previous = touch2.position - touch2.deltaPosition;
-
-        //    return -PinchSpeed * (Vector2.Distance(touch1Previous, touch2Previous) - Vector2.Distance(touch1.position, touch2.position));
-        //} else if (Input.touchCount == 0) {
         if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == 2) {
             UnityEngine.InputSystem.EnhancedTouch.Touch touch1 = UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches[0];
             UnityEngine.InputSystem.EnhancedTouch.Touch touch2 = UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches[1];
@@ -175,9 +163,6 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
     }
 
     private bool IsMouseLeftClicked() {
-        //if (Input.touchCount == 1) {
-        //    return true;
-        //} else if (Input.touchCount == 0) {
         if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == 1) {
             return true;
         } else if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == 0) {
@@ -192,9 +177,6 @@ public class ArcGISCameraControllerTouch : MonoBehaviour {
     }
 
     private bool IsMouseRightClicked() {
-        //if (Input.touchCount == 3) {
-        //    return true;
-        //} else if (Input.touchCount == 0) {
         if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == 3) {
             return true;
         } else if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count == 0) {

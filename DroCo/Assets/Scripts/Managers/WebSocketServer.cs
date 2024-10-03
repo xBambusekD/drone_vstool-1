@@ -2,11 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using System.Net;
 using PimDeWitte.UnityMainThreadDispatcher;
 using UnityEditor;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using System.Net.NetworkInformation;
 
 public class TestBehavior : WebSocketBehavior {
     protected override void OnOpen() {
@@ -67,7 +70,7 @@ public class WebSocketServerBehavior : WebSocketBehavior {
     protected override void OnMessage(MessageEventArgs e) {
         base.OnMessage(e);
 
-        Debug.Log(e.Data);
+        //Debug.Log(e.Data);
         Message<string> msg = JsonUtility.FromJson<Message<string>>(e.Data);
         if (msg.type == "hello") {
             DoHandshake(ID, JsonUtility.FromJson<Message<Hello>>(e.Data));
@@ -84,6 +87,8 @@ public class WebSocketServerBehavior : WebSocketBehavior {
     protected override void OnClose(CloseEventArgs e) {
         base.OnClose(e);
         Debug.Log("Connection close: " + e.Reason);
+        UnityMainThreadDispatcher.Instance().Enqueue(HandleClientDisconnected());
+
     }
 
     protected override void OnError(ErrorEventArgs e) {
@@ -112,7 +117,18 @@ public class WebSocketServerBehavior : WebSocketBehavior {
             serial = droneData.data.serial
         };
 
+        UnityMainThreadDispatcher.Instance().Enqueue(HandleClientConnected());
         UnityMainThreadDispatcher.Instance().Enqueue(AddDrone(newDrone));
+    }
+
+    private IEnumerator HandleClientConnected() {
+        GameManager.Instance.HandleClientConnected();
+        yield return null;
+    }
+
+    private IEnumerator HandleClientDisconnected() {
+        GameManager.Instance.HandleClientDisconnected();
+        yield return null;
     }
 
     private IEnumerator AddDrone(DroneStaticData newDrone) {
@@ -126,7 +142,7 @@ public class WebSocketServerBehavior : WebSocketBehavior {
     }
 }
 
-public class WebSocketSharpServerManager : Singleton<WebSocketSharpServerManager> {
+public class WebSocketServer : Singleton<WebSocketServer> {
 
     public string Address;
     public string Port;
@@ -135,8 +151,9 @@ public class WebSocketSharpServerManager : Singleton<WebSocketSharpServerManager
 
     private string clientID;
 
-    private void Start() {
+    public void StartServer() {
         Debug.Log("Starting server");
+
         try {
             Server = new WebSocketSharp.Server.WebSocketServer("ws://" + Address + ":" + Port);
             Server.AddWebSocketService<WebSocketServerBehavior>("/");
@@ -150,11 +167,66 @@ public class WebSocketSharpServerManager : Singleton<WebSocketSharpServerManager
         } catch (Exception ex) {
             Debug.LogError(ex.Message);
             Port = (int.Parse(Port) + 1).ToString();
-            Start();
+            StartServer();
             return;
         }
 
-        //InvokeRepeating("SendMessageToClient", 5f, 5f);
+        GameManager.Instance.HandleServerRunning(GetLocalIPAddress() + ":" + Port);
+
+    }
+
+    private string GetLocalIPAddress() {
+        try {
+            // Get all network interfaces
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            string ethernetIP = null;
+            string wifiIP = null;
+            string otherIP = null;
+
+            foreach (NetworkInterface ni in interfaces) {
+                // Check if the network interface is up and has IP addresses
+                if (ni.OperationalStatus == OperationalStatus.Up) {
+                    foreach (UnicastIPAddressInformation ipInfo in ni.GetIPProperties().UnicastAddresses) {
+                        // We're only interested in IPv4 addresses
+                        if (ipInfo.Address.AddressFamily == AddressFamily.InterNetwork) {
+                            // Check if it's Ethernet
+                            if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet) {
+                                ethernetIP = ipInfo.Address.ToString();
+                            }
+                            // Check if it's Wi-Fi
+                            else if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) {
+                                wifiIP = ipInfo.Address.ToString();
+                            }
+                            // Store other network interfaces
+                            else if (otherIP == null) {
+                                otherIP = ipInfo.Address.ToString();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Prioritize Ethernet, then Wi-Fi, then others
+            if (ethernetIP != null)
+                return ethernetIP;
+            if (wifiIP != null)
+                return wifiIP;
+            if (otherIP != null)
+                return otherIP;
+
+            throw new System.Exception("No valid network adapters found!");
+        } catch (System.Exception e) {
+            Debug.LogError("Error retrieving local IP address: " + e.Message);
+            return "0.0.0.0";
+        }
+    }
+
+    public void CloseServer() {
+        Debug.Log("Closing server");
+        if (Server != null) {
+            Server.Stop();
+            Server = null;
+        }
     }
 
     private void SendMessageToClient() {

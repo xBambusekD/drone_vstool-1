@@ -5,7 +5,7 @@ using NativeWebSocket;
 using System;
 using System.Text;
 
-public class WebSocketManager : Singleton<WebSocketManager> {
+public class WebSocketClient : Singleton<WebSocketClient> {
     /// <summary>
     /// Drone Server URI
     /// </summary>
@@ -38,21 +38,30 @@ public class WebSocketManager : Singleton<WebSocketManager> {
     }
 
     public async void ConnectToServer(string domain, int port) {
-        //ClosePreviousConnection();
+        Debug.Log("Starting client");
+        ClosePreviousConnection();
 
-        //try {
-        //    APIDomainWS = GetWSURI(domain, port);
-        //    websocket = new WebSocket(APIDomainWS);
+        try {
+            APIDomainWS = GetWSURI(domain, port);
+            websocket = new WebSocket(APIDomainWS);
 
-        //    websocket.OnOpen += OnConnected;
-        //    websocket.OnError += OnError;
-        //    websocket.OnClose += OnClose;
-        //    websocket.OnMessage += HandleReceivedData;
+            websocket.OnOpen += OnConnected;
+            websocket.OnError += OnError;
+            websocket.OnClose += OnClose;
+            websocket.OnMessage += HandleReceivedData;
 
-        //    await websocket.Connect();
-        //} catch (UriFormatException ex) {
-        //    Debug.LogError(ex);
-        //}
+            await websocket.Connect();
+        } catch (UriFormatException ex) {
+            Debug.LogError(ex);
+        }
+    }
+
+    public void Disconnect() {
+        Debug.Log("Disconnecting client");
+        if (websocket != null && websocket.State == WebSocketState.Open) {
+            websocket.CancelConnection();
+            websocket = null;
+        }
     }
 
     private void ClosePreviousConnection() {

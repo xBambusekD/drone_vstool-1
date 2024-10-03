@@ -7,7 +7,7 @@ using Esri.GameEngine.Elevation.Base;
 using Esri.GameEngine.Geometry;
 using UnityEngine;
 
-public class Drone : InteractiveObject {
+public class Drone : InteractiveObject, IPointerNotifier {
 
     public DroneFlightData FlightData {
         get; set;
@@ -135,5 +135,16 @@ public class Drone : InteractiveObject {
 
     public override void ChangeFlightDataDelay(float delay) {
         flightDataDelay = delay;
+    }
+
+    public void OnClicked(IPointerNotifier.ClickObject clickObject) {
+        if (clickObject == IPointerNotifier.ClickObject.DroneScreen) {
+            CameraManager.Instance.SetCurrentInteractiveObject(this);
+            CameraManager.Instance.SetCameraView(CameraManager.CameraView.FirstPerson);
+        }
+    }
+
+    public void OnDestroy() {
+        Destroy(DroneListItem.gameObject);
     }
 }

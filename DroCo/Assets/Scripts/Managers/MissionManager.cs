@@ -39,49 +39,12 @@ public class MissionManager : Singleton<MissionManager> {
 
 
     private void Start() {
-        APInstance = Instantiate(ActionPointPrefab, ExperimentScene);
-        APInstance.SetActive(false);
-        apCollider = APInstance.GetComponentInChildren<Collider>();
-        apCollider.enabled = false;
+        
     }
 
     private void Update() {
-        //Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-        //if (Physics.Raycast(ray, out RaycastHit hit)) {
-        //    if (hit.collider != null) {
-        //        if (hit.collider.tag.Equals("Connection")) {
-        //            APInstance.SetActive(true);
-        //            APInstance.transform.position = hit.point;
-        //            if (Mouse.current.leftButton.wasPressedThisFrame) {
-        //                CreateAP(hit.collider.gameObject.GetComponent<Connection>());
-        //            }
-        //        } else {
-        //            APInstance.SetActive(false);
-        //        }
-        //    }
-        //}
+
     }
-
-    //private void CreateAP(Connection connection) {
-    //    GameObject newAP = Instantiate(ActionPointPrefab, ExperimentScene);
-    //    newAP.transform.position = APInstance.transform.position;
-    //    ActionPoint ap = newAP.GetComponent<ActionPoint>();
-    //    RectTransform[] targets = connection.target;
-
-    //    ConnectionManager.CreateConnection(targets[1], ap.ConnectionBinder);
-    //    Connection newConnection = ConnectionManager.FindConnection(targets[1], ap.ConnectionBinder);
-    //    newConnection.points[0].direction = ConnectionPoint.ConnectionDirection.East;
-    //    newConnection.points[1].direction = ConnectionPoint.ConnectionDirection.West;
-    //    LineRenderer lineRend = newConnection.GetComponent<LineRenderer>();
-    //    lineRend.material = ConnectionMaterial;
-    //    lineRend.startWidth = 0.3f;
-    //    lineRend.endWidth = 0.3f;
-    //    newConnection.gameObject.layer = 12;
-
-    //    connection.SetTargets(ap.ConnectionBinder, targets[0]);
-    //    connection.GetComponent<BoxCollider>().enabled = false;
-
-    //}
 
     public void AddToDistanceList(DistanceBillboard billboard) {
         distancesList.Add(billboard);

@@ -50,7 +50,9 @@ public class DroneManager : Singleton<DroneManager> {
                 Drones[flightData.client_id].UpdateDroneFlightData(flightData);
             }
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
-            //WebSocketManager.Instance.SendDroneListRequest();
+            if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Client) {
+                WebSocketClient.Instance.SendDroneListRequest();
+            }
         }
     }
 
@@ -58,7 +60,9 @@ public class DroneManager : Singleton<DroneManager> {
         if (Drones.ContainsKey(vehicleData.client_id)) {
             Drones[vehicleData.client_id].UpdateDroneVehicleData(vehicleData);
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
-            //WebSocketManager.Instance.SendDroneListRequest();
+            if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Client) {
+                WebSocketClient.Instance.SendDroneListRequest();
+            }
         }
     }
 
@@ -75,5 +79,22 @@ public class DroneManager : Singleton<DroneManager> {
         RenderTexture renderTexture = new RenderTexture(1280, 720, 24);
         newDrone.TPVCamera.targetTexture = renderTexture;
         newDrone.DroneListItem.InitCameraViewTexture(renderTexture);
+    }
+
+    public void SetDroneModelsActive(bool active) {
+        foreach (KeyValuePair<string, Drone> drone in Drones) {
+            drone.Value.DroneModel.gameObject.SetActive(active);
+        }
+    }
+
+    public void DestroyDroneAll() {
+        foreach (KeyValuePair<string, Drone> drone in Drones) {
+            DestroyDrone(drone.Value);
+        }
+        Drones.Clear();
+    }
+
+    public void DestroyDrone(Drone drone) {
+        Destroy(drone.gameObject);
     }
 }

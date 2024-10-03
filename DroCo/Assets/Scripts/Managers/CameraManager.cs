@@ -8,8 +8,8 @@ using UnityEngine.UI;
 public class CameraManager : Singleton<CameraManager> {
     public enum CameraView {
         FirstPerson,
-        ThirdPerson,
-        FreeLook
+        FreeLook,
+        None
     }
 
     [SerializeField]
@@ -25,13 +25,8 @@ public class CameraManager : Singleton<CameraManager> {
 
     private float pinchSpeed = 0.03f;
 
-    //public Texture2D VideoTexture;
-
-    //public Camera DroneViewCamera;
-    //public Camera DroneFPVCamera;
-    //public GameObject DroneModel;
     public GameObject UI;
-    private InteractiveObject selectedObject;
+    private InteractiveObject droneFPV;
 
     public GameObject ARCameraBackground;
     private RawImage arCameraBackgroundImage;
@@ -50,7 +45,9 @@ public class CameraManager : Singleton<CameraManager> {
         arCameraBackgroundImage = ARCameraBackground.GetComponentInChildren<RawImage>();
 
         buildingShader = UnityEngine.Shader.Find("Custom/MobileOcclusion");
-        buildingShaderLit = UnityEngine.Shader.Find("Universal Render Pipeline/Lit");
+        buildingShaderLit = UnityEngine.Shader.Find("Shader Graphs/SceneNodeSurface");
+
+        SetCameraView(CameraView.FreeLook);
     }
 
 
@@ -68,30 +65,19 @@ public class CameraManager : Singleton<CameraManager> {
                 //    SetCameraView(CameraView.ThirdPerson);
             } else if (Keyboard.current[Key.Numpad3].wasPressedThisFrame) {
                 SetCameraView(CameraView.FreeLook);
-            } else if (Keyboard.current[Key.Numpad0].wasPressedThisFrame) {
-                DisplayVRScene();
-            }
+            } 
         }
     }
 
-    private void DisplayVRScene() {
-        //if (vrSceneActive) {
-        //    selectedObject.FPVOnlyCamera.cullingMask = LayerMask.GetMask("Mission", "ARBackground", "AP");
-        //    vrSceneActive = false;
-        //} else {
-        //    selectedObject.FPVOnlyCamera.cullingMask = LayerMask.GetMask("Mission", "ARBackground", "AP", "Buildings");
-        //    vrSceneActive = true;
-        //}
-        if (vrSceneActive) {
-            foreach (GameObject building in FindGameObjectsInLayer(10)) {
-                building.GetComponent<MeshRenderer>().material.shader = buildingShader;
-            }
-            vrSceneActive = false;
-        } else {
+    private void DisplayVRScene(bool active = true) {
+        if (active) {
             foreach (GameObject building in FindGameObjectsInLayer(10)) {
                 building.GetComponent<MeshRenderer>().material.shader = buildingShaderLit;
             }
-            vrSceneActive = true;
+        } else {
+            foreach (GameObject building in FindGameObjectsInLayer(10)) {
+                building.GetComponent<MeshRenderer>().material.shader = buildingShader;
+            }
         }
     }
 
@@ -144,44 +130,59 @@ public class CameraManager : Singleton<CameraManager> {
     }
 
     public void SetCameraView(CameraView view) {
-        switch (view) {
-            case CameraView.FirstPerson:
-                MainCamera.gameObject.SetActive(false);
-                //DroneViewCamera.gameObject.SetActive(false);
-                selectedObject.FPVOnlyCamera.gameObject.SetActive(true);
-                selectedObject.DroneModel.gameObject.SetActive(false);
-                selectedObject.SetARBackground(arCameraBackgroundImage);
-                UI.SetActive(false);
-                selectedObject.FPVOnlyCamera.tag = "MainCamera";
-                MainCamera.tag = "Untagged";
-                ARCameraBackground.SetActive(true);
-                ARCameraBackground.GetComponent<Canvas>().worldCamera = selectedObject.FPVOnlyCamera;
-                arCameraBackgroundImage.texture = selectedObject.GetCameraTexture();
-
-                currentCameraView = CameraView.FirstPerson;
-                //selectedObject.FPVOnlyCamera.projectionMatrix = CreateProjectionMatrix();
-                break;
-            //case CameraView.ThirdPerson:
-            //    MainCamera.gameObject.SetActive(true);
-            //    DroneViewCamera.gameObject.SetActive(true);
-            //    DroneFPVCamera.gameObject.SetActive(false);
-            //    DroneModel.gameObject.SetActive(true);
-            //    break;
-            case CameraView.FreeLook:
-                MainCamera.gameObject.SetActive(true);
-                //DroneViewCamera.gameObject.SetActive(false);
-                selectedObject.FPVOnlyCamera.gameObject.SetActive(false);
-                selectedObject.DroneModel.gameObject.SetActive(true);
-                UI.SetActive(true);
-                selectedObject.SetARBackground(null);
-                MainCamera.tag = "MainCamera";
-                selectedObject.FPVOnlyCamera.tag = "Untagged";
-                ARCameraBackground.SetActive(false);
-
-                currentCameraView = CameraView.FreeLook;
-                break;
+        if (droneFPV == null && DroneManager.Instance.Drones.Count >= 1) {
+            IEnumerator enumerator = DroneManager.Instance.Drones.Values.GetEnumerator();
+            enumerator.MoveNext();
+            droneFPV = (InteractiveObject) enumerator.Current;
         }
-        Debug.Log("Setting camera view to: " + view);
+        if (droneFPV != null) {
+            switch (view) {
+                case CameraView.FirstPerson:
+                    UnsetFreeLook();
+                    SetFPV(droneFPV);
+                    break;
+                case CameraView.FreeLook:
+                    UnsetFPV(droneFPV);
+                    SetFreeLook();
+                    break;
+            }
+        }
+    }
+
+    private void SetFPV(InteractiveObject firstPerson) {
+        firstPerson.FPVOnlyCamera.gameObject.SetActive(true);
+        firstPerson.SetARBackground(arCameraBackgroundImage);
+        firstPerson.FPVOnlyCamera.tag = "MainCamera";
+        ARCameraBackground.SetActive(true);
+        ARCameraBackground.GetComponent<Canvas>().worldCamera = firstPerson.FPVOnlyCamera;
+        arCameraBackgroundImage.texture = firstPerson.GetCameraTexture();
+        currentCameraView = CameraView.FirstPerson;
+    }
+
+    private void UnsetFPV(InteractiveObject firstPerson) {
+        firstPerson.FPVOnlyCamera.gameObject.SetActive(false);
+        firstPerson.SetARBackground(null);
+        firstPerson.FPVOnlyCamera.tag = "Untagged";
+        ARCameraBackground.SetActive(false);
+        currentCameraView = CameraView.None;
+    }
+
+    private void SetFreeLook() {
+        MainCamera.gameObject.SetActive(true);
+        DroneManager.Instance.SetDroneModelsActive(true);
+        UI.SetActive(true);
+        MainCamera.tag = "MainCamera";
+        DisplayVRScene(true);
+        currentCameraView = CameraView.FreeLook;
+    }
+
+    private void UnsetFreeLook() {
+        MainCamera.gameObject.SetActive(false);
+        DroneManager.Instance.SetDroneModelsActive(false);
+        UI.SetActive(false);
+        MainCamera.tag = "Untagged";
+        DisplayVRScene(false);
+        currentCameraView = CameraView.None;
     }
 
     private Matrix4x4 CreateProjectionMatrix() {
@@ -210,7 +211,7 @@ public class CameraManager : Singleton<CameraManager> {
     }
 
     public void SetCurrentInteractiveObject(InteractiveObject intObject) {
-        selectedObject = intObject;
+        droneFPV = intObject;
     }
 
     public void SwitchCameraView() {
