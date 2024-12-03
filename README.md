@@ -29,18 +29,15 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
    cd drone_vstool
    git submodule update --init
    ```
- - Create a symlink of the submodules to the Assets folder:
-   ```bash
-   .\scripts\link_submodules.bat
-   ```
  - Download multimedia files from LFS:
    ```bash
    git lfs install
    git lfs pull
    ```
- - Patch ArcGIS scripts:
+ - Create a symlink of the submodules to the Assets folder:
    ```bash
-   .\scripts\patch_arcgis.bat
+   cd scripts
+   .\link_submodules.bat
    ```
 ### Setup ArcGIS
  - Create ArcGIS developer account and [create your API Key](https://developers.arcgis.com/documentation/security-and-authentication/api-key-authentication/tutorials/create-an-api-key/).
