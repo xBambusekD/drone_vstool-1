@@ -1,10 +1,11 @@
 # DroCo – V2
-Branch DroCoV2 presents completely new and clean version 2.0 of the original DroCo, currently still in development. Tested on Unity version 2021.3.11.
+Branch DroCoV2 presents a completely new and clean version 2.0 of the original DroCo, currently still in development. Tested on Unity version 2022.3.23.
 
 ## What's new
+ - Possibility to switch to AR.
+ - Synchronized video stream with flight data.
  - New map base layer – [ArcGIS](https://developers.arcgis.com/unity/).
  - New GUI design.
- - GStreamer support – [mrayGStreamerUnity](https://github.com/mrayy/mrayGStreamerUnity).
 
 ## DroCo – Multi-Drone Control Vizualization Tool
 [DroCo (VSTool)](https://www.fit.vut.cz/research/product/647/.en) is a tool for effective drone remote control using mixed reality, that also supports communication and cooperation on a mission with multiple drones. The proposed solution is developed by [Robo@FIT, Brno University of Technology](https://www.fit.vut.cz/research/group/robo/.en) research group, and is inspired by the high mental load of the pilot in the control of the drone, especially in the performance of more complex missions (multiple drones, remote target, proximity to infrastructure etc.). The system is based on the extension of the 3D virtual model with real data (augmented virtuality). It uses temporal and spatial registration of:
@@ -18,32 +19,34 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
 <img src=drocoV2_overview.png />
 
 ## Installation
+ - Install [UnxUtils](https://sourceforge.net/projects/unxutils/) to be able to patch ArcGIS scripts using patch_arcgis.bat script.
  - Clone this repo:
    ```bash
    git clone git@github.com:robofit/drone_vstool.git
    ```
- - Swith to the branch DroCoV2:
-   ```bash
-   git checkout DroCoV2
-   ```
  - Get submodules:
    ```bash
+   cd drone_vstool
    git submodule update --init
    ```
- - Create symlink of the submodules to the Assets folder:
+ - Create a symlink of the submodules to the Assets folder:
    ```bash
-   cd scripts
-   .\link_submodules.bat
+   .\scripts\link_submodules.bat
    ```
  - Download multimedia files from LFS:
    ```bash
    git lfs install
    git lfs pull
    ```
+ - Patch ArcGIS scripts:
+   ```bash
+   .\scripts\patch_arcgis.bat
+   ```
 ### Setup ArcGIS
- - Create ArcGIS developer account and [create your API Key](https://developers.arcgis.com/unity/authentication/tutorials/create-an-api-key/).
- - Paste the API Key to `ProjectSettings -> ArcGIS Maps SDK -> API Key` and to the Object in the Hierarchy in the MainScene – `Scene3DView -> ArcGIS Map -> Authentication -> API Key`.
-### Setup GStreamer
+ - Create ArcGIS developer account and [create your API Key](https://developers.arcgis.com/documentation/security-and-authentication/api-key-authentication/tutorials/create-an-api-key/).
+ - Paste the API Key to `ProjectSettings -> ArcGIS Maps SDK -> API Key`.
+
+### Setup GStreamer (optional, not required)
  - Install GStreamer [1.20.1](https://gstreamer.freedesktop.org/data/pkg/windows/1.20.1/) – install both, regular and devel version based on your computer's architecture (msvc and x86_64 works for me).
  - Add gstreamer binary folder path to System Environment Variables – `Computer -> System properties -> Advanced System Settings -> Advanced Tab -> Environment Variables... -> System Variables -> Variable: Path -> Edit -> New -> C:\gstreamer\1.0\msvc_x86_64\bin`
  - Create new system variable – `New Variable: GST_SDK_PATH= C:\gstreamer\1.0\x86_64\`
