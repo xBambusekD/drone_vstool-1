@@ -39,6 +39,7 @@ The system thus allows you to pilot the drone in FPV (first-person-view), but at
    cd scripts
    .\link_submodules.bat
    ```
+ - Load project in Unity and open **MainScene**, located in Assets/Scenes.
 ### Setup ArcGIS
  - Create ArcGIS developer account and [create your API Key](https://developers.arcgis.com/documentation/security-and-authentication/api-key-authentication/tutorials/create-an-api-key/).
  - Paste the API Key to `ProjectSettings -> ArcGIS Maps SDK -> API Key`.
