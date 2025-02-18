@@ -6,6 +6,11 @@ using UnityEngine;
 
 public class MapManager : Singleton<MapManager> {
 
+    public enum MapType {
+        ArcGIS,
+        Cesium
+    }
+
     public enum Location {
         PRAGUE,
         BRNO,
@@ -15,6 +20,7 @@ public class MapManager : Singleton<MapManager> {
 
     public ArcGISMapComponent ArcGISMap;
     public Location DefaultLocation;
+    public MapType CurrentMapType = MapType.ArcGIS;
 
     private MapArea currentArea;
 
@@ -22,6 +28,7 @@ public class MapManager : Singleton<MapManager> {
 
     private void Start() {
         mapAreas = new List<MapArea> {
+            new PragueData(),
             new BrnoData(),
             new PilsenData()
         };
@@ -48,20 +55,33 @@ public class MapManager : Singleton<MapManager> {
 }
 
 public class PragueData : MapArea {
+    public static string PragueElevation = "https://tiles.arcgis.com/tiles/SBTXIEUGWbqzUecw/arcgis/rest/services/dtm1m_wgs_test1_3/ImageServer";
+    public static string Prague2020 = "https://tiles.arcgis.com/tiles/SBTXIEUGWbqzUecw/arcgis/rest/services/budovy3D_2020_2/SceneServer/";
+
+    public PragueData() {
+        InitArea();
+    }
+
     public override string[] Get3DObjectSceneLayerData() {
-        throw new System.NotImplementedException();
+        return new string[] { Prague2020 };
     }
 
     public override string[] GetElevationData() {
-        throw new System.NotImplementedException();
+        return new string[] { PragueElevation };
     }
 
     public override MapManager.Location GetLocation() {
-        throw new System.NotImplementedException();
+        return MapManager.Location.PRAGUE;
     }
 
+    //Points are defined in the order: left-top, right-top, right-bottom, left-bottom
     public override void InitArea() {
-        throw new System.NotImplementedException();
+        Area = new Vector2[] {
+            new Vector2(50.167268f, 14.197861f),
+            new Vector2(50.210705f, 14.706782f),
+            new Vector2(49.963444f, 14.769515f),
+            new Vector2(49.918059f, 14.248815f)
+        };
     }
 }
 
@@ -88,6 +108,7 @@ public class BrnoData : MapArea {
         return MapManager.Location.BRNO;
     }
 
+    //Points are defined in the order: left-top, right-top, right-bottom, left-bottom
     public override void InitArea() {
         Area = new Vector2[] {
             new Vector2(49.2635479f, 16.4276505f),
@@ -112,7 +133,7 @@ public class PilsenData : MapArea {
     }
 
     public override string[] GetElevationData() {
-        return new string[] { };
+        return new string[] { DefaultElevation };
     }
 
     public override MapManager.Location GetLocation() {

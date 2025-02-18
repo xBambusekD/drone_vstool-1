@@ -52,6 +52,7 @@ public class GimbalOrientation {
 public class DroneFlightData {
     public string client_id;
     public double altitude;
+    public double relative_altitude;
     public GPS gps;
     public AircraftOrientation aircraft_orientation;
     public AircraftVelocity aircraft_velocity;
@@ -65,7 +66,7 @@ public class DroneFlightData {
     }
 
     public override string ToString() {
-        return $"{{client_id:{client_id}, altitude:{altitude}, gps:{gps}, aircraft_orientation:{aircraft_orientation}, gimbal_orientation:{gimbal_orientation}, timestamp:{timestamp}}}";
+        return $"{{client_id:{client_id}, altitude:{altitude}, relative_altitude:{relative_altitude}, gps:{gps}, aircraft_orientation:{aircraft_orientation}, gimbal_orientation:{gimbal_orientation}, timestamp:{timestamp}}}";
     }
 
     //public void SetData(double height, double latitude, double longitute, double pitch, double roll, double yaw, double compass) {

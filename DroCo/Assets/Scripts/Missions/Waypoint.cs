@@ -15,6 +15,7 @@ public class Waypoint {
     }
 
     private GameObject objectVisual;
+    private GameObject objectVisual2D;
 
     public Waypoint(GPS coordinates, double altitude) {
         Coordinates = coordinates;
@@ -25,7 +26,12 @@ public class Waypoint {
         objectVisual = visual;
     }
 
+    public void SetVisual2D(GameObject visual2D) {
+        objectVisual2D = visual2D;
+    }
+
     public void DestroyVisual() {
         GameObject.Destroy(objectVisual);
+        GameObject.Destroy(objectVisual2D);
     }
 }

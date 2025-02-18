@@ -19,7 +19,8 @@ public class GameManager : Singleton<GameManager> {
 
     public enum AppMode {
         Client,
-        Server
+        Server,
+        Experiment
     }
 
     public enum DisplayState {
@@ -35,7 +36,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     [SerializeField]
-    private AppMode defaultAppMode = AppMode.Client;
+    private AppMode defaultAppMode = AppMode.Experiment;
 
     public string ServerIP = "butcluster.ddns.net";
     public int ServerPort = 5555;
@@ -44,8 +45,10 @@ public class GameManager : Singleton<GameManager> {
     public string APIKey = "";
     public ArcGISMapComponent Scene3DViewArcGISMap;
     public ArcGISMapComponent Map2DViewArcGISMap;
+    public Transform Map2DViewCesium;
     public ArcGISCameraComponent MainCamera;
     public ArcGISCameraComponent MinimapCamera;
+    public Camera MinimapCameraCesium;
     public GameObject Scene3DView;
 
     private bool carDetectorRunning = false;
@@ -79,6 +82,8 @@ public class GameManager : Singleton<GameManager> {
         sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
         minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
 
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
         StartCoroutine(InitSceneView());
     }
 
@@ -92,6 +97,9 @@ public class GameManager : Singleton<GameManager> {
             case AppMode.Server:
                 CloseClientMode();
                 StartServerMode();
+                break;
+            case AppMode.Experiment:
+                MissionManager.Instance.DisplayMission1(true);
                 break;
         }
     }
@@ -206,7 +214,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public void CenterMap(DroneFlightData flightData) {
-        if (!mapCentered) {
+        if (!mapCentered && MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS) {
             mapCentered = true;
             firstDroneFlightData = flightData;
 

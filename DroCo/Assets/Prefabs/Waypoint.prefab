@@ -238,7 +238,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   connectionBinder: {fileID: 7233095063235088319}
   text: {fileID: 1953573984177033371}
+  model: {fileID: 3993616020532702920}
   shadow: {fileID: 6682731881208272609}
+  apMaterial: {fileID: 2100000, guid: dd048fee1b4208148adfd5bf1b60a934, type: 2}
+  apErrorMaterial: {fileID: 2100000, guid: 6cc9f87ab0bccb24a833fcdab1f6e18c, type: 2}
+  SphereRadius: 0.7
 --- !u!1 &4646414019440636554
 GameObject:
   m_ObjectHideFlags: 0
