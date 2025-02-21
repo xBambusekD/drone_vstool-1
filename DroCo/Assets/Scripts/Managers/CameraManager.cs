@@ -88,12 +88,12 @@ public class CameraManager : Singleton<CameraManager> {
             if (active) {
                 foreach (GameObject building in FindGameObjectsInLayer(10)) {
                     building.GetComponent<MeshRenderer>().material.shader = buildingShaderLit;
-                    building.GetComponent<Collider>().enabled = true;
+                    //building.GetComponent<Collider>().enabled = true;
                 }
             } else {
                 foreach (GameObject building in FindGameObjectsInLayer(10)) {
                     building.GetComponent<MeshRenderer>().material.shader = buildingShader;
-                    building.GetComponent<Collider>().enabled = false;
+                    //building.GetComponent<Collider>().enabled = false;
                 }
             }
         }

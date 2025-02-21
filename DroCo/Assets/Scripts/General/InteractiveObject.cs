@@ -32,8 +32,6 @@ public abstract class InteractiveObject : MonoBehaviour {
 
     public abstract Texture GetCameraTexture();
 
-    public abstract void ChangeFlightDataDelay(float delay);
-
     public virtual void SetARBackground(RawImage arCameraBackgroundImage) {
         ArCameraBackground = arCameraBackgroundImage;
     }

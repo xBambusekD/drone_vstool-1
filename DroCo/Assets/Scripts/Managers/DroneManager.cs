@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using CesiumForUnity;
 using Esri.ArcGISMapsSDK.Components;
 using Esri.GameEngine.Geometry;
 using Esri.HPFramework;
@@ -12,9 +13,6 @@ using UnityEngine.UI;
 public class DroneManager : Singleton<DroneManager> {
 
     public bool UseKalman = false;
-
-    [SerializeField]
-    private bool UseBuffer = false;
 
     public IDictionary<string, Drone> Drones = new Dictionary<string, Drone>();
 
@@ -72,11 +70,7 @@ public class DroneManager : Singleton<DroneManager> {
     public void HandleReceivedDroneData(DroneFlightData flightData) {
         if (Drones.ContainsKey(flightData.client_id)) {
             GameManager.Instance.CenterMap(flightData);
-            if (UseBuffer) {
-                Drones[flightData.client_id].DeliverNewFlightData(flightData);
-            } else {
-                Drones[flightData.client_id].UpdateDroneFlightData(flightData);
-            }
+            Drones[flightData.client_id].UpdateDroneFlightData(flightData);
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
             if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Client) {
                 WebSocketClient.Instance.SendDroneListRequest();
@@ -167,6 +161,39 @@ public class DroneManager : Singleton<DroneManager> {
 
             ActiveDrone.SetGPSOffset(new GPS() { latitude = closestPoint.Position.Y - droneLocation.latitude, longitude = closestPoint.Position.X - droneLocation.longitude });
         }
+    }
+
+    public void CalibrateDroneOnPoint(ArcGISLocationComponent point) {
+        GPS droneLocation = ActiveDrone.GetDroneLocation();
+
+        double latitudeOffset = point.Position.Y - droneLocation.latitude;
+        double longitudeOffset = point.Position.X - droneLocation.longitude;
+
+        ActiveDrone.SetGPSOffset(new GPS() { latitude = latitudeOffset, longitude = longitudeOffset });
+
+        Debug.Log("Calibrated on " + point.gameObject.name + ", offset is [latitude, longitude] = [" + latitudeOffset + ", " + longitudeOffset + "]");
+    }
+
+    public void CalibrateDroneOnPoint(CesiumGlobeAnchor point) {
+        GPS droneLocation = ActiveDrone.GetDroneLocation();
+
+        double latitudeOffset = point.longitudeLatitudeHeight.y - droneLocation.latitude;
+        double longitudeOffset = point.longitudeLatitudeHeight.x - droneLocation.longitude;
+
+        ActiveDrone.SetGPSOffset(new GPS() { latitude = latitudeOffset, longitude = longitudeOffset });
+
+        Debug.Log("Calibrated on " + point.gameObject.name + ", offset is [latitude, longitude] = [" + latitudeOffset + ", " + longitudeOffset + "]");
+    }
+
+    public void CalibrateDroneOnPoint2D(CesiumGlobeAnchor point) {
+        GPS droneLocation = ActiveDrone.Drone2DRepresentation.GetDroneLocation();
+
+        double latitudeOffset = point.longitudeLatitudeHeight.y - droneLocation.latitude;
+        double longitudeOffset = point.longitudeLatitudeHeight.x - droneLocation.longitude;
+
+        ActiveDrone.SetGPSOffset(new GPS() { latitude = latitudeOffset, longitude = longitudeOffset });
+
+        Debug.Log("Calibrated on " + point.gameObject.name + ", offset is [latitude, longitude] = [" + latitudeOffset + ", " + longitudeOffset + "]");
     }
 
     public void ResetOffset() {

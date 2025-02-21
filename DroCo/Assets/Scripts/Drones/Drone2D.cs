@@ -39,4 +39,8 @@ public abstract class Drone2D : MonoBehaviour {
         droneImage.transform.localScale = Vector3.one * size;
         //droneImage.transform.forward = droneImage.transform.position - Map2DCamera.transform.position;
     }
+
+    public abstract void SetGPSOffset(GPS offset);
+
+    public abstract GPS GetDroneLocation();
 }

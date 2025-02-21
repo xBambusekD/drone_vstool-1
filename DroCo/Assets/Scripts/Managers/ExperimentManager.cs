@@ -14,7 +14,7 @@ public class ExperimentManager : Singleton<ExperimentManager> {
         MobileTopdownView
     }
 
-    private ExperimentSettings experimentSettings;
+    public ExperimentSettings ExperimentSettings;
 
     public GameObject PlaceholderBackground;
     public UnityTransport UnityTransport;
@@ -26,6 +26,8 @@ public class ExperimentManager : Singleton<ExperimentManager> {
 
     public event Action OnClientConnectedToServer;
 
+    public TopPanel TopPanel;
+
     //public WebSocketServerExperiment WebSocketServer;
     //public WebSocketClientExperiment WebSocketClient;
 
@@ -34,13 +36,15 @@ public class ExperimentManager : Singleton<ExperimentManager> {
     private bool fpvSet = false;
 
     private void Start() {
-        experimentSettings = GetComponent<ExperimentSettings>();
+        if (ExperimentSettings == null) {
+            ExperimentSettings = GetComponent<ExperimentSettings>();
+        }
 
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
 
-        if (experimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
+        if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
             StartHost();
         }
         FlightLogPlayerManager.Instance.LoadDefaultFlightLog();
@@ -165,7 +169,7 @@ public class ExperimentManager : Singleton<ExperimentManager> {
     }
 
     private void OnPlayFlightLog() {
-        if (experimentSettings.CurrentAppMode == AppMode.TabletARView && !fpvSet) {
+        if (ExperimentSettings.CurrentAppMode == AppMode.TabletARView && !fpvSet) {
             PlaceholderBackground.SetActive(false);
             CameraManager.Instance.SetCameraFPV(true);
             fpvSet = true;

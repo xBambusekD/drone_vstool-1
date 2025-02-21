@@ -17,7 +17,7 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
     private string filePath;
 
 
-    public void LoadDefaultFlightLog(string file = "flight_log_20241106_160218.txt") {
+    public void LoadDefaultFlightLog(string file = "experiment_flight.txt") {
         filePath = Application.persistentDataPath + "/flightLogs/" + file;
         IndexFile(filePath);
         OpenFile();

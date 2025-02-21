@@ -14,6 +14,10 @@ public class Waypoint {
         get; private set;
     }
 
+    public string Name {
+        get; private set;
+    }
+
     private GameObject objectVisual;
     private GameObject objectVisual2D;
 
@@ -28,6 +32,10 @@ public class Waypoint {
 
     public void SetVisual2D(GameObject visual2D) {
         objectVisual2D = visual2D;
+    }
+
+    public void SetName(string name) {
+        Name = name;
     }
 
     public void DestroyVisual() {

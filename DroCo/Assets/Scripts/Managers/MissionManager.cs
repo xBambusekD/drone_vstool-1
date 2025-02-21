@@ -12,6 +12,8 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Highlighters;
 using CesiumForUnity;
+using System.Drawing;
+using System.Linq;
 
 public class MissionManager : Singleton<MissionManager> {
 
@@ -96,16 +98,14 @@ public class MissionManager : Singleton<MissionManager> {
     }
 
     private void LoadMission(Mission mission) {
-
-        Debug.Log("Load mission 2");
         switch (mission) {
             case Mission.MISSION_1:
-                //StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/GyGYAKxXbL2Wec5/download/Mise1.json", MapType));
-                StartCoroutine(DownloadMission("https://nextcloud.fit.vutbr.cz/s/9ACmJ5Mneem49Rj/download/Mise1.kml", MapManager.Instance.CurrentMapType));
+                StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/GyGYAKxXbL2Wec5/download/Mise1.json", MapManager.Instance.CurrentMapType));
+                //StartCoroutine(DownloadMission("https://nextcloud.fit.vutbr.cz/s/9ACmJ5Mneem49Rj/download/Mise1.kml", MapManager.Instance.CurrentMapType));
                 break;
             case Mission.MISSION_2:
-                StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/GyGYAKxXbL2Wec5/download/Mise1.json", MapManager.Instance.CurrentMapType));
-                //StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/TznxerNPA9QZkXa/download/Mise2.json", MapType));
+                //StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/GyGYAKxXbL2Wec5/download/Mise1.json", MapManager.Instance.CurrentMapType));
+                StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/TznxerNPA9QZkXa/download/Mise2.json", MapManager.Instance.CurrentMapType));
                 //StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/6TJHB58Y9XtERHk/download/Praha_letiste.json", MapType));
                 //StartCoroutine(DownloadMissionJson("https://nextcloud.fit.vutbr.cz/s/6TJHB58Y9XtERHk/download/Praha_letiste.json", MapType));
                 //StartCoroutine(DownloadMission("https://nextcloud.fit.vutbr.cz/s/m2kaxyW2LxR2ZGA/download/Mise2.kml", MapType));
@@ -149,16 +149,20 @@ public class MissionManager : Singleton<MissionManager> {
 
         foreach (string point in points) {
             string[] coords = point.Split(",");
-            missionWaypoints.Add(new Waypoint(new GPS() { longitude = double.Parse(coords[0]), latitude = double.Parse(coords[1]) }, double.Parse(coords[2])));
+            missionWaypoints.Add(new Waypoint(new GPS() { longitude = double.Parse(coords[0]), latitude = double.Parse(coords[1]) }, altitude: double.Parse(coords[2])));
         }
 
         SpawnMission(mapType);
-        SpawnMission2D(mapType);
+        if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Experiment) {
+            if (ExperimentManager.Instance.ExperimentSettings.CurrentAppMode == ExperimentManager.AppMode.MobileTopdownView) {
+                SpawnMission2D(mapType);
+            }
+        }
     }
 
     private void SpawnMission(MapManager.MapType mapType = MapManager.MapType.ArcGIS) {
         WaypointGameObject previousWaypoint = null;
-        int i = 0;
+        int i = 1;
         double firstWaypointAltitude = 0;
         double secondWaypointAltitude = 0;
 
@@ -180,6 +184,8 @@ public class MissionManager : Singleton<MissionManager> {
                 pointLocation.SurfacePlacementOffset = Math.Abs((firstWaypointAltitude - waypoint.Altitude)) < Math.Abs(secondWaypointAltitude - waypoint.Altitude) ? firstWaypointAltitude : secondWaypointAltitude;
                 WaypointGameObject waypointGO = point.GetComponent<WaypointGameObject>();
                 waypointGO.SetText(i.ToString());
+                waypoint.SetName(i.ToString());
+                waypointGO.WaypointRef = waypoint;
                 i++;
 
                 // Make connection between waypoints
@@ -197,6 +203,8 @@ public class MissionManager : Singleton<MissionManager> {
                 locationComponent.longitudeLatitudeHeight = new Unity.Mathematics.double3(waypoint.Coordinates.longitude, waypoint.Coordinates.latitude, AltitudeCorrection + waypoint.Altitude);
                 WaypointGameObject waypointGO = point.GetComponent<WaypointGameObject>();
                 waypointGO.SetText(i.ToString());
+                waypoint.SetName(i.ToString());
+                waypointGO.WaypointRef = waypoint;
                 i++;
 
                 // Make connection between waypoints
@@ -276,34 +284,63 @@ public class MissionManager : Singleton<MissionManager> {
 
         // Spawn mission waypoints on the map
         GenerateMissionWaypoints(segments, mapType);
+
+        if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Experiment) {
+            if (ExperimentManager.Instance.ExperimentSettings.CurrentAppMode == ExperimentManager.AppMode.MobileTopdownView) {
+                SpawnMission2D(mapType);
+            }
+        }
     }
 
     private List<MissionSegment> ExtractMissionSegments(MissionData missionData) {
         List<Waypoint> segmentPoints = new List<Waypoint>();
         List<MissionSegment> missionSegments = new List<MissionSegment>();
+        double latitude;
+        double longitude;
 
         // Extract waypoints from the mission data
         foreach (Segment segment in missionData.route.segments) {
-            foreach (Point point in segment.multipoint.points) {
-                // Convert latitude and longitude from radians to degrees
-                double latitude = point.latitude * Mathf.Rad2Deg;
-                double longitude = point.longitude * Mathf.Rad2Deg;
-
-                // Add the waypoint to the mission waypoints list
-                segmentPoints.Add(new Waypoint(new GPS() { longitude = longitude, latitude = latitude }, point.altitude));
-            }
 
             MissionSegment missionSegment = new MissionSegment();
 
-            // Separate waypoints by lines
-            for (int i = 0; i + 1 < segmentPoints.Count; i++) {
-                missionSegment.Lines.Add(new WaypointLine(segmentPoints[i], segmentPoints[i + 1]));
+            switch (segment.type) {
+                case "Waypoint":
+                    missionSegment.Type = MissionSegment.SegmentType.Waypoint;
+
+                    // Convert latitude and longitude from radians to degrees
+                    latitude = segment.point.latitude * Mathf.Rad2Deg;
+                    longitude = segment.point.longitude * Mathf.Rad2Deg;
+
+                    // Add the waypoint to the mission waypoints list
+                    missionSegment.Waypoint = new Waypoint(new GPS() { longitude = longitude, latitude = latitude }, altitude: segment.point.altitude);
+
+                    break;
+
+                case "FacadeScan":
+                    missionSegment.Type = MissionSegment.SegmentType.FacadeScan;
+
+                    foreach (Point point in segment.multipoint.points) {
+                        // Convert latitude and longitude from radians to degrees
+                        latitude = point.latitude * Mathf.Rad2Deg;
+                        longitude = point.longitude * Mathf.Rad2Deg;
+
+                        // Add the waypoint to the mission waypoints list
+                        segmentPoints.Add(new Waypoint(new GPS() { longitude = longitude, latitude = latitude }, altitude: point.altitude));
+                    }
+
+                    // Separate waypoints by lines
+                    for (int i = 0; i + 1 < segmentPoints.Count; i++) {
+                        missionSegment.Lines.Add(new WaypointLine(segmentPoints[i], segmentPoints[i + 1]));
+                    }
+
+                    break;
             }
 
             missionSegment.SegmentParameters = segment.parameters;
             missionSegments.Add(missionSegment);
 
             segmentPoints.Clear();
+
         }
 
         return missionSegments;
@@ -314,31 +351,43 @@ public class MissionManager : Singleton<MissionManager> {
         List<WaypointGameObject> waypoints = new List<WaypointGameObject>();
 
         foreach (MissionSegment segment in segments) {
-            // Compute coverage
-            float horizontalStep = CalculateHorizontalStep(segment.SegmentParameters);
-            int stepSize = Mathf.RoundToInt(horizontalStep);
+            switch (segment.Type) {
+                case MissionSegment.SegmentType.Waypoint:
+                    waypoints.Add(CreateWaypoint(segment.Waypoint.Coordinates.latitude, segment.Waypoint.Coordinates.longitude, segment.Waypoint.Altitude, new ArcGISSpatialReference(4326), (float) segment.Waypoint.Altitude, mapType));
 
-            foreach (WaypointLine line in segment.Lines) {
-                ArcGISPoint pointA = new ArcGISPoint(line.WaypointA.Coordinates.longitude, line.WaypointA.Coordinates.latitude, line.WaypointA.Altitude, new ArcGISSpatialReference(4326));
-                ArcGISPoint pointB = new ArcGISPoint(line.WaypointB.Coordinates.longitude, line.WaypointB.Coordinates.latitude, line.WaypointB.Altitude, new ArcGISSpatialReference(4326));
-                double distance = CalculateDistance(pointA, pointB);
-                int numberOfSteps = (int) distance / stepSize;
+                    break;
+                case MissionSegment.SegmentType.FacadeScan:
+                    // Compute coverage
+                    float horizontalStep = CalculateHorizontalStep(segment.SegmentParameters);
+                    int stepSize = Mathf.RoundToInt(horizontalStep);
 
-                double startingOffset = CalculateStartingOffset(distance, ref numberOfSteps, stepSize);
+                    foreach (WaypointLine line in segment.Lines) {
+                        ArcGISPoint pointA = new ArcGISPoint(line.WaypointA.Coordinates.longitude, line.WaypointA.Coordinates.latitude, line.WaypointA.Altitude, new ArcGISSpatialReference(4326));
+                        ArcGISPoint pointB = new ArcGISPoint(line.WaypointB.Coordinates.longitude, line.WaypointB.Coordinates.latitude, line.WaypointB.Altitude, new ArcGISSpatialReference(4326));
+                        double distance = CalculateDistance(pointA, pointB);
+                        int numberOfSteps = (int) distance / stepSize;
 
-                GenerateWaypointsAlongLine(pointA, pointB, startingOffset, numberOfSteps, distance, stepSize, segment.SegmentParameters, ref firstPoint, waypoints, mapType);
+                        double startingOffset = CalculateStartingOffset(distance, ref numberOfSteps, stepSize);
 
-                if (segment.Lines.Count > 1 && segment.Lines.IndexOf(line) != segment.Lines.Count - 1) {
-                    if (firstPoint == PointDirection.DOWN) {
-                        waypoints.Add(CreateWaypoint(pointB, segment.SegmentParameters.minHeight, mapType));
-                    } else {
-                        waypoints.Add(CreateWaypoint(pointB, segment.SegmentParameters.maxHeight, mapType));
+                        GenerateWaypointsAlongLine(pointA, pointB, startingOffset, numberOfSteps, distance, stepSize, segment.SegmentParameters, ref firstPoint, waypoints, mapType);
+
+                        if (segment.Lines.Count > 1 && segment.Lines.IndexOf(line) != segment.Lines.Count - 1) {
+                            if (firstPoint == PointDirection.DOWN) {
+                                waypoints.Add(CreateWaypoint(pointB, segment.SegmentParameters.minHeight, mapType));
+                            } else {
+                                waypoints.Add(CreateWaypoint(pointB, segment.SegmentParameters.maxHeight, mapType));
+                            }
+                        }
                     }
-                }
+                    break;
             }
         }
 
         ConnectWaypoints(waypoints);
+
+        // Set visuals of first and last waypoints.
+        waypoints.First().SetAsStartingPoint();
+        waypoints.Last().SetAsLastPoint();
     }
 
     private double CalculateDistance(ArcGISPoint point1, ArcGISPoint point2) {
@@ -391,6 +440,7 @@ public class MissionManager : Singleton<MissionManager> {
 
     private WaypointGameObject CreateWaypoint(double latitude, double longitude, double altitude, ArcGISSpatialReference spatialReference, float offset, MapManager.MapType mapType = MapManager.MapType.ArcGIS) {
         GameObject waypoint = Instantiate(WaypointPrefab);
+        WaypointGameObject waypointGo = waypoint.GetComponent<WaypointGameObject>();
 
         double waypointAltitude = 0;
 
@@ -406,18 +456,24 @@ public class MissionManager : Singleton<MissionManager> {
         } else if (mapType == MapManager.MapType.Cesium) {
             waypoint.transform.SetParent(MissionRootCesium.transform);
             CesiumGlobeAnchor locationComponent = waypoint.AddComponent<CesiumGlobeAnchor>();
+
             locationComponent.longitudeLatitudeHeight = new Unity.Mathematics.double3(longitude, latitude, AltitudeCorrection + offset);
+
+            waypointGo.SetLocation(locationComponent);
+            waypointGo.SetAltitudeCoroutine(offset);
         }
 
         Waypoint wp = new Waypoint(new GPS() { latitude = latitude, longitude = longitude }, altitude: waypointAltitude);
         wp.SetVisual(waypoint);
         missionWaypoints.Add(wp);
+        waypointGo.WaypointRef = wp;
 
         return waypoint.GetComponent<WaypointGameObject>();
     }
 
     private WaypointGameObject CreateWaypoint(ArcGISPoint point, float offset, MapManager.MapType mapType = MapManager.MapType.ArcGIS) {
         GameObject waypoint = Instantiate(WaypointPrefab);
+        WaypointGameObject waypointGo = waypoint.GetComponent<WaypointGameObject>();
 
         if (mapType == MapManager.MapType.ArcGIS) {
             waypoint.transform.SetParent(MissionRoot.transform);
@@ -429,22 +485,29 @@ public class MissionManager : Singleton<MissionManager> {
         } else if (mapType == MapManager.MapType.Cesium) {
             waypoint.transform.SetParent(MissionRootCesium.transform);
             CesiumGlobeAnchor locationComponent = waypoint.AddComponent<CesiumGlobeAnchor>();
+
+
             locationComponent.longitudeLatitudeHeight = new Unity.Mathematics.double3(point.Y, point.X, AltitudeCorrection + offset);
+
+            waypointGo.SetLocation(locationComponent);
+            waypointGo.SetAltitudeCoroutine(offset);
         }
 
 
         Waypoint wp = new Waypoint(new GPS() { latitude = point.X, longitude = point.Y }, altitude: point.Z);
         wp.SetVisual(waypoint);
         missionWaypoints.Add(wp);
+        waypointGo.WaypointRef = wp;
 
         return waypoint.GetComponent<WaypointGameObject>();
     }
 
     private void ConnectWaypoints(List<WaypointGameObject> waypoints) {
         WaypointGameObject previousWaypoint = null;
-        int i = 0;
+        int i = 1;
         foreach (WaypointGameObject waypoint in waypoints) {
             waypoint.SetText(i.ToString());
+            waypoint.WaypointRef.SetName(i.ToString());
             i++;
 
             // Make connection between waypoints
@@ -473,7 +536,7 @@ public class MissionManager : Singleton<MissionManager> {
         //MissionRootCesium.HighlighterValidate();
     }
 
-    private void DestroyMission() {
+    public void DestroyMission() {
         foreach (Waypoint waypoint in missionWaypoints) {
             waypoint.DestroyVisual();
         }
@@ -489,9 +552,15 @@ public class MissionManager : Singleton<MissionManager> {
 }
 
 public class MissionSegment {
+    public enum SegmentType {
+        Waypoint,
+        FacadeScan
+    }
+
+    public SegmentType Type;
+    public Waypoint Waypoint;
     public List<WaypointLine> Lines = new List<WaypointLine>();
     public Parameters SegmentParameters;
-
 }
 
 public class WaypointLine {
@@ -521,6 +590,7 @@ public class Route {
 public class Segment {
     public string type;
     public MultiPoint multipoint;
+    public Point point;
     public Parameters parameters;
 }
 

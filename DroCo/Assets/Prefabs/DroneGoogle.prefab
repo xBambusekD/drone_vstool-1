@@ -1594,6 +1594,11 @@ PrefabInstance:
       propertyPath: id
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6111668506676251452, guid: 71f9b644b9b6df048a191c88bd482757,
+        type: 3}
+      propertyPath: highlighterSettings.useInnerGlow
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6435831199168429114, guid: 71f9b644b9b6df048a191c88bd482757,
         type: 3}
       propertyPath: m_Layer

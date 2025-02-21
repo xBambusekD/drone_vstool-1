@@ -36,6 +36,8 @@ public class DroneArcGIS : Drone {
     }
 
     public override void SetGPSOffset(GPS offset) {
+        base.SetGPSOffset(offset);
+
         gpsOffset = offset;
     }
 

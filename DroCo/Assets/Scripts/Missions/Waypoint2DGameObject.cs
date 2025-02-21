@@ -21,7 +21,7 @@ public class Waypoint2DGameObject : MonoBehaviour {
 
 
     private void Start() {
-        layerMask = ~LayerMask.GetMask("Mission", "DroneScreen");
+        layerMask = LayerMask.GetMask("Map");
     }
 
     private void SetText(string txt) {
@@ -32,22 +32,27 @@ public class Waypoint2DGameObject : MonoBehaviour {
         SetText(waypointName);
 
         location = GetComponent<CesiumGlobeAnchor>();
-        ExperimentManager.Instance.OnClientConnectedToServer += OnConnected;
+
+        if (isActiveAndEnabled) {
+            StartCoroutine(GroundWaypointCoroutine());
+        }
     }
 
-    private void OnConnected() {
-        GroundWaypoint();
-    }
 
     private void GroundWaypoint() {
-        if (location != null) {
-            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, layerMask)) {
-                if (hit.collider != null && hit.distance < 50000) {
-                    double3 originalPosition = location.longitudeLatitudeHeight;
-                    location.longitudeLatitudeHeight = new double3(originalPosition.x, originalPosition.y, originalPosition.z - (double) hit.distance);
-                    Debug.Log("Moving waypoint about " + hit.distance + " down. " + "Hit to " + hit.collider.transform.parent.name);
-                }
+        Debug.Log("Ground Waypoint");
+        if (Physics.Raycast(transform.position + new Vector3(0, 1000, 0), transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, layerMask)) {
+            Debug.Log("Hit " + hit.transform.name);
+            if (hit.collider != null) {
+                double3 originalPosition = location.longitudeLatitudeHeight;
+                location.longitudeLatitudeHeight = new double3(originalPosition.x, originalPosition.y, originalPosition.z - (double) (hit.distance - 1000));
             }
         }
+    }
+
+    private IEnumerator GroundWaypointCoroutine() {
+        yield return new WaitForSeconds(0.5f);
+
+        GroundWaypoint();
     }
 }

@@ -187,7 +187,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3993616021649011766
 GameObject:
@@ -243,6 +243,8 @@ MonoBehaviour:
   apMaterial: {fileID: 2100000, guid: dd048fee1b4208148adfd5bf1b60a934, type: 2}
   apErrorMaterial: {fileID: 2100000, guid: 6cc9f87ab0bccb24a833fcdab1f6e18c, type: 2}
   SphereRadius: 0.7
+  highlighted: 0
+  location: {fileID: 0}
 --- !u!1 &4646414019440636554
 GameObject:
   m_ObjectHideFlags: 0

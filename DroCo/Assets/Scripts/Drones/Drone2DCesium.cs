@@ -11,6 +11,10 @@ public class Drone2DCesium : Drone2D {
     private CesiumGlobeAnchor GPSLocation;
     private LayerMask layerMask;
 
+    public double3 GPSLocationNoOffset => new double3(GPSLocation.longitudeLatitudeHeight.x - gpsOffset.longitude, GPSLocation.longitudeLatitudeHeight.y - gpsOffset.latitude, GPSLocation.longitudeLatitudeHeight.z);
+
+    private GPS gpsOffset = new GPS() { latitude = 0, longitude = 0 };
+
     public override void InitDrone() {
         base.InitDrone();
 
@@ -21,8 +25,10 @@ public class Drone2DCesium : Drone2D {
     }
 
     public override void UpdateFlightData(DroneFlightData flightData) {
-        GPSLocation.longitudeLatitudeHeight = new double3(flightData.gps.longitude, flightData.gps.latitude, GetGroundHeight());
+        GPSLocation.longitudeLatitudeHeight = new double3(flightData.gps.longitude + gpsOffset.longitude, flightData.gps.latitude + gpsOffset.latitude, GetGroundHeight());
         droneImage.transform.localRotation = Quaternion.Euler(new Vector3(90f, (float)flightData.aircraft_orientation.yaw, 0));
+        ExperimentManager.Instance.TopPanel.SetAltitudeText((Mathf.Round((float)flightData.relative_altitude * 10.0f) * 0.1f).ToString());
+        ExperimentManager.Instance.TopPanel.SetSpeedText((Mathf.Round(new Vector3((float) flightData.aircraft_velocity.velocity_x, (float) flightData.aircraft_velocity.velocity_y, (float) flightData.aircraft_velocity.velocity_z).magnitude * 10.0f) * 0.1f).ToString());        
     }
 
     public double GetGroundHeight() {
@@ -32,5 +38,13 @@ public class Drone2DCesium : Drone2D {
             }
         }
         return 500;
+    }
+
+    public override void SetGPSOffset(GPS offset) {
+        gpsOffset = offset;
+    }
+
+    public override GPS GetDroneLocation() {
+        return new GPS() { longitude = GPSLocationNoOffset.x, latitude = GPSLocationNoOffset.y };
     }
 }

@@ -30,15 +30,10 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
     public ListItemButton DroneListItem;
 
     public GameObject Drone2DPrefab;
-    private Drone2D drone2DRepresentation;
+    public Drone2D Drone2DRepresentation {
+        get; private set;
+    }
 
-    private Queue<DroneFlightData> flightDataBuffer = new Queue<DroneFlightData>();
-    private float flightDataDelay = 0f;
-    public int FlightDataBufferSize = 0;
-    private float dataFrameRate = 0.1f;
-    private float lastMessageReceiveTime = 0f;
-
-    private bool decoded = false;
 
     private Texture2D JpegPlayerTexture;
 
@@ -51,38 +46,22 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
 
     public RawImage ExperimentDroneVideoFrame;
 
+    private List<DroneFlightData> DroneFlightDataBuffer = new List<DroneFlightData>();
 
-    private IEnumerator PlayReceivedFlightData() {
-        while (true) {
-            if (flightDataBuffer.Count > 0) {
-                DroneFlightData flightData = flightDataBuffer.Dequeue();
-                UpdateDroneFlightData(flightData);
-                yield return new WaitForSeconds(dataFrameRate);
-            } else {
-                yield return new WaitForEndOfFrame();
-            }
+    public int Delay = 10;
+    private int prevDelay = 10;
 
-            yield return new WaitForSeconds(flightDataDelay);
-            flightDataDelay = 0f;
-        }
-    }
 
     public virtual void InitDrone(DroneStaticData staticData) {
-        drone2DRepresentation = Instantiate(Drone2DPrefab, MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS ? GameManager.Instance.Map2DViewArcGISMap.transform : GameManager.Instance.Map2DViewCesium).GetComponent<Drone2D>();
-        drone2DRepresentation.InitDrone();
+        Drone2DRepresentation = Instantiate(Drone2DPrefab, MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS ? GameManager.Instance.Map2DViewArcGISMap.transform : GameManager.Instance.Map2DViewCesium).GetComponent<Drone2D>();
+        Drone2DRepresentation.InitDrone();
 
         MissionManager.Instance.ChangeTargetFaceCamera(FPVOnlyCamera.transform);
         MissionManager.Instance.ChangeTarget(transform);
 
         JpegPlayerTexture = new Texture2D(1, 1);
-    }
 
-    public void DeliverNewFlightData(DroneFlightData flightData) {
-        dataFrameRate = Time.time - lastMessageReceiveTime;
-        lastMessageReceiveTime = Time.time;
-        Debug.Log(dataFrameRate);
-        flightDataBuffer.Enqueue(flightData);
-        FlightDataBufferSize = flightDataBuffer.Count;
+        prevDelay = Delay;
     }
 
     public void UpdateDroneFlightData(DroneFlightData flightData, bool droneCopy = false) {
@@ -98,14 +77,30 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
     private void UpdateDroneByGPS(DroneFlightData flightData) {
         FlightData = flightData;
 
-        UpdateDroneLocation(flightData);
+        DroneFlightData bufferedData;
 
-        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.gimbal_orientation.pitch, (float) (flightData.aircraft_orientation.yaw + flightData.gimbal_orientation.yaw_relative), -(float) flightData.gimbal_orientation.roll);
-        ThirdPersonView.localRotation = Quaternion.Euler(0f, (float) flightData.aircraft_orientation.yaw, 0f);
+        DroneFlightDataBuffer.Add(flightData);
 
-        drone2DRepresentation.UpdateFlightData(flightData);
+        if (prevDelay != Delay) {
+            DroneFlightDataBuffer.Clear();
+            prevDelay = Delay;
+        }
 
-        DroneListItem.UpdateHeight(flightData.altitude);
+        if (DroneFlightDataBuffer.Count > Delay) {
+            bufferedData = DroneFlightDataBuffer[0];
+            DroneFlightDataBuffer.RemoveAt(0);
+        } else {
+            bufferedData = flightData;
+        }
+
+        UpdateDroneLocation(bufferedData);
+
+        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) bufferedData.gimbal_orientation.pitch, (float) (bufferedData.aircraft_orientation.yaw + bufferedData.gimbal_orientation.yaw_relative), -(float) bufferedData.gimbal_orientation.roll);
+        ThirdPersonView.localRotation = Quaternion.Euler(0f, (float) bufferedData.aircraft_orientation.yaw, 0f);
+
+        Drone2DRepresentation.UpdateFlightData(bufferedData);
+
+        DroneListItem.UpdateHeight(bufferedData.altitude);
         DroneListItem.UpdateDistance(Vector3.Distance(Camera.main.transform.position, this.transform.position));
 
         if (flightData.frame != "") {
@@ -281,12 +276,9 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
 
     public override void Highlight(bool highlight) {
         base.Highlight(highlight);
-        drone2DRepresentation.Highlight(highlight);
+        Drone2DRepresentation.Highlight(highlight);
     }
 
-    public override void ChangeFlightDataDelay(float delay) {
-        flightDataDelay = delay;
-    }
 
     public void OnClicked(IPointerNotifier.ClickObject clickObject) {
         if (clickObject == IPointerNotifier.ClickObject.DroneScreen) {
@@ -298,8 +290,10 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
 
     public void OnDestroy() {
         Destroy(DroneListItem.gameObject);
-        Destroy(drone2DRepresentation.gameObject);
+        Destroy(Drone2DRepresentation.gameObject);
     }
 
-    public abstract void SetGPSOffset(GPS offset);
+    public virtual void SetGPSOffset(GPS offset) {
+        Drone2DRepresentation.SetGPSOffset(offset);
+    }
 }
