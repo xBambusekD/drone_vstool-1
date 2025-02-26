@@ -31,13 +31,16 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
     public void PlayLogMessage(int line) {
         string logLine = GetLine(line);
         //Debug.Log(logLine);
+        DroneFlightData flightData;
 
         try {
-            DroneFlightData flightData = JsonUtility.FromJson<DroneFlightData>(logLine);
-            DroneManager.Instance.HandleReceivedDroneData(flightData);
+            flightData = JsonUtility.FromJson<DroneFlightData>(logLine);
         } catch(ArgumentException e) {
-            Debug.Log(e.Message);
+            Debug.Log(e.Message + " Skipping message.");
+            return;
         }
+
+        DroneManager.Instance.HandleReceivedDroneData(flightData);
     }
 
     public void PlayLogMessage(string message) {

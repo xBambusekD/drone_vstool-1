@@ -85,17 +85,28 @@ public class CameraManager : Singleton<CameraManager> {
 
     public void DisplayVRScene(bool active = true) {
         if (MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS) {
-            if (active) {
-                foreach (GameObject building in FindGameObjectsInLayer(10)) {
-                    building.GetComponent<MeshRenderer>().material.shader = buildingShaderLit;
-                    //building.GetComponent<Collider>().enabled = true;
-                }
-            } else {
-                foreach (GameObject building in FindGameObjectsInLayer(10)) {
-                    building.GetComponent<MeshRenderer>().material.shader = buildingShader;
-                    //building.GetComponent<Collider>().enabled = false;
+
+            GameObject[] buildings = FindGameObjectsInLayer(10);
+            if (buildings != null) {
+                if (active) {
+                    foreach (GameObject building in buildings) {
+                        building.GetComponent<MeshRenderer>().material.shader = buildingShaderLit;
+                        //building.GetComponent<Collider>().enabled = true;
+                    }
+                } else {
+                    foreach (GameObject building in buildings) {
+                        building.GetComponent<MeshRenderer>().material.shader = buildingShader;
+                        //building.GetComponent<Collider>().enabled = false;
+                    }
                 }
             }
+        }
+    }
+
+    public void DisplayVRSceneLit(bool active = true) {
+        foreach (GameObject building in FindGameObjectsInLayer(10)) {
+            building.GetComponent<MeshRenderer>().enabled = active;
+            building.GetComponent<Collider>().enabled = active;
         }
     }
 

@@ -17,28 +17,33 @@ public class DroneCesium : Drone {
 
     private LayerMask layerMask;
 
+    public float AltitudeCorrection = 45f;
+
+    private double lastGroundHeight = 0;
+
     public override void InitDrone(DroneStaticData staticData) {
         base.InitDrone(staticData);
 
-        layerMask = ~LayerMask.GetMask("Mission", "DroneScreen");
+        layerMask = LayerMask.GetMask("Map");
 
         GPSLocation = GetComponent<CesiumGlobeAnchor>();
         GPSLocation.enabled = true;
     }
 
     protected override void UpdateDroneLocation(DroneFlightData flightData) {
-        GPSLocation.longitudeLatitudeHeight = new double3(flightData.gps.longitude + gpsOffset.longitude, flightData.gps.latitude + gpsOffset.latitude, flightData.altitude + 45f);
-        //GPSLocation.longitudeLatitudeHeight = new double3(flightData.gps.longitude + gpsOffset.longitude, flightData.gps.latitude + gpsOffset.latitude, flightData.relative_altitude + GetGroundAltitude());
+        //GPSLocation.longitudeLatitudeHeight = new double3(flightData.gps.longitude + gpsOffset.longitude, flightData.gps.latitude + gpsOffset.latitude, flightData.altitude + AltitudeCorrection);
+        GPSLocation.longitudeLatitudeHeight = new double3(flightData.gps.longitude + gpsOffset.longitude, flightData.gps.latitude + gpsOffset.latitude, flightData.relative_altitude + GetGroundAltitude());
         DroneModel.localRotation = Quaternion.Euler(-(float) flightData.aircraft_orientation.pitch, (float) flightData.aircraft_orientation.yaw, -(float) flightData.aircraft_orientation.roll);
     }
 
     private double GetGroundAltitude() {
         if (Physics.Raycast(transform.position + new Vector3(0, 1000, 0), transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, layerMask)) {
             if (hit.collider != null) {
-                return GPSLocation.longitudeLatitudeHeight.z - (double) (hit.distance - 1000);
+                lastGroundHeight = GPSLocation.longitudeLatitudeHeight.z - (double) (hit.distance - 1000);
+                return lastGroundHeight;
             }
         }
-        return 0;
+        return lastGroundHeight;
     }
 
     public override void SetGPSOffset(GPS offset) {

@@ -172,6 +172,7 @@ public class ExperimentManager : Singleton<ExperimentManager> {
         if (ExperimentSettings.CurrentAppMode == AppMode.TabletARView && !fpvSet) {
             PlaceholderBackground.SetActive(false);
             CameraManager.Instance.SetCameraFPV(true);
+            CameraManager.Instance.DisplayVRSceneLit(false);
             fpvSet = true;
         }
     }

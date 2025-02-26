@@ -50,8 +50,8 @@ public class TooltipWaypoints : MonoBehaviour {
 
     private void SetTooltipText(WaypointGameObject waypoint) {
         if (waypoint != null) {
-            WaypointName.text = "Waypoiont #" + waypoint.GetName();
-            AMSL.text = "AMSL alt.: " + waypoint.GetAMSL().ToString("F1") + " m";
+            WaypointName.text = "Waypoint #" + waypoint.GetName();
+            AMSL.text = "AMSL alt.: " + waypoint.GetCorrectedAMSL().ToString("F1") + " m";
             AGL.text = "AGL alt.: " + waypoint.GetAGL().ToString("F1") + " m";
         }
     }

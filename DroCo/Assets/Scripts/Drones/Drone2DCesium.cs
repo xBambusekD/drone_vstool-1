@@ -15,6 +15,8 @@ public class Drone2DCesium : Drone2D {
 
     private GPS gpsOffset = new GPS() { latitude = 0, longitude = 0 };
 
+    private double lastGroundHeight = 0;
+
     public override void InitDrone() {
         base.InitDrone();
 
@@ -34,10 +36,11 @@ public class Drone2DCesium : Drone2D {
     public double GetGroundHeight() {
         if (Physics.Raycast(transform.position + new Vector3(0, 1000, 0), transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, layerMask)) {
             if (hit.collider != null && hit.distance < 50000) {
-                return GPSLocation.longitudeLatitudeHeight.z - (double) (hit.distance - 1000);
+                lastGroundHeight = GPSLocation.longitudeLatitudeHeight.z - (double) (hit.distance - 1000);
+                return lastGroundHeight;
             }
         }
-        return 500;
+        return lastGroundHeight;
     }
 
     public override void SetGPSOffset(GPS offset) {

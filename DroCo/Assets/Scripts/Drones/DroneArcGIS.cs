@@ -14,7 +14,7 @@ public class DroneArcGIS : Drone {
 
     public ArcGISPoint GPSLocationNoOffset => new ArcGISPoint(GPSLocation.Position.X - gpsOffset.longitude, GPSLocation.Position.Y - gpsOffset.latitude, GPSLocation.Position.Z, new ArcGISSpatialReference(4326));
 
-    private GPS gpsOffset = new GPS() { latitude = 0, longitude = 0 };
+    public GPS gpsOffset = new GPS() { latitude = 0, longitude = 0 };
 
     public override void InitDrone(DroneStaticData staticData) {
         base.InitDrone(staticData);

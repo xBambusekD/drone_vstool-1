@@ -441,9 +441,9 @@ MonoBehaviour:
   DroneListItem: {fileID: 0}
   Drone2DPrefab: {fileID: 4900014931491596164, guid: a06099419049f534790e3bbe1a3f09dc,
     type: 3}
-  FlightDataBufferSize: 0
   OcclusionMaterial: {fileID: 2100000, guid: 506c5f43bfb4cd74b8bcdd0615719e2a, type: 2}
   ExperimentDroneVideoFrame: {fileID: 0}
+  Delay: 0
 --- !u!114 &501231330781205338
 MonoBehaviour:
   m_ObjectHideFlags: 0

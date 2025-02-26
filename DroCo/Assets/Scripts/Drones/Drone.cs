@@ -48,8 +48,8 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
 
     private List<DroneFlightData> DroneFlightDataBuffer = new List<DroneFlightData>();
 
-    public int Delay = 10;
-    private int prevDelay = 10;
+    //public int Delay = 10;
+    //private int prevDelay = 10;
 
 
     public virtual void InitDrone(DroneStaticData staticData) {
@@ -61,7 +61,7 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
 
         JpegPlayerTexture = new Texture2D(1, 1);
 
-        prevDelay = Delay;
+        //prevDelay = Delay;
     }
 
     public void UpdateDroneFlightData(DroneFlightData flightData, bool droneCopy = false) {
@@ -77,34 +77,45 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
     private void UpdateDroneByGPS(DroneFlightData flightData) {
         FlightData = flightData;
 
-        DroneFlightData bufferedData;
+        //DroneFlightData bufferedData;
 
-        DroneFlightDataBuffer.Add(flightData);
+        //DroneFlightDataBuffer.Add(flightData);
 
-        if (prevDelay != Delay) {
-            DroneFlightDataBuffer.Clear();
-            prevDelay = Delay;
-        }
+        //if (prevDelay != Delay) {
+        //    DroneFlightDataBuffer.Clear();
+        //    prevDelay = Delay;
+        //}
 
-        if (DroneFlightDataBuffer.Count > Delay) {
-            bufferedData = DroneFlightDataBuffer[0];
-            DroneFlightDataBuffer.RemoveAt(0);
-        } else {
-            bufferedData = flightData;
-        }
+        //if (DroneFlightDataBuffer.Count > Delay) {
+        //    bufferedData = DroneFlightDataBuffer[0];
+        //    DroneFlightDataBuffer.RemoveAt(0);
+        //} else {
+        //    bufferedData = flightData;
+        //}
 
-        UpdateDroneLocation(bufferedData);
+        UpdateDroneLocation(flightData);
 
-        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) bufferedData.gimbal_orientation.pitch, (float) (bufferedData.aircraft_orientation.yaw + bufferedData.gimbal_orientation.yaw_relative), -(float) bufferedData.gimbal_orientation.roll);
-        ThirdPersonView.localRotation = Quaternion.Euler(0f, (float) bufferedData.aircraft_orientation.yaw, 0f);
+        DroneVideoScreen.localRotation = Quaternion.Euler(-(float) flightData.gimbal_orientation.pitch, (float) (flightData.aircraft_orientation.yaw + flightData.gimbal_orientation.yaw_relative), -(float) flightData.gimbal_orientation.roll);
+        ThirdPersonView.localRotation = Quaternion.Euler(0f, (float) flightData.aircraft_orientation.yaw, 0f);
 
-        Drone2DRepresentation.UpdateFlightData(bufferedData);
+        Drone2DRepresentation.UpdateFlightData(flightData);
 
-        DroneListItem.UpdateHeight(bufferedData.altitude);
+        DroneListItem.UpdateHeight(flightData.altitude);
         DroneListItem.UpdateDistance(Vector3.Distance(Camera.main.transform.position, this.transform.position));
 
+        // Update UI flight data info
+        ExperimentManager.Instance.TopPanel.SetAltitudeText((Mathf.Round((float) flightData.relative_altitude * 10.0f) * 0.1f).ToString());
+        ExperimentManager.Instance.TopPanel.SetSpeedText((Mathf.Round(new Vector3((float) flightData.aircraft_velocity.velocity_x, (float) flightData.aircraft_velocity.velocity_y, (float) flightData.aircraft_velocity.velocity_z).magnitude * 10.0f) * 0.1f).ToString());
+
+
         if (flightData.frame != "") {
-            byte[] frame = Convert.FromBase64String(flightData.frame);
+            byte[] frame;
+            try {
+                frame = Convert.FromBase64String(flightData.frame);
+            } catch (Exception e) {
+                Debug.Log(e.Message + " Skipping frame.");
+                return;
+            }
 
             JpegPlayerTexture.LoadImage(frame);
 

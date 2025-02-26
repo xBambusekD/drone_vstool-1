@@ -1031,7 +1031,9 @@ MonoBehaviour:
     type: 3}
   OcclusionMaterial: {fileID: 2100000, guid: 506c5f43bfb4cd74b8bcdd0615719e2a, type: 2}
   ExperimentDroneVideoFrame: {fileID: 0}
-  Delay: 0
+  gpsOffset:
+    latitude: 0
+    longitude: 0
 --- !u!114 &3645035670090806108
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -46,6 +46,11 @@ public class WaypointGameObject : MonoBehaviour {
         layerMask =~ LayerMask.GetMask("Mission", "DroneScreen");
         mapLayerMask = LayerMask.GetMask("Map");
         highlighter = new HighlighterRenderer(model, 1);
+        if (ExperimentManager.Instance.ExperimentSettings.CurrentAppMode == ExperimentManager.AppMode.TabletARView) {
+            text.enabled = true;
+        } else {
+            text.enabled = false;
+        }
     }
 
     private void Update() {
@@ -123,6 +128,10 @@ public class WaypointGameObject : MonoBehaviour {
 
     public float GetAMSL() {
         return Mathf.Round((float) (location.longitudeLatitudeHeight.z) * 10.0f) * 0.1f;
+    }
+
+    public float GetCorrectedAMSL() {
+        return Mathf.Round((float) (location.longitudeLatitudeHeight.z - 45f) * 10.0f) * 0.1f;
     }
 
     public float GetAGL() {
