@@ -79,3 +79,25 @@ public class DroneFlightData {
     //    Compass = compass;
     //}
 }
+
+[Serializable]
+public class Stick {
+    public int x;
+    public int y;
+
+    public override string ToString() {
+        return $"{{x:{x}, y:{y}}}";
+    }
+}
+
+[Serializable]
+public class RemoteController {
+    public string client_id;
+    public Stick left_stick;
+    public Stick right_stick;
+
+    public override string ToString() {
+        return $"{{client_id:{client_id}, left_stick:{left_stick}, right_stick:{right_stick}}}";
+    }
+
+}

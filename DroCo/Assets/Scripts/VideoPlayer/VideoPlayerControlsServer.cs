@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class VideoPlayerControlsServer : VideoPlayerControls {
 
+    private int changeStickCommandInterval = 0;
 
     public override void OnPlayButton() {
         base.OnPlayButton();
@@ -16,6 +17,12 @@ public class VideoPlayerControlsServer : VideoPlayerControls {
 
     private IEnumerator PlayFlightLog() {
         while (IsPlaying) {
+            //changeStickCommandInterval++;
+            //if (changeStickCommandInterval > 200) {
+            //    changeStickCommandInterval = 0;
+            //    ExperimentManager.Instance.SetNewStickConfiguration();
+            //}
+
             progressBar.value += 1;
             if (progressBar.value == progressBar.maxValue) {
                 progressBar.value = 0;
@@ -37,7 +44,11 @@ public class VideoPlayerControlsServer : VideoPlayerControls {
             OnPauseButton();
         } else {
             ExperimentManager.Instance.SyncVideoPlayerControls((int) value);
-            FlightLogPlayerManager.Instance.PlayLogMessage((int) value);
+            DroneFlightData currentLogMessage = FlightLogPlayerManager.Instance.PlayLogMessage((int) value);
+            if (currentLogMessage != null) {
+                //ExperimentManager.Instance.SetNewStickConfiguration(currentLogMessage, FlightLogPlayerManager.Instance.GetLogMessagesInterval((int) value));
+                ExperimentManager.Instance.SetNewStickConfiguration(currentLogMessage);
+            }
         }
     }
 

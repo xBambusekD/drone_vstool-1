@@ -28,19 +28,41 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
         ConnectDrone(flightData.client_id, "experiment_test_drone", "experiment_serial");
     }
 
-    public void PlayLogMessage(int line) {
+    public DroneFlightData PlayLogMessage(int line) {
         string logLine = GetLine(line);
         //Debug.Log(logLine);
         DroneFlightData flightData;
 
         try {
             flightData = JsonUtility.FromJson<DroneFlightData>(logLine);
+            //Debug.Log(flightData.aircraft_velocity.ToString() + ", yaw:" + flightData.aircraft_orientation.yaw.ToString());
         } catch(ArgumentException e) {
             Debug.Log(e.Message + " Skipping message.");
-            return;
+            return null;
         }
 
         DroneManager.Instance.HandleReceivedDroneData(flightData);
+
+        return flightData;
+    }
+
+    public DroneFlightData[] GetLogMessagesInterval(int line, int numberOfMessages = 10) {
+        DroneFlightData[] droneFlightData = new DroneFlightData[numberOfMessages];
+        for(int i = 0; i < droneFlightData.Length; i++) {
+            line++;
+            string logLine = GetLine(line);
+            DroneFlightData flightData;
+            try {
+                flightData = JsonUtility.FromJson<DroneFlightData>(logLine);
+            } catch (ArgumentException e) {
+                Debug.Log(e.Message + " Skipping message.");
+                continue;
+            }
+
+            droneFlightData[i] = flightData;
+        }
+
+        return droneFlightData;
     }
 
     public void PlayLogMessage(string message) {

@@ -1,12 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(ExperimentSettings))]
 public class ExperimentManager : Singleton<ExperimentManager> {
+
+    public enum StickConfiguration {
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN,
+        CENTER,
+        NONE
+    }
+
 
     public enum AppMode {
         DesktopUgCS,
@@ -35,6 +47,16 @@ public class ExperimentManager : Singleton<ExperimentManager> {
 
     private bool fpvSet = false;
 
+    public Image RemoteControllerConnectionImage;
+    public TMP_Text LeftStickText;
+    public TMP_Text RightStickText;
+    public TMP_Text LeftStickCommandText;
+    public TMP_Text RightStickCommandText;
+
+    private StickConfiguration leftStickConfiguration;
+    private StickConfiguration rightStickConfiguration;
+    private RemoteController lastRemoteControllerData;
+
     private void Start() {
         if (ExperimentSettings == null) {
             ExperimentSettings = GetComponent<ExperimentSettings>();
@@ -46,6 +68,8 @@ public class ExperimentManager : Singleton<ExperimentManager> {
 
         if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
             StartHost();
+            WebSocketServerExperiment.Instance.StartServer();
+            SetNewStickConfiguration();
         }
         FlightLogPlayerManager.Instance.LoadDefaultFlightLog();
     }
@@ -238,5 +262,119 @@ public class ExperimentManager : Singleton<ExperimentManager> {
     private void OnDisable() {
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+    }
+
+    public void SetNewStickConfiguration() {
+        leftStickConfiguration = (StickConfiguration) UnityEngine.Random.Range(0, 4);
+        rightStickConfiguration = (StickConfiguration) UnityEngine.Random.Range(0, 4);
+        LeftStickCommandText.text = leftStickConfiguration.ToString();
+        RightStickCommandText.text = rightStickConfiguration.ToString();
+
+        // Invalidate current stick configuration with zero data
+        HandleReceivedRemoteControllerData(new RemoteController() {
+            client_id = "", left_stick = new Stick() { x = 0, y = 0 }, right_stick = new Stick() { x = 0, y = 0 }
+        });
+    }
+
+    public StickConfiguration ComputeLeftStickConfiguration(DroneFlightData data) {
+        // velocity Z  -Z (nahoru), 0 (stoji), Z (dolu)
+        // yaw         -X (tocim se doleva), 0 (stoji), X (tocim se doprava)
+        if (data.aircraft_velocity.velocity_z < 0) {
+            return StickConfiguration.UP;
+        } else if (data.aircraft_velocity.velocity_z > 0) {
+            return StickConfiguration.DOWN;
+        } else {
+            return StickConfiguration.CENTER;
+        }
+    }
+
+    public StickConfiguration ComputeRightStickConfiguration(DroneFlightData data) {
+        // velocity X  -X (dopredu), 0 (stoji), X (dozadu)
+        // velocity Y  -Y (doprava), 0 (stoji), Y (doleva)
+
+        if (data.aircraft_velocity.velocity_x > data.aircraft_velocity.velocity_y) {
+            if (data.aircraft_velocity.velocity_x < 0) {
+                return StickConfiguration.UP;
+            } else if (data.aircraft_velocity.velocity_x > 0) {
+                return StickConfiguration.DOWN;
+            } else {
+                return StickConfiguration.CENTER;
+            }
+        } else {
+            if (data.aircraft_velocity.velocity_y < 0) {
+                return StickConfiguration.RIGHT;
+            } else if (data.aircraft_velocity.velocity_y > 0) {
+                return StickConfiguration.LEFT;
+            } else {
+                return StickConfiguration.CENTER;
+            }
+        }
+    }
+
+    public void SetNewStickConfiguration(DroneFlightData currentLog, DroneFlightData[] nextLogs = null) {
+        //StickConfiguration left = ComputeLeftStickConfiguration(currentLog);
+        //StickConfiguration right = ComputeRightStickConfiguration(currentLog);
+
+        // LEFT STICK
+        leftStickConfiguration = ComputeLeftStickConfiguration(currentLog);
+
+        // RIGHT STICK
+        rightStickConfiguration = ComputeRightStickConfiguration(currentLog);
+
+
+
+        //leftStickConfiguration = (StickConfiguration) UnityEngine.Random.Range(0, 4);
+        //rightStickConfiguration = (StickConfiguration) UnityEngine.Random.Range(0, 4);
+        LeftStickCommandText.text = leftStickConfiguration.ToString();
+        RightStickCommandText.text = rightStickConfiguration.ToString();
+
+        // Reevaluate current controller data
+        HandleReceivedRemoteControllerData(lastRemoteControllerData);
+    }
+
+    public void HandleReceivedRemoteControllerData(RemoteController data) {
+        LeftStickText.text = data.left_stick.ToString();
+        RightStickText.text = data.right_stick.ToString();
+
+        if (GetStickConfiguration(data.left_stick) == leftStickConfiguration && GetStickConfiguration(data.right_stick) == rightStickConfiguration) {
+            if (!VideoPlayerControls.IsPlaying) {
+                VideoPlayerControls.OnPlayButton();
+            }
+        } else {
+            VideoPlayerControls.OnPauseButton();
+        }
+
+        lastRemoteControllerData = data;
+
+        //if (data.left_stick.y > 500 && data.right_stick.y > 500) {
+        //    if (!VideoPlayerControls.IsPlaying) {
+        //        VideoPlayerControls.OnPlayButton();
+        //    }
+        //} else {
+        //    VideoPlayerControls.OnPauseButton();
+        //}
+    }
+
+    private StickConfiguration GetStickConfiguration(Stick stick) {
+        if (stick.x > 500) {
+            return StickConfiguration.RIGHT;
+        } else if (stick.x < -500) {
+            return StickConfiguration.LEFT;
+        } else if (stick.y > 500) {
+            return StickConfiguration.UP;
+        } else if (stick.y < -500) {
+            return StickConfiguration.DOWN;
+        } else if (stick.x < 50 && stick.x > -50 && stick.y < 50 && stick.y > -50) {
+            return StickConfiguration.CENTER;
+        }
+        return StickConfiguration.NONE;
+    }
+
+    public void OnRemoteControllerConnected() {
+        RemoteControllerConnectionImage.color = Color.green;
+    }
+
+    public void OnRemoteControllerDisconnected() {
+        RemoteControllerConnectionImage.color = Color.red;
     }
 }
