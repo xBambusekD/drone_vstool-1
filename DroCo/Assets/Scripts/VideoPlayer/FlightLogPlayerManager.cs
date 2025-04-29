@@ -17,7 +17,10 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
     private string filePath;
 
 
-    public void LoadDefaultFlightLog(string file = "experiment_flight.txt") {
+    public void LoadFlightLog(string file = "experiment_flight.txt") {
+        reader?.Close();
+        fileStream?.Close();
+
         filePath = Application.persistentDataPath + "/flightLogs/" + file;
         IndexFile(filePath);
         OpenFile();
@@ -25,6 +28,7 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
 
         DroneFlightData flightData = JsonUtility.FromJson<DroneFlightData>(GetLine(0));
 
+        DroneManager.Instance.DestroyDroneAll();
         ConnectDrone(flightData.client_id, "experiment_test_drone", "experiment_serial");
     }
 
@@ -35,6 +39,7 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
 
         try {
             flightData = JsonUtility.FromJson<DroneFlightData>(logLine);
+            //Debug.Log(flightData.timestamp.ToString() + ", " + flightData.gps.ToString());
             //Debug.Log(flightData.aircraft_velocity.ToString() + ", yaw:" + flightData.aircraft_orientation.yaw.ToString());
         } catch(ArgumentException e) {
             Debug.Log(e.Message + " Skipping message.");
@@ -97,6 +102,7 @@ public class FlightLogPlayerManager : Singleton<FlightLogPlayerManager> {
         fileStream.Seek(lineOffsets[lineNumber], SeekOrigin.Begin);
 
         return reader.ReadLine();
+
 
         //using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
         //using (StreamReader reader = new StreamReader(fs)) {

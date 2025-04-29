@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using CesiumForUnity;
+using Esri.ArcGISMapsSDK.Components;
 using Highlighters;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class WaypointGameObject : MonoBehaviour {
+public abstract class WaypointGameObject : MonoBehaviour {
 
     [SerializeField]
     private RectTransform connectionBinder;
@@ -28,32 +29,32 @@ public class WaypointGameObject : MonoBehaviour {
     private Material apErrorMaterial;
 
     private LayerMask layerMask;
-    private LayerMask mapLayerMask;
 
     public float SphereRadius = 1f;
 
     private HighlighterRenderer highlighter;
     public bool highlighted = false;
 
-    public CesiumGlobeAnchor location;
-
     public Waypoint WaypointRef;
 
-    private float AGL = 0f;
 
-
-    private void Start() {
+    public virtual void Start() {
         layerMask =~ LayerMask.GetMask("Mission", "DroneScreen");
-        mapLayerMask = LayerMask.GetMask("Map");
         highlighter = new HighlighterRenderer(model, 1);
-        if (ExperimentManager.Instance.ExperimentSettings.CurrentAppMode == ExperimentManager.AppMode.TabletARView) {
-            text.enabled = true;
+        if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Experiment) {
+            if (ExperimentManager.Instance.ExperimentSettings.CurrentAppMode == ExperimentManager.AppMode.TabletARView) {
+                text.gameObject.SetActive(true);
+            } else if (ExperimentManager.Instance.ExperimentSettings.CurrentAppMode == ExperimentManager.AppMode.DesktopUgCS) {
+                text.gameObject.SetActive(true);
+            } else {
+                text.gameObject.SetActive(false);
+            }
         } else {
-            text.enabled = false;
+            text.gameObject.SetActive(true);
         }
     }
 
-    private void Update() {
+    public virtual void Update() {
         GroundShadow();
         CheckCollisions();
     }
@@ -86,31 +87,14 @@ public class WaypointGameObject : MonoBehaviour {
         text.text = txt;
     }
 
-    public void SetAltitudeCoroutine(float altitude) {
-        if (isActiveAndEnabled) {
-            AGL = altitude;
-            StartCoroutine(SetAltitude(altitude));
-        }
+
+
+    public virtual void SetAltitudeCoroutine(float altitude) {
+
     }
 
-    public void SetAltitudeAGL(float altitudeAGL) {
-        if (Physics.Raycast(transform.position + new Vector3(0, 1000, 0), transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, mapLayerMask)) {
-            if (hit.collider != null) {
-                double3 originalPosition = location.longitudeLatitudeHeight;
-                location.longitudeLatitudeHeight = new double3(originalPosition.x, originalPosition.y, originalPosition.z - (double)(hit.distance - 1000) + altitudeAGL);
-            }
-        }
-    }
 
-    private IEnumerator SetAltitude(float altitude) {
-        yield return new WaitForSeconds(0.5f);
-
-        SetAltitudeAGL(altitude);
-    }
-
-    public void SetLocation(CesiumGlobeAnchor loc) {
-        location = loc;
-    }
+    public abstract void SetLocation();
 
     public void SetAsStartingPoint() {
         model.transform.localScale = Vector3.one;
@@ -126,15 +110,9 @@ public class WaypointGameObject : MonoBehaviour {
         return WaypointRef.Name;
     }
 
-    public float GetAMSL() {
-        return Mathf.Round((float) (location.longitudeLatitudeHeight.z) * 10.0f) * 0.1f;
-    }
+    public abstract float GetAMSL();
 
-    public float GetCorrectedAMSL() {
-        return Mathf.Round((float) (location.longitudeLatitudeHeight.z - 45f) * 10.0f) * 0.1f;
-    }
+    public abstract float GetCorrectedAMSL();
 
-    public float GetAGL() {
-        return AGL;
-    }
+    public abstract float GetAGL();
 }

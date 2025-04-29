@@ -28,31 +28,31 @@ public class Waypoint2DGameObject : MonoBehaviour {
         text.text = txt;
     }
 
-    public void InitWaypoint(string waypointName) {
+    public void InitWaypoint(string waypointName, double offset = 0) {
         SetText(waypointName);
 
         location = GetComponent<CesiumGlobeAnchor>();
 
         if (isActiveAndEnabled) {
-            StartCoroutine(GroundWaypointCoroutine());
+            StartCoroutine(GroundWaypointCoroutine(offset));
         }
     }
 
 
-    private void GroundWaypoint() {
-        Debug.Log("Ground Waypoint");
+    private void GroundWaypoint(double offset = 0) {
+        //Debug.Log("Ground Waypoint");
         if (Physics.Raycast(transform.position + new Vector3(0, 1000, 0), transform.TransformDirection(Vector3.down), out RaycastHit hit, Mathf.Infinity, layerMask)) {
-            Debug.Log("Hit " + hit.transform.name);
+            //Debug.Log("Hit " + hit.transform.name);
             if (hit.collider != null) {
                 double3 originalPosition = location.longitudeLatitudeHeight;
-                location.longitudeLatitudeHeight = new double3(originalPosition.x, originalPosition.y, originalPosition.z - (double) (hit.distance - 1000));
+                location.longitudeLatitudeHeight = new double3(originalPosition.x, originalPosition.y, originalPosition.z - (double) (hit.distance - 1000) + offset);
             }
         }
     }
 
-    private IEnumerator GroundWaypointCoroutine() {
+    private IEnumerator GroundWaypointCoroutine(double offset = 0) {
         yield return new WaitForSeconds(0.5f);
 
-        GroundWaypoint();
+        GroundWaypoint(offset);
     }
 }

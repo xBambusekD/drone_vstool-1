@@ -104,20 +104,26 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
         DroneListItem.UpdateDistance(Vector3.Distance(Camera.main.transform.position, this.transform.position));
 
         // Update UI flight data info
-        ExperimentManager.Instance.TopPanel.SetAltitudeText((Mathf.Round((float) flightData.relative_altitude * 10.0f) * 0.1f).ToString());
-        ExperimentManager.Instance.TopPanel.SetSpeedText((Mathf.Round(new Vector3((float) flightData.aircraft_velocity.velocity_x, (float) flightData.aircraft_velocity.velocity_y, (float) flightData.aircraft_velocity.velocity_z).magnitude * 10.0f) * 0.1f).ToString());
+        if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Experiment) {
+            ExperimentManager.Instance.TopPanel.SetAltitudeText((Mathf.Round((float) flightData.relative_altitude * 10.0f) * 0.1f).ToString());
+            ExperimentManager.Instance.TopPanel.SetSpeedText((Mathf.Round(new Vector3((float) flightData.aircraft_velocity.velocity_x, (float) flightData.aircraft_velocity.velocity_y, (float) flightData.aircraft_velocity.velocity_z).magnitude * 10.0f) * 0.1f).ToString());
+        } else if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Server || GameManager.Instance.CurrentAppMode == GameManager.AppMode.ClientLocal) {
+            TopDownViewGUI.Instance.TopPanel.SetAltitudeText((Mathf.Round((float) flightData.relative_altitude * 10.0f) * 0.1f).ToString());
+            TopDownViewGUI.Instance.TopPanel.SetSpeedText((Mathf.Round(new Vector3((float) flightData.aircraft_velocity.velocity_x, (float) flightData.aircraft_velocity.velocity_y, (float) flightData.aircraft_velocity.velocity_z).magnitude * 10.0f) * 0.1f).ToString());
+        }
 
+        //if (flightData.frame != "") {
+        if (flightData.frame != null && flightData.frame.Length > 0) {
+            //byte[] frame;
+            //try {
+            //    frame = Convert.FromBase64String(flightData.frame);
+            //} catch (Exception e) {
+            //    Debug.Log(e.Message + " Skipping frame.");
+            //    return;
+            //}
 
-        if (flightData.frame != "") {
-            byte[] frame;
-            try {
-                frame = Convert.FromBase64String(flightData.frame);
-            } catch (Exception e) {
-                Debug.Log(e.Message + " Skipping frame.");
-                return;
-            }
-
-            JpegPlayerTexture.LoadImage(frame);
+            //JpegPlayerTexture.LoadImage(frame);
+            JpegPlayerTexture.LoadImage(flightData.frame);
 
             if (ArCameraBackground != null) {
                 ArCameraBackground.texture = JpegPlayerTexture;
@@ -131,9 +137,37 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
         }
     }
 
+    public DroneFlightData GetUpdatedFlightData(bool includeVideo = true) {
+        DroneFlightData updatedData = new DroneFlightData() {
+            client_id = FlightData.client_id,
+            altitude = FlightData.altitude,
+            relative_altitude = FlightData.relative_altitude,
+            gps = GetDroneLocationCalibrated(),
+            aircraft_orientation = FlightData.aircraft_orientation,
+            aircraft_velocity = FlightData.aircraft_velocity,
+            gimbal_orientation = FlightData.gimbal_orientation,
+            satellite_count = FlightData.satellite_count,
+            gps_signal_level = FlightData.gps_signal_level,
+            sticks = FlightData.sticks,
+            timestamp = FlightData.timestamp,
+            //frame = includeVideo ? FlightData.frame : ""
+            frame = includeVideo ? FlightData.frame : null
+        };
+
+        return updatedData;
+    }
+
     protected abstract void UpdateDroneLocation(DroneFlightData flightData);
 
+    public abstract GPS GetDroneLocationCalibrated();
+
     public abstract GPS GetDroneLocation();
+
+    public abstract float GetAMSL();
+
+    public abstract float GetCorrectedAMSL();
+
+    public abstract float GetAGL();
 
     //private void UpdateDroneByKalman(DroneFlightData flightData) {
     //    //// Extract velocity and orientation
@@ -299,7 +333,7 @@ public abstract class Drone : InteractiveObject, IPointerNotifier {
         }
     }
 
-    public void OnDestroy() {
+    public void OnDestroyHandle() {
         Destroy(DroneListItem.gameObject);
         Destroy(Drone2DRepresentation.gameObject);
     }

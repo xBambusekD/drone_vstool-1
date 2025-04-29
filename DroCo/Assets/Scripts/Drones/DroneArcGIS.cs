@@ -45,4 +45,20 @@ public class DroneArcGIS : Drone {
         ArcGISPoint location = GPSLocationNoOffset;
         return new GPS() { longitude = location.X, latitude = location.Y };
     }
+
+    public override GPS GetDroneLocationCalibrated() {
+        return new GPS() { longitude = GPSLocation.Position.X, latitude = GPSLocation.Position.Y };
+    }
+
+    public override float GetAMSL() {
+        return (float) GPSLocation.Position.Z;
+    }
+
+    public override float GetCorrectedAMSL() {
+        return (float) GPSLocation.Position.Z;
+    }
+
+    public override float GetAGL() {
+        return (float) GPSLocation.SurfacePlacementOffset;
+    }
 }

@@ -1,14 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using CesiumForUnity;
 using TMPro;
+using Unity.Mathematics;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.UI;
+using static System.Net.Mime.MediaTypeNames;
 
 [RequireComponent(typeof(ExperimentSettings))]
 public class ExperimentManager : Singleton<ExperimentManager> {
+
+    public enum RemoteControllerMode {
+        None,
+        NoDirection,
+        UpDown,
+        AllDirections
+    }
 
     public enum StickConfiguration {
         LEFT,
@@ -23,7 +33,9 @@ public class ExperimentManager : Singleton<ExperimentManager> {
     public enum AppMode {
         DesktopUgCS,
         TabletARView,
-        MobileTopdownView
+        MobileTopdownView,
+        DesktopUgCSMockup,
+        TabletARViewMockup
     }
 
     public ExperimentSettings ExperimentSettings;
@@ -47,7 +59,7 @@ public class ExperimentManager : Singleton<ExperimentManager> {
 
     private bool fpvSet = false;
 
-    public Image RemoteControllerConnectionImage;
+    public UnityEngine.UI.Image RemoteControllerConnectionImage;
     public TMP_Text LeftStickText;
     public TMP_Text RightStickText;
     public TMP_Text LeftStickCommandText;
@@ -56,6 +68,30 @@ public class ExperimentManager : Singleton<ExperimentManager> {
     private StickConfiguration leftStickConfiguration;
     private StickConfiguration rightStickConfiguration;
     private RemoteController lastRemoteControllerData;
+
+    private RemoteControllerMode currentRemoteControllerMode = RemoteControllerMode.NoDirection;
+
+
+    public Camera MainDroneCamera;
+    public Camera ARCamera;
+
+    private Shader buildingShader;
+    private Shader buildingShaderLit;
+
+    //public Toggle PCMission1;
+    //public Toggle PCMission2;
+    //public Toggle PCMissionT;
+
+
+    //public Toggle ARMission1;
+    //public Toggle ARMission2;
+    //public Toggle ARMissionT;
+
+
+    //public Toggle MobMission1;
+    //public Toggle MobMission2;
+    //public Toggle MobMissionT;
+
 
     private void Start() {
         if (ExperimentSettings == null) {
@@ -69,9 +105,20 @@ public class ExperimentManager : Singleton<ExperimentManager> {
         if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
             StartHost();
             WebSocketServerExperiment.Instance.StartServer();
-            SetNewStickConfiguration();
+            //SetNewStickConfiguration();
+            leftStickConfiguration = StickConfiguration.CENTER;
+            rightStickConfiguration = StickConfiguration.CENTER;
+            LeftStickCommandText.text = leftStickConfiguration.ToString();
+            RightStickCommandText.text = rightStickConfiguration.ToString();
+            lastRemoteControllerData = new RemoteController { client_id = "123", left_stick = new Stick { x = 0, y = 0 }, right_stick = new Stick { x = 0, y = 0 } };
+            HandleReceivedRemoteControllerData(lastRemoteControllerData);
+        } else if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCSMockup) {
+            StartHost();
+            WebSocketServerExperiment.Instance.StartServer();
         }
-        FlightLogPlayerManager.Instance.LoadDefaultFlightLog();
+
+        buildingShader = UnityEngine.Shader.Find("Custom/MobileOcclusion");
+        buildingShaderLit = UnityEngine.Shader.Find("Shader Graphs/SceneNodeSurface");
     }
 
     //public void StartHost() {
@@ -159,7 +206,7 @@ public class ExperimentManager : Singleton<ExperimentManager> {
                 connectionTimeoutCoroutine = null;
             }
             ConnectionScreen.SetActive(false);
-            NetworkRPC.RequestVideoPlayerStatusRpc();
+            //NetworkRPC.RequestVideoPlayerStatusRpc();
             OnClientConnectedToServer?.Invoke();
         } else {
             // Init drone on clients
@@ -311,63 +358,84 @@ public class ExperimentManager : Singleton<ExperimentManager> {
         }
     }
 
-    public void SetNewStickConfiguration(DroneFlightData currentLog, DroneFlightData[] nextLogs = null) {
-        //StickConfiguration left = ComputeLeftStickConfiguration(currentLog);
-        //StickConfiguration right = ComputeRightStickConfiguration(currentLog);
+    public void SetNewStickConfiguration(Sticks sticks, DroneFlightData[] nextLogs = null) {
+        // Use only in AllDirections mode
+        if (currentRemoteControllerMode == RemoteControllerMode.AllDirections) {
+            leftStickConfiguration = GetStickConfiguration(sticks.left_stick);
+            rightStickConfiguration = GetStickConfiguration(sticks.right_stick);
 
-        // LEFT STICK
-        leftStickConfiguration = ComputeLeftStickConfiguration(currentLog);
+            LeftStickCommandText.text = leftStickConfiguration.ToString();
+            RightStickCommandText.text = rightStickConfiguration.ToString();
 
-        // RIGHT STICK
-        rightStickConfiguration = ComputeRightStickConfiguration(currentLog);
-
-
-
-        //leftStickConfiguration = (StickConfiguration) UnityEngine.Random.Range(0, 4);
-        //rightStickConfiguration = (StickConfiguration) UnityEngine.Random.Range(0, 4);
-        LeftStickCommandText.text = leftStickConfiguration.ToString();
-        RightStickCommandText.text = rightStickConfiguration.ToString();
-
-        // Reevaluate current controller data
-        HandleReceivedRemoteControllerData(lastRemoteControllerData);
+            // Reevaluate current controller data
+            HandleReceivedRemoteControllerData(lastRemoteControllerData);
+        }
     }
 
     public void HandleReceivedRemoteControllerData(RemoteController data) {
-        LeftStickText.text = data.left_stick.ToString();
-        RightStickText.text = data.right_stick.ToString();
+        if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
+            switch (currentRemoteControllerMode) {
+                case RemoteControllerMode.NoDirection:
 
-        if (GetStickConfiguration(data.left_stick) == leftStickConfiguration && GetStickConfiguration(data.right_stick) == rightStickConfiguration) {
-            if (!VideoPlayerControls.IsPlaying) {
-                VideoPlayerControls.OnPlayButton();
+                    break;
+                case RemoteControllerMode.UpDown:
+                    StickConfiguration left = GetStickConfiguration(data.left_stick);
+                    StickConfiguration right = GetStickConfiguration(data.right_stick);
+                    // play forward
+                    if (left == StickConfiguration.UP && right == StickConfiguration.UP) {
+                        if (!VideoPlayerControls.IsPlaying) {
+                            VideoPlayerControls.OnPlayButton();
+                        }
+                    }
+                    // play backward
+                    else if (left == StickConfiguration.DOWN && right == StickConfiguration.DOWN) {
+                        if (!VideoPlayerControls.IsPlayingBackward) {
+                            VideoPlayerControls.OnPlayBackward();
+                        }
+                    } else {
+                        VideoPlayerControls.OnPauseButton();
+                    }
+                    break;
+                case RemoteControllerMode.AllDirections:
+                    if (GetStickConfiguration(data.left_stick) == leftStickConfiguration && GetStickConfiguration(data.right_stick) == rightStickConfiguration) {
+                        if (!VideoPlayerControls.IsPlaying) {
+                            VideoPlayerControls.OnPlayButton();
+                        }
+                    } else {
+                        VideoPlayerControls.OnPauseButton();
+                    }
+                    break;
             }
-        } else {
-            VideoPlayerControls.OnPauseButton();
+
+            LeftStickText.text = data.left_stick.ToString();
+            RightStickText.text = data.right_stick.ToString();
+
+            lastRemoteControllerData = data;
+        } else if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCSMockup) {
+            DroneController.Instance.HandleReceivedRemoteControllerData(data);
         }
-
-        lastRemoteControllerData = data;
-
-        //if (data.left_stick.y > 500 && data.right_stick.y > 500) {
-        //    if (!VideoPlayerControls.IsPlaying) {
-        //        VideoPlayerControls.OnPlayButton();
-        //    }
-        //} else {
-        //    VideoPlayerControls.OnPauseButton();
-        //}
     }
 
     private StickConfiguration GetStickConfiguration(Stick stick) {
-        if (stick.x > 500) {
-            return StickConfiguration.RIGHT;
-        } else if (stick.x < -500) {
-            return StickConfiguration.LEFT;
-        } else if (stick.y > 500) {
-            return StickConfiguration.UP;
-        } else if (stick.y < -500) {
-            return StickConfiguration.DOWN;
-        } else if (stick.x < 50 && stick.x > -50 && stick.y < 50 && stick.y > -50) {
+        if (Math.Abs(stick.x) > Math.Abs(stick.y)) {
+            if (stick.x >= 0) {
+                return StickConfiguration.RIGHT;
+            } else if (stick.x <= -50) {
+                return StickConfiguration.LEFT;
+            }
+        } else {
+            if (stick.y >= 50) {
+                return StickConfiguration.UP;
+            } else if (stick.y <= -50) {
+                return StickConfiguration.DOWN;
+            }
+        }
+
+        if (stick.x < 50 && stick.x > -50 && stick.y < 50 && stick.y > -50) {
             return StickConfiguration.CENTER;
         }
-        return StickConfiguration.NONE;
+
+        return StickConfiguration.CENTER;
     }
 
     public void OnRemoteControllerConnected() {
@@ -377,4 +445,148 @@ public class ExperimentManager : Singleton<ExperimentManager> {
     public void OnRemoteControllerDisconnected() {
         RemoteControllerConnectionImage.color = Color.red;
     }
+
+    public void LoadMission1(bool active) {
+        //MissionManager.Instance.DisplayMission1(active);
+        FlightLogPlayerManager.Instance.LoadFlightLog("mission1_flight.txt");
+        if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
+            VideoFramePlayer.Instance.LoadMission1();
+        }
+
+        //switch (ExperimentSettings.CurrentAppMode) {
+        //    case AppMode.DesktopUgCS:
+        //        PCMission1.isOn = true;
+        //        break;
+        //    case AppMode.MobileTopdownView:
+        //        MobMission1.isOn = true;
+        //        break;
+        //    case AppMode.TabletARView:
+        //        ARMission1.isOn = true;
+        //        break;
+        //}
+    }
+
+    public void LoadMission2(bool active) {
+        //MissionManager.Instance.DisplayMission2(active);
+        FlightLogPlayerManager.Instance.LoadFlightLog("mission2_flight.txt");
+        if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
+            VideoFramePlayer.Instance.LoadMission2();
+        }
+
+        //switch (ExperimentSettings.CurrentAppMode) {
+        //    case AppMode.DesktopUgCS:
+        //        PCMission2.isOn = true;
+        //        break;
+        //    case AppMode.MobileTopdownView:
+        //        MobMission2.isOn = true;
+        //        break;
+        //    case AppMode.TabletARView:
+        //        ARMission2.isOn = true;
+        //        break;
+        //}
+    }
+
+    public void LoadMissionTraining(bool active) {
+        FlightLogPlayerManager.Instance.LoadFlightLog("mission_training.txt");
+        if (ExperimentSettings.CurrentAppMode == AppMode.DesktopUgCS) {
+            VideoFramePlayer.Instance.LoadMissionTraining();
+        }
+
+        //switch (ExperimentSettings.CurrentAppMode) {
+        //    case AppMode.DesktopUgCS:
+        //        PCMissionT.isOn = true;
+        //        break;
+        //    case AppMode.MobileTopdownView:
+        //        MobMissionT.isOn = true;
+        //        break;
+        //    case AppMode.TabletARView:
+        //        ARMissionT.isOn = true;
+        //        break;
+        //}
+    }
+
+    public void ChangeRemoteControllerMode(TMP_Text text) {
+        // Load next configuration
+        currentRemoteControllerMode = GetNextMode(currentRemoteControllerMode);
+
+        switch (currentRemoteControllerMode) {
+
+            // change the configuration to NoDirection (video will play on button click in desktop app)
+            case RemoteControllerMode.NoDirection:
+                text.text = "X";
+                break;
+
+            // change the configuration to UpDown mode (video will play only if both sticks are held up (down for backward))
+            case RemoteControllerMode.UpDown:
+                text.text = "M1";
+                break;
+
+            // change the configuration to AllDirections mode (video will play as the real drone was flying)
+            case RemoteControllerMode.AllDirections:
+                text.text = "M2";
+                break;
+        }
+    }
+
+    private RemoteControllerMode GetNextMode(RemoteControllerMode mode) {
+        switch (currentRemoteControllerMode) {
+            case RemoteControllerMode.NoDirection:
+                return RemoteControllerMode.UpDown;
+            case RemoteControllerMode.UpDown:
+                return RemoteControllerMode.AllDirections;
+            case RemoteControllerMode.AllDirections:
+                return RemoteControllerMode.NoDirection;
+            default:
+                return RemoteControllerMode.None;
+        }
+    }
+
+    public void EnableOclussionsMockup(bool enable) {
+        if (enable) {
+            ARCamera.enabled = false;
+            MainDroneCamera.cullingMask = ~0;            
+        } else {
+            ARCamera.enabled = true;
+            MainDroneCamera.cullingMask = ~LayerMask.GetMask("Mission");
+        }
+
+        GameObject[] buildings = FindGameObjectsInLayer(15);
+        if (buildings != null) {
+            if (enable) {
+                foreach (GameObject building in buildings) {
+                    building.GetComponentInChildren<MeshRenderer>().material.shader = buildingShaderLit;
+                    //building.GetComponent<Collider>().enabled = true;
+                }
+            } else {
+                foreach (GameObject building in buildings) {
+                    building.GetComponentInChildren<MeshRenderer>().material.shader = buildingShader;
+                    //building.GetComponent<Collider>().enabled = false;
+                }
+            }
+        }
+    }
+
+    private GameObject[] FindGameObjectsInLayer(int layer) {
+        var goArray = Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[];
+        var goList = new System.Collections.Generic.List<GameObject>();
+        for (int i = 0; i < goArray.Length; i++) {
+            if (goArray[i].layer == layer) {
+                goList.Add(goArray[i]);
+            }
+        }
+        if (goList.Count == 0) {
+            return null;
+        }
+        return goList.ToArray();
+    }
+
+
+    public void SendDroneGPSFlightData(double3 latitudeLongitudeHeight, quaternion rotation, float gimbal) {
+        NetworkRPC.SendDroneGPSFlightDataRpc(latitudeLongitudeHeight.x, latitudeLongitudeHeight.y, latitudeLongitudeHeight.z, rotation.value.x, rotation.value.y, rotation.value.z, rotation.value.w, gimbal);
+    }
+
+    public void SendDroneFlightData(Vector3 movement, float yaw, float vertical, float gimbal) {
+        NetworkRPC.SendDroneFlightDataRpc(movement, yaw, vertical, gimbal);
+    }
+
 }

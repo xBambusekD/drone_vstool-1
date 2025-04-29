@@ -21,6 +21,10 @@ public abstract class VideoPlayerControls : MonoBehaviour {
         get; protected set;
     } = false;
 
+    public bool IsPlayingBackward {
+        get; protected set;
+    } = false;
+
     private void Start() {
         playButton.gameObject.SetActive(true);
         pauseButton.gameObject.SetActive(false);
@@ -102,6 +106,14 @@ public abstract class VideoPlayerControls : MonoBehaviour {
         playButton.gameObject.SetActive(true);
         pauseButton.gameObject.SetActive(false);
         IsPlaying = false;
+        IsPlayingBackward = false;
+    }
+
+    public virtual void OnPlayBackward() {
+        // Play only when progress bar already played some messages
+        if (progressBar.value > 0) {
+            IsPlayingBackward = true;
+        }
     }
 
     public abstract void OnProgressBarValueChange(float value);

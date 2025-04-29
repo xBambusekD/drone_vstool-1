@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,8 @@ public class DroneManager : Singleton<DroneManager> {
         }
         private set => activeDrone = value;
     }
+
+    public event EventHandler<float> ActiveDroneFlightDataChanged;
 
     public GameObject DronePrefab;
     public GameObject DronePrefabNoGPS;
@@ -67,10 +70,50 @@ public class DroneManager : Singleton<DroneManager> {
         }
     }
 
+
+    public void HandleReceivedDroneData(DroneFlightData flightData, bool initDrone) {
+        if (initDrone && !Drones.ContainsKey(flightData.client_id)) {
+            DroneStaticData newDrone = new DroneStaticData {
+                client_id = flightData.client_id,
+                drone_name = flightData.client_id,
+                serial = "123456"
+            };
+
+            AddDrone(newDrone);
+        }
+
+        HandleReceivedDroneData(flightData);
+    }
+
+    public void HandleReceivedDroneDataAndForward(DroneFlightData flightData) {
+        if (Drones.ContainsKey(flightData.client_id)) {
+            GameManager.Instance.CenterMap(flightData);
+            Drones[flightData.client_id].UpdateDroneFlightData(flightData);
+            // Send notification to all line height indicators that active drone flight data has changed
+            if (ActiveDrone.FlightData.client_id == flightData.client_id) {
+                ActiveDroneFlightDataChanged?.Invoke(this, ActiveDrone.GetAMSL());
+            }
+
+            // Forward the data to other connected clients
+            WebSocketServer.Instance.SendFlightDataMessageToClients(JsonUtility.ToJson(new WebSocketServerBehavior.Message<DroneFlightData> { type = "data_broadcast", data = Drones[flightData.client_id].GetUpdatedFlightData(includeVideo: true) }));
+            WebSocketServer.Instance.SendFlightDataNoVideoMessageToClients(JsonUtility.ToJson(new WebSocketServerBehavior.Message<DroneFlightData> { type = "data_broadcast", data = Drones[flightData.client_id].GetUpdatedFlightData(includeVideo: false) }));
+
+        } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
+            if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Client) {
+                WebSocketClient.Instance.SendDroneListRequest();
+            }
+        }
+    }
+
+
     public void HandleReceivedDroneData(DroneFlightData flightData) {
         if (Drones.ContainsKey(flightData.client_id)) {
             GameManager.Instance.CenterMap(flightData);
             Drones[flightData.client_id].UpdateDroneFlightData(flightData);
+            // Send notification to all line height indicators that active drone flight data has changed
+            if (ActiveDrone.FlightData.client_id == flightData.client_id) {
+                ActiveDroneFlightDataChanged?.Invoke(this, ActiveDrone.GetAMSL());
+            }
         } else { //prisla data s neznamym drone ID -> pozadame server o novy seznam dronu
             if (GameManager.Instance.CurrentAppMode == GameManager.AppMode.Client) {
                 WebSocketClient.Instance.SendDroneListRequest();
@@ -128,15 +171,16 @@ public class DroneManager : Singleton<DroneManager> {
     }
 
     public void DestroyDroneAll() {
-        if (GameManager.Instance.CurrentAppMode != GameManager.AppMode.Experiment) {
+        //if (GameManager.Instance.CurrentAppMode != GameManager.AppMode.Experiment) {
             foreach (KeyValuePair<string, Drone> drone in Drones) {
                 DestroyDrone(drone.Value);
             }
             Drones.Clear();
-        }
+        //}
     }
 
     public void DestroyDrone(Drone drone) {
+        drone.OnDestroyHandle();
         Destroy(drone.gameObject);
     }
 

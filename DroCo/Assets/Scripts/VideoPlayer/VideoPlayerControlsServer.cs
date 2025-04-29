@@ -29,7 +29,26 @@ public class VideoPlayerControlsServer : VideoPlayerControls {
                 OnPauseButton();
             }
 
-            yield return new WaitForSeconds(0.05f);
+            //yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.033f);
+        }
+    }
+
+    public override void OnPlayBackward() {
+        base.OnPlayBackward();
+
+        StartCoroutine(PlayFlightLogBackward());
+    }
+
+    private IEnumerator PlayFlightLogBackward() {
+        while (IsPlayingBackward) {
+
+            progressBar.value -= 1;
+            if (progressBar.value == 0) {
+                OnPauseButton();
+            }
+
+            yield return new WaitForSeconds(0.033f);
         }
     }
 
@@ -43,11 +62,13 @@ public class VideoPlayerControlsServer : VideoPlayerControls {
         if (progressBar.value == progressBar.maxValue) {
             OnPauseButton();
         } else {
+            //Debug.Log("Current frame: " + (int) value);
             ExperimentManager.Instance.SyncVideoPlayerControls((int) value);
             DroneFlightData currentLogMessage = FlightLogPlayerManager.Instance.PlayLogMessage((int) value);
+            VideoFramePlayer.Instance.PlayFrame((int) value);
             if (currentLogMessage != null) {
                 //ExperimentManager.Instance.SetNewStickConfiguration(currentLogMessage, FlightLogPlayerManager.Instance.GetLogMessagesInterval((int) value));
-                ExperimentManager.Instance.SetNewStickConfiguration(currentLogMessage);
+                ExperimentManager.Instance.SetNewStickConfiguration(currentLogMessage.sticks);
             }
         }
     }
@@ -63,4 +84,5 @@ public class VideoPlayerControlsServer : VideoPlayerControls {
     public override void UpdateProgressBar(int value) {
         progressBar.value = value;
     }
+
 }

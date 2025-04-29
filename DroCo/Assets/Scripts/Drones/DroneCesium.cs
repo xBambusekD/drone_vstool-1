@@ -55,4 +55,20 @@ public class DroneCesium : Drone {
     public override GPS GetDroneLocation() {
         return new GPS() { longitude = GPSLocationNoOffset.x, latitude = GPSLocationNoOffset.y };
     }
+
+    public override GPS GetDroneLocationCalibrated() {
+        return new GPS() { longitude = GPSLocation.longitudeLatitudeHeight.x, latitude = GPSLocation.longitudeLatitudeHeight.y };
+    }
+
+    public override float GetAMSL() {
+        return (float) GPSLocation.longitudeLatitudeHeight.z;
+    }
+
+    public override float GetCorrectedAMSL() {
+        return (float) GPSLocation.longitudeLatitudeHeight.z - AltitudeCorrection;
+    }
+
+    public override float GetAGL() {
+        return (float) lastGroundHeight;
+    }
 }

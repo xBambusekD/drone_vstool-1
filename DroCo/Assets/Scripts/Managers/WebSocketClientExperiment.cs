@@ -130,4 +130,8 @@ public class WebSocketClientExperiment : Singleton<WebSocketClientExperiment> {
     private async void OnApplicationQuit() {
         await websocket?.Close();
     }
+
+    private async void OnDestroy() {
+        await websocket?.Close();
+    }
 }

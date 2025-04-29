@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using CesiumForUnity;
+using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -71,5 +73,13 @@ public class NetworkRPCSync : NetworkBehaviour {
     //    SendDroneConnectionMessageRpc(message, NetworkObjectId);
     //}
 
+    [Rpc(SendTo.NotServer)]
+    public void SendDroneGPSFlightDataRpc(double latitude, double longitude, double height, float x, float y, float z, float w, float gimbal) {
+        DroneController.Instance.UpdateDroneGPSDataFromServer(new double3(latitude, longitude, height), new quaternion(x, y, z, w), gimbal);
+    }
 
+    [Rpc(SendTo.NotServer)]
+    public void SendDroneFlightDataRpc(Vector3 movement, float yaw, float vertical, float gimbal) {
+        DroneController.Instance.UpdateDroneDataFromServer(movement, yaw, vertical, gimbal);
+    }
 }

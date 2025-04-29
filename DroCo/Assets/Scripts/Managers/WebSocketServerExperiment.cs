@@ -174,7 +174,7 @@ public class WebSocketServerExperiment : Singleton<WebSocketServerExperiment> {
     private string clientID;
 
     public void StartServer() {
-        Debug.Log("Starting server");
+        Debug.Log("Starting server on port " + Port);
 
         try {
             Server = new WebSocketSharp.Server.WebSocketServer("ws://" + Address + ":" + Port);
@@ -186,6 +186,12 @@ public class WebSocketServerExperiment : Singleton<WebSocketServerExperiment> {
 
         } catch (Exception ex) {
             Debug.LogError(ex.Message);
+            Debug.LogError(ex.InnerException);
+            if (Server != null) {
+                Server.Stop();
+                Server = null;
+            }
+
             Port = (int.Parse(Port) + 1).ToString();
             StartServer();
             return;
@@ -218,6 +224,13 @@ public class WebSocketServerExperiment : Singleton<WebSocketServerExperiment> {
     }
 
     private void OnApplicationQuit() {
+        if (Server != null) {
+            Server.Stop();
+            Server = null;
+        }
+    }
+
+    private void OnDestroy() {
         if (Server != null) {
             Server.Stop();
             Server = null;

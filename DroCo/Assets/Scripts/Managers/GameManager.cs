@@ -20,7 +20,11 @@ public class GameManager : Singleton<GameManager> {
     public enum AppMode {
         Client,
         Server,
-        Experiment
+        ClientLocal,
+        Experiment,
+        Simulator,
+        MobileTopDown,
+        UgCS
     }
 
     public enum DisplayState {
@@ -62,6 +66,8 @@ public class GameManager : Singleton<GameManager> {
     private ConnectionBar connectionBar;
     [SerializeField]
     private ServerStatusBar serverStatusBar;
+    [SerializeField]
+    private ConnectionScreen connectionScreen;
 
     private ArcGISCameraControllerTouch sceneViewCameraController;
     private ArcGISCameraControllerTouch minimapCameraController;
@@ -79,8 +85,8 @@ public class GameManager : Singleton<GameManager> {
     private void Start() {
         ChangeAppMode(defaultAppMode);
 
-        sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
-        minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
+        sceneViewCameraController = MainCamera?.GetComponent<ArcGISCameraControllerTouch>();
+        minimapCameraController = MinimapCamera?.GetComponent<ArcGISCameraControllerTouch>();
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
@@ -92,14 +98,28 @@ public class GameManager : Singleton<GameManager> {
         switch (CurrentAppMode) {
             case AppMode.Client:
                 CloseServerMode();
+                CloseClientLocalMode();
                 StartClientMode();
                 break;
             case AppMode.Server:
                 CloseClientMode();
+                CloseClientLocalMode();
                 StartServerMode();
                 break;
+            case AppMode.ClientLocal:
+                CloseServerMode();
+                CloseClientMode();
+                StartClientLocalMode();
+                break;
             case AppMode.Experiment:
-                MissionManager.Instance.DisplayMission1(true);
+                ExperimentManager.Instance.LoadMissionTraining(true);
+                break;
+            case AppMode.MobileTopDown:
+                //StartClientNoVideoMode();
+                break;
+            case AppMode.UgCS:
+                break;
+            case AppMode.Simulator:
                 break;
         }
     }
@@ -109,6 +129,24 @@ public class GameManager : Singleton<GameManager> {
         serverStatusBar.gameObject.SetActive(false);
 
         LoadLastServerIP();
+    }
+
+    private void StartClientLocalMode() {
+        connectionBar.gameObject.SetActive(true);
+        serverStatusBar.gameObject.SetActive(false);
+
+        LoadLastServerIP();
+    }
+
+    public void StartClientNoVideoMode(string ip) {
+        WebSocketClientSimpleReceiver.Instance.ConnectToServer(ip, ServerPort, requireVideo: false);
+    }
+
+    private void CloseClientLocalMode() {
+        WebSocketClientSimpleReceiver.Instance.Disconnect();
+
+        // cleanup all drones
+        DroneManager.Instance.DestroyDroneAll();
     }
 
     private void CloseClientMode() {
@@ -150,7 +188,11 @@ public class GameManager : Singleton<GameManager> {
         ServerIP = PlayerPrefs.GetString("serverIP", null);
         connectionBar.SetConnectionStatus(ConnectionStatus.Disconnected);
         if (!string.IsNullOrEmpty(ServerIP)) {
-            WebSocketClient.Instance.ConnectToServer(ServerIP, ServerPort);
+            if (CurrentAppMode == AppMode.Client) {
+                WebSocketClient.Instance.ConnectToServer(ServerIP, ServerPort);
+            } else if (CurrentAppMode == AppMode.ClientLocal) {
+                WebSocketClientSimpleReceiver.Instance.ConnectToServer(ServerIP, ServerPort);
+            }
             connectionBar.SetServerIP(ServerIP);
         }
     }
@@ -158,7 +200,11 @@ public class GameManager : Singleton<GameManager> {
     public void SaveServerIP(string serverIP) {
         ServerIP = serverIP;
         PlayerPrefs.SetString("serverIP", ServerIP);
-        WebSocketClient.Instance.ConnectToServer(ServerIP, ServerPort);
+        if (CurrentAppMode == AppMode.Client) {
+            WebSocketClient.Instance.ConnectToServer(ServerIP, ServerPort);
+        } else if (CurrentAppMode == AppMode.ClientLocal) {
+            WebSocketClientSimpleReceiver.Instance.ConnectToServer(ServerIP, ServerPort);
+        }
     }
 
     private IEnumerator InitSceneView() {
@@ -204,6 +250,14 @@ public class GameManager : Singleton<GameManager> {
         }
     }
 
+    public void HandleClientLocalConnected() {
+        connectionBar.SetConnectionStatus(ConnectionStatus.Connected);
+        if (CurrentAppMode == AppMode.MobileTopDown || CurrentAppMode == AppMode.UgCS) {
+            connectionScreen.OnConnected();
+            connectionScreen.OpenConnectionScreen(false);
+        }
+    }
+
     public void HandleHandshakeDone() {
         WebSocketClient.Instance.SendDroneListRequest();
         connectionBar.SetConnectionStatus(ConnectionStatus.Connected);
@@ -211,6 +265,17 @@ public class GameManager : Singleton<GameManager> {
 
     public void HandleConnectionFailed() {
         connectionBar.SetConnectionStatus(ConnectionStatus.Disconnected);
+        if (CurrentAppMode == AppMode.MobileTopDown || CurrentAppMode == AppMode.UgCS) {
+            connectionScreen.OnDisconnected();
+            //connectionScreen.OpenConnectionScreen(true);
+            DroneManager.Instance.DestroyDroneAll();
+        }
+    }
+
+    public void RestartServer() {
+        CloseServerMode();
+        CameraManager.Instance.SetCameraFPV(false);
+        StartServerMode();
     }
 
     public void CenterMap(DroneFlightData flightData) {
