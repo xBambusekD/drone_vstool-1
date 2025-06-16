@@ -13,64 +13,6 @@ using System.Net.NetworkInformation;
 using Unity.VisualScripting;
 
 
-public class FlightDataForwardBehavior : WebSocketBehavior {
-    protected override void OnOpen() {
-        base.OnOpen();
-        Debug.Log("Connection open on /flightData");
-    }
-
-    protected override void OnClose(CloseEventArgs e) {
-        base.OnClose(e);
-        Debug.Log("Connection close on /flightData: " + e.Reason);
-    }
-
-    protected override void OnError(ErrorEventArgs e) {
-        base.OnError(e);
-        Debug.Log("Connection error on /flightData: " + e.Message + " ..exception: " + e.Exception);
-    }
-
-    protected override void OnMessage(MessageEventArgs e) {
-        base.OnMessage(e);
-        Debug.Log(e.Data);
-
-        try {
-            Send("hello response");
-        } catch (Exception ex) {
-            Debug.LogError(ex.Message);
-        }
-    }
-}
-
-public class FlightDataNoVideoForwardBehavior : WebSocketBehavior {
-    protected override void OnOpen() {
-        base.OnOpen();
-        Debug.Log("Connection open on /flightDataNoVideo");
-    }
-
-    protected override void OnClose(CloseEventArgs e) {
-        base.OnClose(e);
-        Debug.Log("Connection close on /flightDataNoVideo: " + e.Reason);
-    }
-
-    protected override void OnError(ErrorEventArgs e) {
-        base.OnError(e);
-        Debug.Log("Connection error on /flightDataNoVideo: " + e.Message + " ..exception: " + e.Exception);
-    }
-
-    protected override void OnMessage(MessageEventArgs e) {
-        base.OnMessage(e);
-        Debug.Log(e.Data);
-
-        try {
-            Send("hello response");
-        } catch (Exception ex) {
-            Debug.LogError(ex.Message);
-        }
-    }
-}
-
-
-
 public class WebSocketServerBehavior : WebSocketBehavior {
 
     [Serializable]
@@ -117,6 +59,7 @@ public class WebSocketServerBehavior : WebSocketBehavior {
 
         Message<string> msg = JsonUtility.FromJson<Message<string>>(data);
         if (msg.type == "hello") {
+            // Pass generated client ID from the WebSocketBehavior
             DoHandshake(ID, JsonUtility.FromJson<Message<Hello>>(data));
         } else {
             Debug.LogError("Unexpected text message type: " + msg.type);
@@ -232,8 +175,6 @@ public class WebSocketServer : Singleton<WebSocketServer> {
         try {
             Server = new WebSocketSharp.Server.WebSocketServer("ws://" + Address + ":" + Port);
             Server.AddWebSocketService<WebSocketServerBehavior>("/");
-            Server.AddWebSocketService<FlightDataForwardBehavior>("/flightData");
-            Server.AddWebSocketService<FlightDataNoVideoForwardBehavior>("/flightDataNoVideo");
 
             Server.Start();
 
@@ -300,17 +241,16 @@ public class WebSocketServer : Singleton<WebSocketServer> {
     }
 
 
-    public void SendFlightDataMessageToClients(string message) {
-        foreach (string clientID in Server.WebSocketServices["/flightData"].Sessions.IDs) {
-            Server.WebSocketServices["/flightData"].Sessions.SendTo(message, clientID);
+    public void SendMessageToAllClients(string message) {
+        foreach (string clientID in Server.WebSocketServices["/"].Sessions.IDs) {
+            Server.WebSocketServices["/"].Sessions.SendTo(message, clientID);
         }
     }
 
-    public void SendFlightDataNoVideoMessageToClients(string message) {
-        foreach (string clientID in Server.WebSocketServices["/flightDataNoVideo"].Sessions.IDs) {
-            Server.WebSocketServices["/flightDataNoVideo"].Sessions.SendTo(message, clientID);
-        }
+    public void SendMessageToClient(string clientID, string message) {
+        Server.WebSocketServices["/"].Sessions.SendTo(message, clientID);
     }
+
 
     private void OnApplicationQuit() {
         if (Server != null) {

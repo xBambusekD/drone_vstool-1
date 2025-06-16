@@ -49,31 +49,6 @@ public class GimbalOrientation {
 }
 
 [Serializable]
-public class DroneFlightData {
-    public string client_id;
-    public double altitude;
-    public double relative_altitude;
-    public GPS gps;
-    public AircraftOrientation aircraft_orientation;
-    public AircraftVelocity aircraft_velocity;
-    public GimbalOrientation gimbal_orientation;
-    public int satellite_count;
-    public string gps_signal_level;
-    public Sticks sticks;
-    public string timestamp;
-    public byte[] frame;
-
-    public DroneFlightData() {
-        client_id = "unset";
-        altitude = 0;
-    }
-
-    public override string ToString() {
-        return $"{{client_id:{client_id}, altitude:{altitude}, relative_altitude:{relative_altitude}, gps:{gps}, aircraft_orientation:{aircraft_orientation}, gimbal_orientation:{gimbal_orientation}, satellite_count:{satellite_count}, gps_signal_level:{gps_signal_level}, sticks:{sticks}, timestamp:{timestamp}}}";
-    }
-}
-
-[Serializable]
 public class Sticks {
     public Stick left_stick;
     public Stick right_stick;
@@ -103,5 +78,29 @@ public class RemoteController {
     public override string ToString() {
         return $"{{client_id:{client_id}, left_stick:{left_stick}, right_stick:{right_stick}, gimabl_wheel:{gimbal_wheel}}}";
     }
+}
 
+[Serializable]
+public class DroneFlightData {
+    public string client_id;
+    public double altitude;
+    public double relative_altitude;
+    public GPS gps;
+    public AircraftOrientation aircraft_orientation;
+    public AircraftVelocity aircraft_velocity;
+    public GimbalOrientation gimbal_orientation;
+    public int satellite_count;
+    public string gps_signal_level;
+    public Sticks sticks;
+    public string timestamp;
+    public byte[] frame;
+
+    public DroneFlightData() {
+        client_id = "unset";
+        altitude = 0;
+    }
+
+    public override string ToString() {
+        return $"{{client_id:{client_id}, altitude:{altitude}, relative_altitude:{relative_altitude}, gps:{gps}, aircraft_orientation:{aircraft_orientation}, gimbal_orientation:{gimbal_orientation}, satellite_count:{satellite_count}, gps_signal_level:{gps_signal_level}, sticks:{sticks}, timestamp:{timestamp}}}";
+    }
 }
