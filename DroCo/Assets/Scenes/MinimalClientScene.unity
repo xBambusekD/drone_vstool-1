@@ -1358,6 +1358,11 @@ MonoBehaviour:
     roll: 0
     yaw: 0
     throttle: 0
+    gimbal_pitch: 0
+  MAX_PITCH_ROLL: 0.05
+  MAX_YAW_SPEED: 10
+  MAX_THROTTLE: 0.1
+  GIMBAL_PITCH_SPEED: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

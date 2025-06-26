@@ -62,6 +62,15 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Gimbal"",
+                    ""type"": ""Button"",
+                    ""id"": ""bef27ab2-b263-420d-8ed7-388c1f51d98a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -328,6 +337,39 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
                     ""action"": ""Yaw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""06499768-3456-4958-bb62-f3e7f9b151e7"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Gimbal"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""3caa1d66-f6eb-46c3-ac60-afb46f922913"",
+                    ""path"": ""<Keyboard>/numpad3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Gimbal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""05cb3669-85ee-4365-bf0e-5f94c7c32546"",
+                    ""path"": ""<Keyboard>/numpad9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Gimbal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -340,6 +382,7 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
         m_DroneInputs_Roll = m_DroneInputs.FindAction("Roll", throwIfNotFound: true);
         m_DroneInputs_Yaw = m_DroneInputs.FindAction("Yaw", throwIfNotFound: true);
         m_DroneInputs_Vertical = m_DroneInputs.FindAction("Vertical", throwIfNotFound: true);
+        m_DroneInputs_Gimbal = m_DroneInputs.FindAction("Gimbal", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -405,6 +448,7 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
     private readonly InputAction m_DroneInputs_Roll;
     private readonly InputAction m_DroneInputs_Yaw;
     private readonly InputAction m_DroneInputs_Vertical;
+    private readonly InputAction m_DroneInputs_Gimbal;
     public struct DroneInputsActions
     {
         private @DroneVirtualStickInputs m_Wrapper;
@@ -413,6 +457,7 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
         public InputAction @Roll => m_Wrapper.m_DroneInputs_Roll;
         public InputAction @Yaw => m_Wrapper.m_DroneInputs_Yaw;
         public InputAction @Vertical => m_Wrapper.m_DroneInputs_Vertical;
+        public InputAction @Gimbal => m_Wrapper.m_DroneInputs_Gimbal;
         public InputActionMap Get() { return m_Wrapper.m_DroneInputs; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -434,6 +479,9 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
             @Vertical.started += instance.OnVertical;
             @Vertical.performed += instance.OnVertical;
             @Vertical.canceled += instance.OnVertical;
+            @Gimbal.started += instance.OnGimbal;
+            @Gimbal.performed += instance.OnGimbal;
+            @Gimbal.canceled += instance.OnGimbal;
         }
 
         private void UnregisterCallbacks(IDroneInputsActions instance)
@@ -450,6 +498,9 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
             @Vertical.started -= instance.OnVertical;
             @Vertical.performed -= instance.OnVertical;
             @Vertical.canceled -= instance.OnVertical;
+            @Gimbal.started -= instance.OnGimbal;
+            @Gimbal.performed -= instance.OnGimbal;
+            @Gimbal.canceled -= instance.OnGimbal;
         }
 
         public void RemoveCallbacks(IDroneInputsActions instance)
@@ -473,5 +524,6 @@ public partial class @DroneVirtualStickInputs: IInputActionCollection2, IDisposa
         void OnRoll(InputAction.CallbackContext context);
         void OnYaw(InputAction.CallbackContext context);
         void OnVertical(InputAction.CallbackContext context);
+        void OnGimbal(InputAction.CallbackContext context);
     }
 }

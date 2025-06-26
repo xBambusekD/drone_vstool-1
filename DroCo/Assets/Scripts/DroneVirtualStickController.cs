@@ -10,9 +10,10 @@ public class DroneVirtualStickController : MonoBehaviour {
 
     public DroneControlCommand CurrentCommand = new DroneControlCommand();
 
-    public float MAX_PITCH_ROLL = 0.3f;     // m/s
-    public float MAX_YAW_SPEED = 15.0f;    // deg/s
-    public float MAX_THROTTLE = 0.2f;     // m/s
+    public float MAX_PITCH_ROLL = 0.05f;     // m/s
+    public float MAX_YAW_SPEED = 10.0f;    // deg/s
+    public float MAX_THROTTLE = 0.1f;     // m/s
+    public float GIMBAL_PITCH_SPEED = 10.0f;   // deg/s
 
 
     private void Awake() {
@@ -33,6 +34,10 @@ public class DroneVirtualStickController : MonoBehaviour {
         controls.DroneInputs.Vertical.started += VerticalStarted;
         controls.DroneInputs.Vertical.performed += VerticalPerformed;
         controls.DroneInputs.Vertical.canceled += VerticalCanceled;
+
+        controls.DroneInputs.Gimbal.started += GimbalStarted;
+        controls.DroneInputs.Gimbal.performed += GimbalPerformed;
+        controls.DroneInputs.Gimbal.canceled += GimbalCanceled;
     }
 
     private void OnEnable() {
@@ -50,7 +55,7 @@ public class DroneVirtualStickController : MonoBehaviour {
     }
 
     private void PitchPerformed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        float pitch = obj.ReadValue<float>();
+
     }
 
     private void PitchCanceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
@@ -64,7 +69,7 @@ public class DroneVirtualStickController : MonoBehaviour {
     }
 
     private void RollPerformed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        float roll = obj.ReadValue<float>();
+
     }
 
     private void RollCanceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
@@ -78,7 +83,7 @@ public class DroneVirtualStickController : MonoBehaviour {
     }
 
     private void YawPerformed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        float yaw = obj.ReadValue<float>();
+
     }
 
     private void YawCanceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
@@ -93,7 +98,7 @@ public class DroneVirtualStickController : MonoBehaviour {
     }
 
     private void VerticalPerformed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
-        float vertical = obj.ReadValue<float>();
+
     }
 
     private void VerticalCanceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
@@ -101,5 +106,18 @@ public class DroneVirtualStickController : MonoBehaviour {
         CurrentCommand.throttle = vertical;
     }
 
+    private void GimbalStarted(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        float gimbal = obj.ReadValue<float>();
+        CurrentCommand.gimbal_pitch = gimbal * GIMBAL_PITCH_SPEED;
+    }
+
+    private void GimbalPerformed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+
+    }
+
+    private void GimbalCanceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        float gimbal = 0f;
+        CurrentCommand.gimbal_pitch = gimbal;
+    }
 
 }

@@ -10,6 +10,7 @@ public class DroneControlCommand {
     public double roll;
     public double yaw;
     public double throttle;
+    public double gimbal_pitch;
 
 
     public DroneControlCommand() {
@@ -17,10 +18,11 @@ public class DroneControlCommand {
         roll = 0;
         yaw = 0;
         throttle = 0;
+        gimbal_pitch = 0;
     }
 
     public override string ToString() {
-        return $"{{\"pitch\":{pitch}, \"roll\":{roll}, \"yaw\":{yaw}, \"throttle\":{throttle}}}";
+        return $"{{\"pitch\":{pitch}, \"roll\":{roll}, \"yaw\":{yaw}, \"throttle\":{throttle}, \"gimbal_pitch\":{gimbal_pitch}}}";
     }
 }
 
