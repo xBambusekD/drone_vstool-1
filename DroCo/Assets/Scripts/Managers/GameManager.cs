@@ -36,32 +36,40 @@ public class GameManager : Singleton<GameManager> {
 
     [SerializeField]
     private AppMode defaultAppMode = AppMode.Client;
-
+    
+    [Header("Server Related Settings")]
     public string ServerIP = "butcluster.ddns.net";
     public int ServerPort = 5555;
     public int RTMPPort = 1935;
-
-    public string APIKey = "";
-    public ArcGISMapComponent Scene3DViewArcGISMap;
-    public ArcGISMapComponent Map2DViewArcGISMap;
-    public ArcGISCameraComponent MainCamera;
-    public ArcGISCameraComponent MinimapCamera;
-    public GameObject Scene3DView;
-
-    private bool carDetectorRunning = false;
-
-    private bool mapCentered = false;
-    private DroneFlightData firstDroneFlightData;
-
-    [SerializeField]
-    private MinimapUI minimapUI;
     [SerializeField]
     private ConnectionBar connectionBar;
     [SerializeField]
     private ServerStatusBar serverStatusBar;
 
+    [Header("ArcGIS Related Settings")]
+    public string APIKey = "";
+    public ArcGISMapComponent Scene3DViewArcGISMap;
+    public ArcGISMapComponent Map2DViewArcGISMap;
+    public ArcGISCameraComponent MainCamera;
+    public ArcGISCameraComponent MinimapCamera;
+
     private ArcGISCameraControllerTouch sceneViewCameraController;
     private ArcGISCameraControllerTouch minimapCameraController;
+
+    [Header("Cesium Related Settings")]
+    public Camera MainCameraCesium;
+    private MouseCameraController sceneViewCameraControllerCesium;
+
+    [Header("Map Related Settings")]
+    public GameObject Scene3DView;
+    [SerializeField]
+    private MinimapUI minimapUI;
+
+
+    private bool carDetectorRunning = false;
+
+    private bool mapCentered = false;
+    private DroneFlightData firstDroneFlightData;
 
     public AppMode CurrentAppMode {
         get;
@@ -76,8 +84,12 @@ public class GameManager : Singleton<GameManager> {
     private void Start() {
         ChangeAppMode(defaultAppMode);
 
-        sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
-        minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
+        if (MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS) {
+            sceneViewCameraController = MainCamera.GetComponent<ArcGISCameraControllerTouch>();
+        } else if (MapManager.Instance.CurrentMapType == MapManager.MapType.Cesium) {
+            sceneViewCameraControllerCesium = MainCameraCesium.GetComponent<MouseCameraController>();
+        }
+            minimapCameraController = MinimapCamera.GetComponent<ArcGISCameraControllerTouch>();
 
         StartCoroutine(InitSceneView());
     }
@@ -173,7 +185,11 @@ public class GameManager : Singleton<GameManager> {
         CurrentDisplayState = DisplayState.Scene3DView;
         minimapUI.SetSceneView();
 
-        sceneViewCameraController.enabled = CameraManager.Instance.FollowingTarget ? false : true;
+        if (MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS) {
+            sceneViewCameraController.enabled = CameraManager.Instance.FollowingTarget ? false : true;
+        } else if (MapManager.Instance.CurrentMapType == MapManager.MapType.Cesium) {
+            sceneViewCameraControllerCesium.enabled = CameraManager.Instance.FollowingTarget ? false : true;
+        }
         minimapCameraController.enabled = false;
     }
 
@@ -181,7 +197,11 @@ public class GameManager : Singleton<GameManager> {
         CurrentDisplayState = DisplayState.Map2DView;
         minimapUI.SetMinimapView();
 
-        sceneViewCameraController.enabled = false;
+        if (MapManager.Instance.CurrentMapType == MapManager.MapType.ArcGIS) {
+            sceneViewCameraController.enabled = false;
+        } else if (MapManager.Instance.CurrentMapType == MapManager.MapType.Cesium) {
+            sceneViewCameraControllerCesium.enabled = false;
+        }
         minimapCameraController.enabled = true;
     }
 
