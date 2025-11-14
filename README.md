@@ -1,5 +1,5 @@
 # DroCo – V2
-Branch DroCoV2 presents a completely new and clean version 2.0 of the original DroCo, currently still in development. Tested on Unity version 2022.3.23.
+Branch DroCoV2 presents a completely new and clean version 2.0 of the original DroCo, currently still in development. Tested on Unity version 2022.3.62.
 
 ## What's new
  - Possibility to switch to AR.
